@@ -1,0 +1,504 @@
+<title>果蝇神射手工程手册</title>
+<meta name="description" content="果蝇神射手的对接实现、可调参数与想象空间：真实果蝇视觉追踪回路如何接到网页游戏与 Doom。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@600;900&display=swap">
+<style>
+:root{
+  --ground:#EEF1EF; --paper:#FBFCFB; --ink:#16201C; --ink-2:#4E5A55; --ink-3:#77837D;
+  --rule:#D3DAD6; --rule-2:#E3E8E5; --code-bg:#E6EBE8;
+  --real:#00897A; --scr:#B07A12; --les:#C0332A;
+  --ok-bg:#DDEFEA; --warn-bg:#F5EAD3; --bad-bg:#F6DEDA;
+  --serif:"Noto Serif SC","Songti SC","STSong",serif;
+  --sans:"Noto Sans SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+  --mono:"JetBrains Mono","SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#0F1311; --paper:#161B19; --ink:#E0E6E2; --ink-2:#A3AEA8; --ink-3:#7B8781;
+    --rule:#2B3430; --rule-2:#222A26; --code-bg:#1D2421;
+    --real:#16998A; --scr:#C08A26; --les:#DD5446;
+    --ok-bg:#15302B; --warn-bg:#33291A; --bad-bg:#3A1F1C;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0F1311; --paper:#161B19; --ink:#E0E6E2; --ink-2:#A3AEA8; --ink-3:#7B8781;
+  --rule:#2B3430; --rule-2:#222A26; --code-bg:#1D2421;
+  --real:#16998A; --scr:#C08A26; --les:#DD5446;
+  --ok-bg:#15302B; --warn-bg:#33291A; --bad-bg:#3A1F1C;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+body{background:var(--ground);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.75;padding-inline:16px;padding-block:0 64px}
+a{color:var(--real);text-underline-offset:3px;text-decoration-thickness:1px}
+a:hover{color:var(--les)}
+:focus-visible{outline:2px solid var(--les);outline-offset:2px}
+.wrap{max-width:1180px;margin:0 auto}
+code{font-family:var(--mono);font-size:.86em;background:var(--code-bg);padding:1px 5px;border-radius:3px;overflow-wrap:anywhere}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+.label{border-bottom:1px solid var(--rule);padding-block:28px 24px;display:grid;gap:16px}
+.meta{font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:var(--ink-3);display:flex;flex-wrap:wrap;gap:6px 18px;text-transform:uppercase}
+.meta b{color:var(--ink-2);font-weight:600}
+h1{font-family:var(--serif);font-weight:900;font-size:clamp(28px,4.8vw,52px);line-height:1.16;margin:0;text-wrap:balance}
+h1 em{font-style:normal;color:var(--real)}
+.lede{font-size:18px;color:var(--ink-2);max-width:44em;margin:0}
+
+.body{display:grid;grid-template-columns:190px minmax(0,1fr);gap:48px;padding-top:30px}
+@media (max-width:960px){.body{grid-template-columns:1fr;gap:0}.toc{display:none}}
+.toc{position:sticky;top:20px;align-self:start;font-size:14px}
+.toc ol{list-style:none;padding:0;margin:0;display:grid;gap:2px;border-left:1px solid var(--rule)}
+.toc a{display:block;padding:4px 0 4px 14px;color:var(--ink-2);text-decoration:none;margin-left:-1px;border-left:2px solid transparent}
+.toc a:hover{color:var(--ink);border-left-color:var(--real)}
+.toc .k{font-family:var(--mono);font-size:11px;color:var(--ink-3);margin-right:6px}
+main{min-width:0}
+section{padding-block:8px 40px;border-bottom:1px solid var(--rule)}
+section:last-child{border-bottom:0}
+.sec-k{font-family:var(--mono);font-size:12px;letter-spacing:.12em;color:var(--real);text-transform:uppercase;margin:28px 0 4px}
+h2{font-family:var(--serif);font-weight:900;font-size:clamp(24px,3.2vw,32px);line-height:1.28;margin:0 0 16px;text-wrap:balance}
+h3{font-family:var(--serif);font-weight:600;font-size:20px;line-height:1.4;margin:30px 0 10px;text-wrap:balance}
+p,li{max-width:44em}
+p{margin:0 0 14px}
+ul,ol{padding-left:1.3em;margin:0 0 14px}
+li{margin-bottom:6px}
+.note{font-size:14px;color:var(--ink-2)}
+
+figure{margin:10px 0 24px;background:var(--paper);border:1px solid var(--rule);padding:14px 14px 12px}
+.dg-scroll{overflow-x:auto}
+.dg{display:block;width:100%;min-width:720px;height:auto;max-width:100%}
+figcaption{font-size:14px;color:var(--ink-2);line-height:1.65;padding-top:10px;border-top:1px solid var(--rule-2);margin-top:8px}
+.legend{display:flex;flex-wrap:wrap;gap:4px 18px;font-size:13px;color:var(--ink-2);margin:8px 2px 0}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.legend i{display:inline-block;width:22px;height:0;border-top:2px solid}
+.legend i.exc{border-color:var(--real)}
+.legend i.inh{border-color:var(--les);border-top-style:dashed}
+.legend i.tap{border-color:var(--ink-3);border-top-style:dotted}
+.legend i.eng{width:16px;height:12px;border:1.5px dashed var(--scr);background:var(--warn-bg)}
+.legend i.band{width:16px;height:12px;border:0;background:var(--ok-bg)}
+
+/* SVG 样式：全部走主题 token，浅色/深色都可读 */
+.dg text{fill:var(--ink);font-family:var(--sans);font-size:13px}
+.dg .sm{font-size:11.5px;fill:var(--ink-2)}
+.dg .mono{font-family:var(--mono)}
+.dg .b{font-weight:700}
+.dg .box{fill:var(--paper);stroke:var(--ink-3);stroke-width:1.2}
+.dg .eng{fill:var(--warn-bg);stroke:var(--scr);stroke-width:1.5;stroke-dasharray:6 4}
+.dg .band{fill:var(--ok-bg)}
+.dg .flow{stroke:var(--ink-2);stroke-width:1.6;fill:none}
+.dg .exc{stroke:var(--real);stroke-width:2.2;fill:none}
+.dg .inh{stroke:var(--les);stroke-width:2.2;fill:none;stroke-dasharray:7 5}
+.dg .tap{stroke:var(--ink-3);stroke-width:1.4;fill:none;stroke-dasharray:2 4}
+.dg .msg{stroke:var(--real);stroke-width:2;fill:none}
+.dg .thread{stroke:var(--real);stroke-width:1.5;stroke-dasharray:6 5}
+.dg .w{font-family:var(--mono);font-size:12px;paint-order:stroke;stroke:var(--paper);stroke-width:4px;stroke-linejoin:round}
+.dg .wb{paint-order:stroke;stroke:var(--ok-bg);stroke-width:4px;stroke-linejoin:round}
+.dg .w-exc{fill:var(--real)} .dg .w-inh{fill:var(--les)}
+.dg .ah-ink{fill:var(--ink-2)} .dg .ah-exc{fill:var(--real)} .dg .ah-inh{fill:var(--les)} .dg .ah-tap{fill:var(--ink-3)}
+
+.tbl-wrap{overflow-x:auto;margin:6px 0 18px;border:1px solid var(--rule);background:var(--paper)}
+table{border-collapse:collapse;width:100%;font-size:14px;line-height:1.55}
+th,td{text-align:left;vertical-align:top;padding:9px 12px;border-bottom:1px solid var(--rule-2)}
+th{font-size:12px;font-weight:700;color:var(--ink-3);letter-spacing:.05em;background:var(--ground);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td.n{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.group td{background:var(--ground);font-weight:700;font-size:13px;color:var(--ink-2);letter-spacing:.04em}
+tr.hl td{background:color-mix(in srgb,var(--real) 9%,transparent)}
+.pill{display:inline-block;font-size:12px;font-weight:700;padding:1px 8px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-bg);color:var(--real)} .pill.warn{background:var(--warn-bg);color:var(--scr)} .pill.bad{background:var(--bad-bg);color:var(--les)}
+
+.code{margin:8px 0 16px;background:var(--code-bg);border:1px solid var(--rule-2);border-radius:4px}
+.code pre{margin:0;padding:12px 14px;overflow-x:auto;font-family:var(--mono);font-size:13px;line-height:1.65;color:var(--ink)}
+.code .cm{color:var(--ink-3)}
+
+.steps{list-style:none;padding:0;margin:8px 0 18px;counter-reset:s;border-top:1px solid var(--rule)}
+.steps > li{counter-increment:s;display:grid;grid-template-columns:2.6em minmax(0,1fr);gap:10px;padding:12px 0;border-bottom:1px solid var(--rule-2);max-width:none;margin:0}
+.steps > li::before{content:counter(s,decimal-leading-zero);font-family:var(--mono);font-size:13px;color:var(--ink-3);padding-top:2px}
+.steps b{display:block}
+.steps span{font-size:14.5px;color:var(--ink-2)}
+
+.priority{list-style:none;padding:0;margin:8px 0 18px;display:grid;gap:12px}
+.priority > li{max-width:none;margin:0;background:var(--paper);border:1px solid var(--rule);border-left:3px solid var(--real);padding:12px 16px}
+.priority h4{margin:0 0 4px;font-size:16px}
+.priority p{margin:0 0 6px;font-size:14.5px;color:var(--ink-2)}
+.priority p:last-child{margin:0}
+
+.horizon{display:grid;gap:0;border-top:2px solid var(--ink);margin:6px 0 26px}
+.idea{display:grid;grid-template-columns:minmax(0,15em) minmax(0,1fr);gap:6px 24px;padding:14px 0;border-bottom:1px solid var(--rule-2)}
+.idea h4{margin:0;font-size:16px;line-height:1.45}
+.idea h4 small{display:block;font-weight:400;font-size:12.5px;color:var(--ink-3);margin-top:2px}
+.idea p{margin:0 0 4px;font-size:14.5px;color:var(--ink-2);max-width:none}
+.idea .feas{font-size:13px}
+@media (max-width:640px){.idea{grid-template-columns:1fr}}
+.callout{background:var(--paper);border:1px solid var(--rule);padding:14px 18px;margin:10px 0 18px}
+.callout p{margin:0 0 6px;font-size:14.5px}
+.callout p:last-child{margin:0}
+footer{padding-top:24px;font-size:13px;color:var(--ink-3);font-family:var(--mono)}
+</style>
+
+<div class="wrap">
+  <header class="label">
+    <div class="meta"><span><b>fruitfly-lab · 工程手册 v1</b></span><span>fly-aim v1.0.1 · Doom 实验</span><span>2026-09-15</span></div>
+    <h1>果蝇神射手是怎么<em>接起来</em>的，你能调什么，还能往哪走</h1>
+    <p class="lede">一份给“要继续改它的人”的说明：真实果蝇回路从哪来、信号怎么从屏幕上的目标流进 3,963 个神经元再变成按键；每个可调参数在哪个文件、调了会怎样、怎么验证；以及基于同一套数据还能做出什么。</p>
+  </header>
+
+  <div class="body">
+    <nav class="toc" aria-label="目录"><ol>
+      <li><a href="#loop"><span class="k">§1</span>闭环总览</a></li>
+      <li><a href="#runtime"><span class="k">§2</span>两种运行方式</a></li>
+      <li><a href="#pipeline"><span class="k">§3</span>离线数据管线</a></li>
+      <li><a href="#code"><span class="k">§4</span>代码地图</a></li>
+      <li><a href="#tuning"><span class="k">§5</span>调优清单</a></li>
+      <li><a href="#first"><span class="k">§6</span>先做这四件</a></li>
+      <li><a href="#rerun"><span class="k">§7</span>改完重跑什么</a></li>
+      <li><a href="#future"><span class="k">§8</span>想象空间</a></li>
+    </ol></nav>
+    <main>
+
+      <section id="loop">
+        <p class="sec-k">§1 · Closed loop</p>
+        <h2>闭环总览：目标方位进，转向和开火出</h2>
+        <p>整条链路只有两段是人为设定的：进入大脑前的“视觉编码”，和离开大脑后的“读出”。中间所有神经元之间的连接、突触数和兴奋/抑制符号都来自 FlyWire v783 真实数据，不做任何训练。</p>
+        <figure>
+          <div class="dg-scroll">
+          <svg class="dg" viewBox="0 0 980 500" role="img" aria-label="闭环示意：游戏里的目标方位经视觉编码刺激左或右眼的 LC10a，经真实连接组中的 AOTU019（抑制，投射对侧）与 AOTU025（兴奋，投射同侧）到达左右 DNa02，读出把左右差转成转向并在双侧 AOTU019 同时活跃时开火，动作又改变目标方位">
+            <defs>
+              <marker id="m-ink" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah-ink" d="M0,0 L10,5 L0,10 z"/></marker>
+              <marker id="m-exc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah-exc" d="M0,0 L10,5 L0,10 z"/></marker>
+              <marker id="m-inh" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah-inh" d="M0,0 L10,5 L0,10 z"/></marker>
+              <marker id="m-tap" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path class="ah-tap" d="M0,0 L10,5 L0,10 z"/></marker>
+            </defs>
+
+            <!-- 真实数据区 -->
+            <rect class="band" x="318" y="14" width="530" height="412" rx="8"/>
+            <text x="332" y="36" class="b wb">真实连接组 · 3,963 个 LIF 神经元</text>
+
+            <!-- 游戏世界 -->
+            <rect class="box" x="16" y="180" width="118" height="100" rx="6"/>
+            <text x="75" y="224" text-anchor="middle" class="b">游戏世界</text>
+            <text x="75" y="246" text-anchor="middle" class="sm">目标方位 θ</text>
+
+            <!-- 视觉编码（工程） -->
+            <rect class="eng" x="170" y="180" width="118" height="100" rx="6"/>
+            <text x="229" y="214" text-anchor="middle" class="b">视觉编码</text>
+            <text x="229" y="236" text-anchor="middle" class="sm">θ → 泊松刺激</text>
+            <text x="229" y="256" text-anchor="middle" class="sm mono">≤150 Hz</text>
+            <text x="229" y="302" text-anchor="middle" class="sm">|θ|&lt;6° 两眼都刺激</text>
+
+            <line class="flow" x1="134" y1="230" x2="166" y2="230" marker-end="url(#m-ink)"/>
+            <text x="150" y="220" text-anchor="middle" class="sm mono">θ</text>
+            <polyline class="flow" points="288,212 308,212 308,130 332,130" marker-end="url(#m-ink)"/>
+            <polyline class="flow" points="288,248 308,248 308,330 332,330" marker-end="url(#m-ink)"/>
+            <text x="300" y="168" text-anchor="end" class="sm mono">θ&lt;0</text>
+            <text x="300" y="300" text-anchor="end" class="sm mono">θ&gt;0</text>
+
+            <!-- LC10a -->
+            <rect class="box" x="336" y="104" width="120" height="52" rx="6"/>
+            <text x="396" y="126" text-anchor="middle" class="b">LC10a 左</text>
+            <text x="396" y="145" text-anchor="middle" class="sm mono">×115</text>
+            <rect class="box" x="336" y="304" width="120" height="52" rx="6"/>
+            <text x="396" y="326" text-anchor="middle" class="b">LC10a 右</text>
+            <text x="396" y="345" text-anchor="middle" class="sm mono">×119</text>
+
+            <!-- AOTU -->
+            <rect class="box" x="520" y="56" width="120" height="48" rx="6"/>
+            <text x="580" y="76" text-anchor="middle" class="b">AOTU019 左</text>
+            <text x="580" y="94" text-anchor="middle" class="sm">GABA · 中央视野</text>
+            <rect class="box" x="520" y="150" width="120" height="48" rx="6"/>
+            <text x="580" y="170" text-anchor="middle" class="b">AOTU025 左</text>
+            <text x="580" y="188" text-anchor="middle" class="sm">ACh · 外周视野</text>
+            <rect class="box" x="520" y="262" width="120" height="48" rx="6"/>
+            <text x="580" y="282" text-anchor="middle" class="b">AOTU025 右</text>
+            <text x="580" y="300" text-anchor="middle" class="sm">ACh · 外周视野</text>
+            <rect class="box" x="520" y="356" width="120" height="48" rx="6"/>
+            <text x="580" y="376" text-anchor="middle" class="b">AOTU019 右</text>
+            <text x="580" y="394" text-anchor="middle" class="sm">GABA · 中央视野</text>
+
+            <!-- DNa02 -->
+            <rect class="box" x="730" y="104" width="104" height="52" rx="6"/>
+            <text x="782" y="126" text-anchor="middle" class="b">DNa02 左</text>
+            <text x="782" y="145" text-anchor="middle" class="sm">转向下行</text>
+            <rect class="box" x="730" y="304" width="104" height="52" rx="6"/>
+            <text x="782" y="326" text-anchor="middle" class="b">DNa02 右</text>
+            <text x="782" y="345" text-anchor="middle" class="sm">转向下行</text>
+
+            <!-- LC10a → AOTU（兴奋） -->
+            <path class="exc" d="M456,120 C488,120 488,80 516,80" marker-end="url(#m-exc)"/>
+            <path class="exc" d="M456,140 C488,140 488,174 516,174" marker-end="url(#m-exc)"/>
+            <path class="exc" d="M456,320 C488,320 488,286 516,286" marker-end="url(#m-exc)"/>
+            <path class="exc" d="M456,340 C488,340 488,380 516,380" marker-end="url(#m-exc)"/>
+            <text x="486" y="94" text-anchor="middle" class="w w-exc">+1291</text>
+            <text x="486" y="172" text-anchor="middle" class="w w-exc">+1368</text>
+            <text x="486" y="296" text-anchor="middle" class="w w-exc">+1373</text>
+            <text x="486" y="374" text-anchor="middle" class="w w-exc">+1594</text>
+
+            <!-- AOTU025 → 同侧 DNa02（兴奋） -->
+            <path class="exc" d="M640,174 C688,174 700,142 726,142" marker-end="url(#m-exc)"/>
+            <path class="exc" d="M640,286 C688,286 700,318 726,318" marker-end="url(#m-exc)"/>
+            <text x="662" y="194" text-anchor="middle" class="w w-exc">+167</text>
+            <text x="662" y="276" text-anchor="middle" class="w w-exc">+154</text>
+
+            <!-- AOTU019 → 对侧 DNa02（抑制，交叉） -->
+            <path class="inh" d="M640,86 C690,86 690,322 726,332" marker-end="url(#m-inh)"/>
+            <path class="inh" d="M640,374 C690,374 690,138 726,128" marker-end="url(#m-inh)"/>
+            <text x="690" y="104" text-anchor="middle" class="w w-inh">−216</text>
+            <text x="690" y="366" text-anchor="middle" class="w w-inh">−121</text>
+
+            <!-- 读出（工程） -->
+            <rect class="eng" x="866" y="170" width="104" height="120" rx="6"/>
+            <text x="918" y="198" text-anchor="middle" class="b">读出</text>
+            <text x="918" y="220" text-anchor="middle" class="sm">转向 = 右 − 左</text>
+            <text x="918" y="240" text-anchor="middle" class="sm">DNa02 + AOTU019</text>
+            <text x="918" y="262" text-anchor="middle" class="sm">双侧 019 → 开火</text>
+            <path class="flow" d="M834,130 C852,130 850,206 862,206" marker-end="url(#m-ink)"/>
+            <path class="flow" d="M834,330 C852,330 850,254 862,254" marker-end="url(#m-ink)"/>
+
+            <!-- 读出直接取 AOTU019（工程捷径） -->
+            <polyline class="tap" points="600,56 600,48 846,48 900,166" marker-end="url(#m-tap)"/>
+            <polyline class="tap" points="600,404 600,414 846,414 900,294" marker-end="url(#m-tap)"/>
+            <text x="712" y="42" text-anchor="middle" class="sm wb">读取 AOTU019 左</text>
+            <text x="712" y="408" text-anchor="middle" class="sm wb">读取 AOTU019 右</text>
+
+            <text x="332" y="448" class="sm">另有约 3,700 个中间神经元也在传递信号（图中省略）；数值 = 真实突触数 × 正负号</text>
+
+            <!-- 回到游戏 -->
+            <polyline class="flow" points="944,290 944,480 75,480 75,284" marker-end="url(#m-ink)"/>
+            <text x="520" y="472" text-anchor="middle" class="sm">左转 / 右转 / 开火 → 目标方位 θ 改变</text>
+          </svg>
+          </div>
+          <div class="legend">
+            <span><i class="exc"></i>兴奋性连接</span><span><i class="inh"></i>抑制性连接</span>
+            <span><i class="tap"></i>读出直接取数</span><span><i class="eng"></i>工程设定</span><span><i class="band"></i>真实数据</span>
+          </div>
+          <figcaption>目标在右边 → 右眼 LC10a → AOTU025 右兴奋同侧 DNa02 右，同时 AOTU019 右抑制对侧 DNa02 左 → 右减左为正 → 右转。转到正前方时两眼都被刺激，左右 AOTU019 同时活跃 → 开火。子图里 DNa02 没有基线放电，抑制“压不下去”，所以读出直接加上 AOTU019 的左右差（虚线），这是目前最大的工程捷径。</figcaption>
+        </figure>
+        <h3>关键数值</h3>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>环节</th><th>具体做法</th><th>当前值</th></tr></thead>
+          <tbody>
+            <tr><td>目标 → 方位</td><td>网页：目标位置相对果蝇朝向的水平角；Doom：物体标签在屏幕上的中心 x，屏幕 ±45° 放大到果蝇视野 ±90°</td><td class="n">FOV ±90° · FLY_SCALE 2.0</td></tr>
+            <tr><td>方位 → LC10a</td><td>每个 LC10a 有一个“偏好偏心角”（按它连 AOTU019 还是 AOTU025 更多推算），高斯调谐；强度随目标大小/距离变化</td><td class="n">SIGMA 0.3 · MAX_RATE 150 Hz · BINO ±6°</td></tr>
+            <tr><td>神经元</td><td>漏积分放电：静息 −52 mV，阈值 −45 mV，膜时间常数 20 ms，突触时间常数 5 ms，不应期 2.2 ms，突触延迟 1.8 ms</td><td class="n">步长 0.1 ms</td></tr>
+            <tr><td>突触权重</td><td>突触数 × 正负号 × 0.275 mV（Shiu 模型唯一的手调自由参数）</td><td class="n">W_SYN 0.275 mV</td></tr>
+            <tr><td>外部刺激</td><td>泊松脉冲直接给膜电位加 68.75 mV，保证放电</td><td class="n">kick 68.75 mV</td></tr>
+            <tr><td>放电率</td><td>关键群的放电计数换算成 Hz，再做指数平滑</td><td class="n">TAU 0.1 s</td></tr>
+            <tr><td>转向</td><td>steer = (DNa02 右−左) + (AOTU019 右−左)；Doom 超过阈值按键，网页转速 ∝ steer / 阈值（上限 1.6 倍）</td><td class="n">turn_th 130.9 · 140°/s</td></tr>
+            <tr><td>开火</td><td>min(AOTU019 左, 右) &gt; 阈值；网页冷却 0.3 s，命中容差 max(2.5°, 1.8×目标角半径)</td><td class="n">fire_th 95.7</td></tr>
+            <tr><td>搜索</td><td>视野里没有目标且关键神经元都安静时，固定向右转</td><td class="n">quiet_th 5</td></tr>
+          </tbody>
+        </table></div>
+      </section>
+
+      <section id="runtime">
+        <p class="sec-k">§2 · Runtime</p>
+        <h2>两种运行方式：网页异步，Doom 锁步</h2>
+        <p>同一张接线图、同一套方程，在两个宿主里的时间推进方式不同。这决定了调参时要看的指标：网页看“仿真速度是否 1× 实时”，Doom 看“每 tic 的计算耗时”。</p>
+        <figure>
+          <div class="dg-scroll">
+          <svg class="dg" viewBox="0 0 980 360" role="img" aria-label="对比图：网页版主线程与 Web Worker 之间每帧交换刺激频率和放电计数两条消息；Doom 版在一个线程里按 tic 依次完成读画面、跑 286 步神经仿真、读出、按键">
+            <defs>
+              <marker id="r-ink" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah-ink" d="M0,0 L10,5 L0,10 z"/></marker>
+              <marker id="r-msg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah-exc" d="M0,0 L10,5 L0,10 z"/></marker>
+            </defs>
+            <text x="16" y="24" class="b">网页 fly-aim：两个线程，按帧交换消息</text>
+            <rect class="box" x="16" y="40" width="530" height="124" rx="6"/>
+            <text x="28" y="62" class="sm">主线程 · requestAnimationFrame ≈ 60 帧/秒</text>
+            <rect class="box" x="30" y="84" width="112" height="44" rx="4"/><text x="86" y="111" text-anchor="middle">目标移动</text>
+            <rect class="box" x="160" y="84" width="112" height="44" rx="4"/><text x="216" y="111" text-anchor="middle">方位 → 编码</text>
+            <rect class="box" x="290" y="84" width="112" height="44" rx="4"/><text x="346" y="111" text-anchor="middle">读出 → 转/射</text>
+            <rect class="box" x="420" y="84" width="112" height="44" rx="4"/><text x="476" y="111" text-anchor="middle">渲染 + 面板</text>
+            <line class="flow" x1="142" y1="106" x2="157" y2="106" marker-end="url(#r-ink)"/>
+            <line class="flow" x1="272" y1="106" x2="287" y2="106" marker-end="url(#r-ink)"/>
+            <line class="flow" x1="402" y1="106" x2="417" y2="106" marker-end="url(#r-ink)"/>
+            <text x="28" y="152" class="sm">游戏时间 = 墙钟 × 速度倍率（¼× / ½× / 1×）</text>
+
+            <line class="thread" x1="603" y1="34" x2="603" y2="172"/>
+            <text x="603" y="188" text-anchor="middle" class="sm">线程边界</text>
+            <line class="msg" x1="546" y1="80" x2="656" y2="80" marker-end="url(#r-msg)"/>
+            <text x="601" y="72" text-anchor="middle" class="sm">刺激频率</text>
+            <line class="msg" x1="660" y1="128" x2="550" y2="128" marker-end="url(#r-msg)"/>
+            <text x="605" y="148" text-anchor="middle" class="sm">放电计数</text>
+
+            <rect class="box" x="660" y="40" width="304" height="124" rx="6"/>
+            <text x="672" y="62" class="sm">Web Worker · lif-worker.js</text>
+            <text x="672" y="92">每 16 ms 跑 N 步（0.1 ms/步）</text>
+            <text x="672" y="114" class="sm">N = 墙钟 × 速度倍率 ÷ 0.1 ms，上限 1500</text>
+            <text x="672" y="136" class="sm">3,963 个神经元逐个积分、传递放电</text>
+
+            <text x="16" y="218" class="b">Doom：一个线程锁步，游戏等大脑算完</text>
+            <rect class="box" x="16" y="236" width="150" height="56" rx="6"/><text x="91" y="260" text-anchor="middle">ViZDoom tic</text><text x="91" y="279" text-anchor="middle" class="sm mono">1/35 s</text>
+            <rect class="box" x="196" y="236" width="150" height="56" rx="6"/><text x="271" y="260" text-anchor="middle">物体标签 → θ</text><text x="271" y="279" text-anchor="middle" class="sm">敌人方位</text>
+            <rect class="box" x="376" y="236" width="170" height="56" rx="6"/><text x="461" y="260" text-anchor="middle">LIF · numba</text><text x="461" y="279" text-anchor="middle" class="sm mono">286 步 ≈ 2 ms</text>
+            <rect class="box" x="576" y="236" width="150" height="56" rx="6"/><text x="651" y="260" text-anchor="middle">读出 → 按键</text><text x="651" y="279" text-anchor="middle" class="sm">左/右/开火</text>
+            <rect class="box" x="756" y="236" width="150" height="56" rx="6"/><text x="831" y="260" text-anchor="middle">make_action</text><text x="831" y="279" text-anchor="middle" class="sm">推进 1 tic</text>
+            <line class="flow" x1="166" y1="264" x2="193" y2="264" marker-end="url(#r-ink)"/>
+            <line class="flow" x1="346" y1="264" x2="373" y2="264" marker-end="url(#r-ink)"/>
+            <line class="flow" x1="546" y1="264" x2="573" y2="264" marker-end="url(#r-ink)"/>
+            <line class="flow" x1="726" y1="264" x2="753" y2="264" marker-end="url(#r-ink)"/>
+            <polyline class="flow" points="831,292 831,330 91,330 91,296" marker-end="url(#r-ink)"/>
+            <text x="461" y="322" text-anchor="middle" class="sm">下一 tic（同一种子结果可复现）</text>
+          </svg>
+          </div>
+          <figcaption>网页版：画面和大脑各跑各的线程，每帧只交换两条消息（刺激频率 Float32Array、放电计数 Uint16Array），画面不卡；大脑算不过来时，面板上的“仿真 × 实时”会低于 1。Doom 版：每个 tic 都等 286 步仿真算完再按键，适合批量对照实验；前台演示再额外按 35 帧/秒节流到真实时间。</figcaption>
+        </figure>
+      </section>
+
+      <section id="pipeline">
+        <p class="sec-k">§3 · Offline pipeline</p>
+        <h2>离线数据管线：从全脑数据到网页里的 2 MB</h2>
+        <ol class="steps">
+          <li><div><b>下载原始数据</b><span>FlyWire v783 连接表 <code>Connectivity_783.parquet</code>（1,509 万行，随 Shiu 模型仓库）+ 细胞类型标注 <code>flywire_annotations_783.tsv</code>（13.9 万神经元，31 MB）。</span></div></li>
+          <li><div><b>抽子图</b> <code>flycircuit/extract.py</code><span>突触 ≥ 5 的边上，从 LC10a 向下游、从 5 类转向 DN 向上游各走 ≤ 2 步取交集，保留内部全部连接；算出每个 LC10a 的视野位置代理和胞体坐标。输出 <code>circuit/meta.json</code> + <code>circuit/edges.bin</code>。</span></div></li>
+          <li><div><b>对照全脑</b> <code>flycircuit/validate.py</code><span>单眼刺激下，子图、打乱子图、13.9 万神经元 Brian2 全脑三者比较 DNa02 左右放电。</span></div></li>
+          <li><div><b>标定读出阈值</b> <code>doom/fly_doom.py --calibrate</code><span>把单个目标放在 −90°…+90° 共 17 个方位，测回路响应，定出 turn_th / fire_th，写入 <code>doom/results/calibration_fly.json</code>。</span></div></li>
+          <li><div><b>同步到网页</b><span>把 <code>circuit/*</code> 复制到 <code>fly-aim/data/</code>，标定文件复制为 <code>fly-aim/data/cal.json</code>；<code>flycircuit/export_brain_cloud.py</code> 生成 3D 大脑背景点云 <code>brain_cloud.bin</code>。</span></div></li>
+          <li><div><b>部署</b><span>静态文件 rsync 到服务器，资源带 <code>?v=</code> 版本号。</span></div></li>
+        </ol>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>文件</th><th>格式</th><th>大小</th></tr></thead>
+          <tbody>
+            <tr><td><code>edges.bin</code></td><td>CSR 稀疏图：offsets <code>Uint32 × (N+1)</code> | 目标神经元 <code>Uint16 × E</code> | 权重 <code>Int16 × E</code>（突触数 × 正负号）。<b>Uint16 限制子图 ≤ 65,535 个神经元</b></td><td class="n">1.4 MB</td></tr>
+            <tr><td><code>meta.json</code></td><td>每个神经元的 id、细胞类型、左右、神经递质、层、坐标（μm）、LC10a 的 central 代理；关键分组下标；LIF 参数</td><td class="n">0.55 MB</td></tr>
+            <tr><td><code>cal.json</code></td><td>17 个方位的标定曲线 + 阈值</td><td class="n">4 KB</td></tr>
+            <tr><td><code>brain_cloud.bin</code></td><td>13.9 万个胞体 xyz，<code>Int16</code>，单位 0.1 μm</td><td class="n">0.84 MB</td></tr>
+          </tbody>
+        </table></div>
+      </section>
+
+      <section id="code">
+        <p class="sec-k">§4 · Code map</p>
+        <h2>代码地图：每一段逻辑在哪</h2>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>职责</th><th>网页（fly-aim/）</th><th>Python / Doom</th></tr></thead>
+          <tbody>
+            <tr><td>LIF 仿真内核</td><td><code>js/lif-worker.js</code> · <code>step()</code></td><td><code>flycircuit/lif.py</code> · <code>_kernel()</code>（numba）/ numpy 回退</td></tr>
+            <tr><td>打乱接线对照</td><td><code>lif-worker.js</code> · <code>init()</code> 里 Fisher–Yates 打乱 <code>post</code>，种子 101</td><td><code>Circuit.scrambled(seed)</code></td></tr>
+            <tr><td>敲除（静默）</td><td><code>lif-worker.js</code> · <code>mute[i]</code> 钳在静息电位</td><td><code>LIF(silenced=[...])</code></td></tr>
+            <tr><td>视觉编码</td><td><code>js/main.js</code> · <code>encode()</code></td><td><code>doom/fly_doom.py</code> · <code>enemies()</code> + <code>FlyBrain.stim_rates()</code></td></tr>
+            <tr><td>读出规则</td><td><code>js/main.js</code> · <code>readout()</code>；转速在 <code>frame()</code></td><td><code>make_policy()</code> · <code>act()</code></td></tr>
+            <tr><td>命中判定 / 游戏手感</td><td><code>js/main.js</code> · <code>shoot()</code>、<code>GAME</code> 常量</td><td>ViZDoom 自身</td></tr>
+            <tr><td>神经可视化</td><td><code>js/neural-panel.js</code>：分层图 <code>_layoutMap / _drawMap</code>、3D 大脑 <code>_initBrain</code>、轨迹 <code>_drawTrace</code></td><td><code>fly_doom.py</code> · <code>overlay()</code>（录像右侧面板）</td></tr>
+            <tr><td>浮窗 / 双语</td><td><code>js/window-manager.js</code>、<code>js/i18n.js</code></td><td>—</td></tr>
+            <tr><td>统计</td><td>战绩窗按条件累计</td><td><code>doom/analyze.py</code>（置换检验、自助法置信区间、瞄准质量）</td></tr>
+          </tbody>
+        </table></div>
+      </section>
+
+      <section id="tuning">
+        <p class="sec-k">§5 · Tuning</p>
+        <h2>调优清单：改哪里、会怎样、怎么验证</h2>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>参数</th><th>位置</th><th>当前</th><th>调了会怎样</th><th>怎么验证</th></tr></thead>
+          <tbody>
+            <tr class="group"><td colspan="5">回路规模</td></tr>
+            <tr><td>突触阈值 THR</td><td><code>extract.py</code></td><td class="n">5</td><td>调低纳入更多弱连接，右侧 DNa02 偏弱的问题有望改善；神经元与连接数迅速上升（见下表）</td><td><code>validate.py</code> 看右眼刺激时 DNa02 右是否接近全脑 58.8 Hz</td></tr>
+            <tr><td>路径深度 DEPTH</td><td><code>extract.py</code></td><td class="n">2</td><td>3 步会把大量视觉通路拉进来，行为更接近全脑，但网页难以实时</td><td>同上 + 网页面板“仿真 × 实时”是否 ≥ 1</td></tr>
+            <tr><td>转向 DN 集合 STEER</td><td><code>extract.py</code></td><td class="n">DNa01/02/03/04/11</td><td>加入 MDN（后退）、DNp01（逃逸）等，可支持新动作</td><td>标定曲线里新 DN 是否随方位变化</td></tr>
+            <tr class="group"><td colspan="5">神经元模型</td></tr>
+            <tr><td>突触权重 W_SYN</td><td><code>extract.py</code> → <code>meta.json</code></td><td class="n">0.275 mV</td><td>调大信号传得更远、活跃神经元更多，过大易全网爆发；调小回路变“迟钝”</td><td><code>validate.py</code> 与全脑对比；面板活跃数</td></tr>
+            <tr><td>刺激上限 MAX_RATE</td><td><code>main.js ENC</code> / <code>fly_doom.py</code></td><td class="n">150 Hz</td><td>调低模拟更弱的视觉输入，远处目标可能不再触发转向</td><td>重新标定，看曲线幅度</td></tr>
+            <tr><td>平滑 TAU</td><td>同上</td><td class="n">0.1 s</td><td>调小反应更快但转向抖动；调大更稳但跟不上快目标</td><td>Doom 录像看过冲；网页轨迹图</td></tr>
+            <tr class="group"><td colspan="5">视觉编码</td></tr>
+            <tr><td>调谐宽度 SIGMA</td><td><code>main.js ENC</code> / <code>fly_doom.py</code></td><td class="n">0.3</td><td>调窄，中央/外周分工更尖锐，死区可能变大；调宽两条通路混在一起</td><td>标定图里 AOTU019 与 AOTU025 的方位偏好曲线</td></tr>
+            <tr><td>双眼区 BINO</td><td>同上</td><td class="n">±6°</td><td>加宽更容易开火但更容易打偏；收窄更准但开火变少</td><td>Doom 命中率 vs 击杀数</td></tr>
+            <tr><td>视野放大 FLY_SCALE</td><td><code>fly_doom.py</code></td><td class="n">2.0</td><td>调大让屏幕上小偏差也映射成大方位，外周通路更常被用到</td><td>analyze 的“转错方向”与击杀</td></tr>
+            <tr class="group"><td colspan="5">读出与开火</td></tr>
+            <tr><td>turn_th / fire_th</td><td><code>cal.json</code>（由标定生成）</td><td class="n">130.9 / 95.7</td><td>手动调低：更积极转向和开火，弹药消耗快；调高：更保守</td><td>改标定公式后重跑 <code>--calibrate</code> 与 7 组对照</td></tr>
+            <tr><td>读出公式</td><td><code>main.js readout()</code> / <code>fly_doom.py act()</code></td><td>DNa02 差 + AOTU019 差</td><td>加入 DNa01、DNa03 差可利用更多转向信号；去掉 AOTU019 项需要先给 DNa02 基线（§6 第 4 条）</td><td>打乱对照是否仍明显更差</td></tr>
+            <tr><td>Doom 转向方式</td><td><code>fly_doom.py act()</code></td><td>阈值开关</td><td>改成按 steer 大小决定一段时间里按键的 tic 占比，减少过冲</td><td>击杀、存活时间</td></tr>
+            <tr class="group"><td colspan="5">网页手感</td></tr>
+            <tr><td>转速 TURN_SPEED</td><td><code>main.js GAME</code></td><td class="n">140°/s</td><td>更快更灵，但比例转向容易来回摆</td><td>战绩窗击杀/分</td></tr>
+            <tr><td>冷却 / 命中容差</td><td><code>main.js GAME</code>、<code>shoot()</code></td><td class="n">0.3 s · max(2.5°, 1.8×)</td><td>放宽容差命中率上升，但会掩盖瞄准误差</td><td>真实 vs 打乱两行战绩的差距</td></tr>
+            <tr class="group"><td colspan="5">性能</td></tr>
+            <tr><td>每次最多步数</td><td><code>lif-worker.js loop()</code></td><td class="n">1500 / 16 ms</td><td>子图变大后需要降速倍率或换 WebAssembly / WebGPU</td><td>面板“仿真 × 实时”</td></tr>
+            <tr><td>Python 内核</td><td><code>lif.py</code></td><td>numba</td><td>无 numba 时退回 numpy（每步约 28 μs，每 tic 约 8 ms）</td><td>标定耗时</td></tr>
+            <tr class="group"><td colspan="5">实验严谨性</td></tr>
+            <tr><td>局数 / 打乱种子</td><td><code>fly_doom.py --episodes</code>、<code>scrambled(seed)</code></td><td class="n">10 局 · 1 个种子</td><td>30 局 + 5 个打乱种子，结论更稳；目前 fly 与 oracle 差异不显著</td><td>analyze 置信区间变窄</td></tr>
+          </tbody>
+        </table></div>
+        <h3>回路规模实测（本机 FlyWire v783）</h3>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>THR</th><th>DEPTH</th><th>神经元</th><th>连接</th><th>评估</th></tr></thead>
+          <tbody>
+            <tr><td class="n">10</td><td class="n">2</td><td class="n">1,689</td><td class="n">118,269</td><td><span class="pill ok">轻</span> 手机也能实时，可能丢关键旁路</td></tr>
+            <tr class="hl"><td class="n">5</td><td class="n">2</td><td class="n">3,963</td><td class="n">354,879</td><td><span class="pill ok">当前</span> 网页 1× 实时，右侧偏弱</td></tr>
+            <tr><td class="n">3</td><td class="n">2</td><td class="n">9,201</td><td class="n">1,027,309</td><td><span class="pill warn">推荐下一步</span> 网页可能接近实时，需实测</td></tr>
+            <tr><td class="n">10</td><td class="n">3</td><td class="n">13,395</td><td class="n">1,740,571</td><td><span class="pill warn">中</span> 需降速或 WebAssembly</td></tr>
+            <tr><td class="n">5</td><td class="n">3</td><td class="n">48,923</td><td class="n">6,587,775</td><td><span class="pill bad">重</span> 适合 Python 离线实验</td></tr>
+            <tr><td class="n">3</td><td class="n">3</td><td class="n">86,144</td><td class="n">11,230,337</td><td><span class="pill bad">超出</span> 超过 Uint16 上限，需改 edges.bin 格式</td></tr>
+          </tbody>
+        </table></div>
+      </section>
+
+      <section id="first">
+        <p class="sec-k">§6 · Start here</p>
+        <h2>如果只做四件事，先做这些</h2>
+        <ol class="priority">
+          <li><h4>1. 修右侧偏弱</h4><p>把 THR 从 5 降到 3 重抽子图（9,201 个神经元），跑 <code>validate.py</code>。目标：右眼刺激时子图 DNa02 右从 4 Hz 接近全脑的 58.8 Hz。这是“子图可信度”的头号问题。</p><p class="note">改动：<code>extract.py</code> 一行；耗时：抽取几秒 + 全脑对照约 4 分钟。</p></li>
+          <li><h4>2. 让结论更硬</h4><p>每组 30 局，打乱接线换 5 个不同种子，再加一组“完全随机图”（同样的神经元数和连接数）。现在“真实接线 ≫ 打乱”已经显著，但 fly 与上限、敲除 AOTU025 的结论样本还偏少。</p><p class="note">改动：命令行参数 + <code>scrambled()</code> 的种子循环；耗时：M5 上并行约 10–20 分钟。</p></li>
+          <li><h4>3. Doom 改成比例转向</h4><p>现在超过阈值就整 tic 转，容易冲过头。改成“steer 越大，接下来几个 tic 里按转向键的比例越高”，和网页的比例转向一致，更贴近“DNa02 左右差决定转向角速度”。</p><p class="note">改动：<code>fly_doom.py act()</code> 加一个脉宽计数器。</p></li>
+          <li><h4>4. 去掉读 AOTU019 的捷径</h4><p>给左右 DNa02 注入一个小的恒定偏置电流，让它有基线放电，这样 AOTU019 的对侧抑制能直接压低 DN，读出就可以只读 DNa02。注意不能复用现在的泊松刺激（每个脉冲 +68.75 mV 会强制放电），需要在内核里加一个单独的偏置项。</p><p class="note">改动：<code>lif.py _kernel</code> 与 <code>lif-worker.js step()</code> 各加一个 bias 数组；然后重标定、重跑对照。这一步做完，报告里“敲除 AOTU019 → 0 击杀部分由规则决定”的限制就可以去掉。</p></li>
+        </ol>
+      </section>
+
+      <section id="rerun">
+        <p class="sec-k">§7 · Rerun matrix</p>
+        <h2>改完参数，要重跑什么</h2>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>你改了</th><th>抽子图</th><th>全脑验证</th><th>标定</th><th>7 组对照 + 统计</th><th>同步网页 data/</th><th>部署</th></tr></thead>
+          <tbody>
+            <tr><td>THR / DEPTH / STEER / W_SYN</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+            <tr><td>SIGMA / MAX_RATE / BINO / TAU</td><td></td><td></td><td>✓</td><td>✓</td><td>✓ cal.json</td><td>✓</td></tr>
+            <tr><td>读出公式 / 阈值规则</td><td></td><td></td><td>✓</td><td>✓</td><td>✓ cal.json</td><td>✓</td></tr>
+            <tr><td>LIF 内核（加偏置等）</td><td></td><td>✓</td><td>✓</td><td>✓</td><td>✓ 两边内核都改</td><td>✓</td></tr>
+            <tr><td>网页手感（转速、冷却、容差）</td><td></td><td></td><td></td><td></td><td></td><td>✓</td></tr>
+          </tbody>
+        </table></div>
+        <div class="code"><pre><span class="cm"># fruitfly-lab 目录下的完整重跑</span>
+Drosophila_brain_model/.venv/bin/python flycircuit/extract.py
+Drosophila_brain_model/.venv/bin/python flycircuit/validate.py
+doom-play/.venv/bin/python doom/fly_doom.py --calibrate
+for p in fly scrambled scrambled_cal lesion lesion025 random oracle; do doom-play/.venv/bin/python doom/fly_doom.py --policy $p --episodes 10 --record & done; wait
+doom-play/.venv/bin/python doom/analyze.py
+cp circuit/meta.json circuit/edges.bin fly-aim/data/ &amp;&amp; cp doom/results/calibration_fly.json fly-aim/data/cal.json
+<span class="cm"># 部署前把 index.html 与 main.js 里的 ?v= 版本号一起升级</span></pre></div>
+        <p class="note">网页版与 Python 版各有一份内核和编码常量（<code>lif-worker.js</code> ↔ <code>lif.py</code>，<code>main.js ENC</code> ↔ <code>fly_doom.py</code> 顶部常量）。改一边一定同步另一边，否则网页和 Doom 的结论对不上。</p>
+      </section>
+
+      <section id="future">
+        <p class="sec-k">§8 · What else</p>
+        <h2>想象空间：同一套数据和框架还能做什么</h2>
+        <div class="callout">
+          <p><b>框架可复用的部分</b>：“按细胞类型从连接组抽子图 → LIF 实时仿真 → 工程编码/读出 → 接宿主 → 打乱与敲除对照 → 神经可视化”。换一组起点和终点神经元，就是一个新项目。</p>
+          <p><b>不变的边界</b>：接线图给结构，不给学习、记忆和精确的突触强度；任何新玩法都应保留打乱接线对照，才能说明“是接线在起作用”。</p>
+        </div>
+
+        <h3>近期 · 用现有代码几天可做</h3>
+        <div class="horizon">
+          <div class="idea"><h4>躲避游戏<small>逃逸回路</small></h4><div><p>换起点为 LPLC2 / LC4（检测逼近物体），终点为巨纤维 DNp01。本机数据里 LPLC2 左 108 / 右 102 个、LC4 左 54 / 右 50 个，LPLC2 右 → DNp01 右 622 个突触、左侧 458 个。玩家朝果蝇扔东西，看它能不能“起飞”躲开。</p><p class="feas"><span class="pill ok">可行</span> 抽子图参数改两行，编码换成“物体逼近速度”。</p></div></div>
+          <div class="idea"><h4>雌雄对照<small>MaleCNS</small></h4><div><p>9 月发布的雄性全中枢连接组（166,691 个神经元）里同样有 LC10a 追踪通路，而它在求偶追逐中起作用。用同一套抽取与标定，比较雌雄果蝇的瞄准曲线与击杀差异。</p><p class="feas"><span class="pill warn">需数据接入</span> neuPrint 登录取 token，或下载官方批量文件；ID 体系与 FlyWire 不同，需要重写抽取脚本的读入部分。</p></div></div>
+          <div class="idea"><h4>对战模式<small>多只果蝇</small></h4><div><p>同一场景放两只果蝇：一只真实接线、一只打乱接线（或敲除），抢同一批目标。把对照实验变成直观的比赛，适合做传播和课堂演示。</p><p class="feas"><span class="pill ok">可行</span> 开两个 Worker；每只 3,963 神经元，M5 上两只仍可实时。</p></div></div>
+          <div class="idea"><h4>课堂敲除实验室</h4><div><p>预设任务卡：“找出让果蝇只会左转的敲除组合”“哪一个神经元对开火最关键”，学生在网页里提交答案，战绩窗自动记分。</p><p class="feas"><span class="pill ok">可行</span> 纯前端；可加分享链接保存实验条件。</p></div></div>
+        </div>
+
+        <h3>中期 · 需要新模块，数周级</h3>
+        <div class="horizon">
+          <div class="idea"><h4>真正的复眼视觉</h4><div><p>用连接组约束的果蝇视觉模型（Lappalainen 等 2024，64 种视觉细胞类型）从像素算出 LC10a 输入，替换“直接给方位角”的捷径。这是报告里第 1 条局限的正解。</p><p class="feas"><span class="pill warn">中等</span> PyTorch 模型，Doom 离线跑可行；网页需要压缩或服务端推理。</p></div></div>
+          <div class="idea"><h4>有身体的追逐</h4><div><p>把回路接到 NeuroMechFly（FlyGym 2.1，本机已装好并跑通走路），用 DNa02 左右差控制转向步态，让一只物理模拟的果蝇在地面上追目标。</p><p class="feas"><span class="pill warn">中等</span> 本机实测：CPU 上模拟 2 秒行走耗时 22 秒，适合录视频，不适合实时交互。</p></div></div>
+          <div class="idea"><h4>让它学会<small>蘑菇体可塑性</small></h4><div><p>加入蘑菇体 Kenyon 细胞 → MBON 的多巴胺依赖可塑性：打中“好目标”给奖励，打中“坏目标”给惩罚，看果蝇能否学会挑目标。社区 DOOMFLY 尝试过类似思路但未通过自己的验证，值得严谨地重做。</p><p class="feas"><span class="pill bad">有难度</span> 需要扩展子图到蘑菇体、实现三因子学习规则，并设计对照。</p></div></div>
+          <div class="idea"><h4>更大的网页大脑</h4><div><p>用 WebGPU 或 WebAssembly 重写内核，把 DEPTH=3 的 48,923 个神经元搬进浏览器，3D 大脑视图里能看到更大范围的视觉脑区被点亮。</p><p class="feas"><span class="pill warn">中等</span> 边列表需改为 Uint32 目标索引；性能需实测。</p></div></div>
+        </div>
+
+        <h3>远景 · 值得保持关注</h3>
+        <div class="horizon">
+          <div class="idea"><h4>实体机器人</h4><div><p>小车或无人机用摄像头检测目标，跑同一个 3,963 神经元回路决定转向。整张图只有约 2 MB，树莓派级别的设备有望实时（需要 C 或 Rust 内核，未实测）。</p><p class="feas"><span class="pill warn">探索性</span> 可做成“用真实昆虫大脑接线控制的机器人”展示。</p></div></div>
+          <div class="idea"><h4>类脑芯片</h4><div><p>Eon Systems 开源的果蝇大脑仓库列出了类脑芯片后端。LIF + 稀疏连接天然适合脉冲芯片，是低功耗运行的方向。</p><p class="feas"><span class="pill bad">依赖硬件</span> 目前只能关注。</p></div></div>
+          <div class="idea"><h4>可解释性对照</h4><div><p>同一任务上并排比较“接线完全已知的果蝇回路”和训练出来的小神经网络：谁更省数据、谁更好解释、敲除一个单元时谁更鲁棒。对 AI 可解释性教学很有说服力。</p><p class="feas"><span class="pill ok">可行</span> Doom 实验框架直接复用。</p></div></div>
+          <div class="idea"><h4>下一个物种</h4><div><p>Janelia 正在推进带活动记录的斑马鱼幼鱼全脑连接组。框架里与物种相关的只有抽取和编码两步，数据一公开就能迁移。</p><p class="feas"><span class="pill bad">等数据</span></p></div></div>
+        </div>
+        <footer>fruitfly-lab · 工程手册 v1 · 数值来自本机 2026-09-15 实测与 doom/results/analysis.json</footer>
+      </section>
+    </main>
+  </div>
+</div>
