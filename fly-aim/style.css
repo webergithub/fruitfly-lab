@@ -162,7 +162,7 @@ table.cond td:first-child { font-family: inherit; color: var(--txt); }
 table.cond tr.now td { color: var(--gold-lite); }
 
 /* ── 说明 ── */
-.about { padding: 8px 16px 16px; overflow: auto; }
+.about { padding: 8px 16px 16px; overflow: auto; flex: 1; min-height: 0; }
 .about h3 { font-size: 12px; color: var(--gold-lite); margin: 12px 0 4px; letter-spacing: .03em; }
 .about ul { margin: 0; padding-left: 1.2em; }
 .about li { margin: 3px 0; color: var(--txt); font-size: 12px; }
@@ -179,3 +179,12 @@ table.cond tr.now td { color: var(--gold-lite); }
   #win-lab.win-hidden, #win-score.win-hidden { display: none !important; }
 }
 @media (prefers-reduced-motion: reduce) { .meter .bar i, .steer-track .needle { transition: none; } }
+
+/* 关于窗：静态双语正文（给搜索引擎与 AI 读取），按页面语言显示其一 */
+html[lang="en"] .about .lang-zh, html:not([lang="en"]) .about .lang-en { display: none; }
+.about h2 { font-size: 14px; color: var(--gold-lite); margin: 10px 0 6px; line-height: 1.45; }
+.about p { margin: 4px 0 8px; font-size: 12px; color: var(--txt); }
+.about dl { margin: 4px 0 8px; }
+.about dt { font-size: 12px; font-weight: 700; color: var(--gold-lite); margin-top: 8px; }
+.about dd { margin: 2px 0 0; font-size: 12px; color: var(--muted); }
+.about a { color: var(--gold); }

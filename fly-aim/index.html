@@ -3,28 +3,52 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>果蝇神射手 · Fly Marksman</title>
-<meta name="description" content="用 FlyWire 真实果蝇视觉追踪回路（3,963 个神经元）实时驱动瞄准射击，并可视化每一次神经放电。">
+<title>果蝇神射手 Fly Marksman — 真实果蝇大脑连接组实时瞄准射击与神经元可视化 | OPC Studio</title>
+<meta name="description" content="用 FlyWire 真实果蝇大脑连接组中的视觉追踪回路（3,963 个脉冲神经元、35 万条连接，不经训练）在浏览器里实时瞄准射击，同屏可视化每个神经元的放电，可打乱接线或敲除神经元做对照实验。Fly Marksman: a real Drosophila connectome pursuit circuit (3,963 spiking neurons, no training) aims and fires in your browser with live neuron-level visualization.">
+<meta name="keywords" content="果蝇大脑模拟, 果蝇连接组, 数字果蝇, 果蝇 AI, 全脑仿真, 类脑计算, 脉冲神经网络, 神经元可视化, 果蝇玩游戏, FlyWire, fruit fly brain simulation, Drosophila connectome, spiking neural network, brain emulation, whole-brain model, LC10a, DNa02, Three.js, OPC Studio">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="https://opcstudio.cc/fly-aim/">
+<link rel="alternate" hreflang="zh-CN" href="https://opcstudio.cc/fly-aim/">
+<link rel="alternate" hreflang="en" href="https://opcstudio.cc/fly-aim/">
+<link rel="alternate" hreflang="x-default" href="https://opcstudio.cc/fly-aim/">
+<meta name="theme-color" content="#0d0a07">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="OPC Studio">
+<meta property="og:title" content="果蝇神射手 Fly Marksman — 真实果蝇大脑连接组实时瞄准射击与神经元可视化 | OPC Studio">
+<meta property="og:description" content="用 FlyWire 真实果蝇大脑连接组中的视觉追踪回路（3,963 个脉冲神经元、35 万条连接，不经训练）在浏览器里实时瞄准射击，同屏可视化每个神经元的放电，可打乱接线或敲除神经元做对照实验。Fly Marksman: a real Drosophila connectome pursuit circuit (3,963 spiking neurons, no training) aims and fires in your browser with live neuron-level visualization.">
+<meta property="og:url" content="https://opcstudio.cc/fly-aim/">
+<meta property="og:image" content="https://opcstudio.cc/fly-aim/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="果蝇神射手：左侧为 3,963 个神经元的实时回路图，中间是 3D 果蝇与目标，右侧为实验台">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:locale:alternate" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="果蝇神射手 Fly Marksman — 真实果蝇大脑连接组实时瞄准射击与神经元可视化 | OPC Studio">
+<meta name="twitter:description" content="用 FlyWire 真实果蝇大脑连接组中的视觉追踪回路（3,963 个脉冲神经元、35 万条连接，不经训练）在浏览器里实时瞄准射击，同屏可视化每个神经元的放电，可打乱接线或敲除神经元做对照实验。Fly Marksman: a real Drosophila connectome pursuit circuit (3,963 spiking neurons, no training) aims and fires in your browser with live neuron-level visualization.">
+<meta name="twitter:image" content="https://opcstudio.cc/fly-aim/og.png">
+<script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "WebApplication", "@id": "https://opcstudio.cc/fly-aim/#app", "name": "Fly Marksman", "alternateName": "果蝇神射手", "url": "https://opcstudio.cc/fly-aim/", "description": "用 FlyWire 真实果蝇大脑连接组中的视觉追踪回路（3,963 个脉冲神经元、35 万条连接，不经训练）在浏览器里实时瞄准射击，同屏可视化每个神经元的放电，可打乱接线或敲除神经元做对照实验。Fly Marksman: a real Drosophila connectome pursuit circuit (3,963 spiking neurons, no training) aims and fires in your browser with live neuron-level visualization.", "image": "https://opcstudio.cc/fly-aim/og.png", "applicationCategory": "EducationalApplication", "genre": "Neuroscience simulation game", "operatingSystem": "Any (web browser with WebGL)", "inLanguage": ["zh-CN", "en"], "isAccessibleForFree": true, "keywords": "果蝇大脑模拟, 果蝇连接组, 数字果蝇, 果蝇 AI, 全脑仿真, 类脑计算, 脉冲神经网络, 神经元可视化, 果蝇玩游戏, FlyWire, fruit fly brain simulation, Drosophila connectome, spiking neural network, brain emulation, whole-brain model, LC10a, DNa02, Three.js, OPC Studio", "dateModified": "2026-09-15", "featureList": ["Real FlyWire connectome pursuit circuit (3,963 LIF neurons)", "Live neuron-level activity map and 3D brain view", "Scrambled-wiring and neuron-silencing controls", "Bilingual Chinese / English"], "author": {"@type": "Organization", "name": "OPC Studio", "url": "https://opcstudio.cc/"}, "sameAs": ["https://github.com/webergithub/fruitfly-lab"], "isBasedOn": [{"@type": "Dataset", "name": "FlyWire whole-brain connectome and annotations (v783)", "url": "https://github.com/flyconnectome/flywire_annotations"}, {"@type": "SoftwareSourceCode", "name": "Drosophila brain model (Shiu et al. 2024)", "codeRepository": "https://github.com/philshiu/Drosophila_brain_model"}, {"@type": "ScholarlyArticle", "name": "Specialized parallel pathways for adaptive control of visual object pursuit", "url": "https://www.cell.com/neuron/fulltext/S0896-6273(26)00001-2"}]}, {"@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "OPC Studio", "item": "https://opcstudio.cc/"}, {"@type": "ListItem", "position": 2, "name": "果蝇神射手 Fly Marksman", "item": "https://opcstudio.cc/fly-aim/"}]}, {"@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "果蝇神射手是什么？", "acceptedAnswer": {"@type": "Answer", "text": "一个浏览器里的 3D 瞄准射击实验：目标出现在果蝇视野中后，由 FlyWire 真实果蝇大脑连接组中的视觉追踪回路（3,963 个脉冲神经元、354,879 条连接，不经任何训练）实时计算转向与开火，并同屏可视化每个神经元的放电。"}}, {"@type": "Question", "name": "真的是果蝇大脑在瞄准吗？", "acceptedAnswer": {"@type": "Answer", "text": "回路结构（谁连着谁、突触数量、兴奋或抑制）来自真实连接组，神经元方程与参数来自 Shiu 等人 2024 年发表在 Nature 的全脑 LIF 模型。视觉编码、开火规则与阈值是工程设定；它没有学习和记忆，也不是完整的大脑。"}}, {"@type": "Question", "name": "用的是哪条神经回路？", "acceptedAnswer": {"@type": "Answer", "text": "果蝇追踪移动小物体时使用的视觉通路：LC10a（检测小的移动物体）→ AOTU019（GABA，投射对侧，中央视野）与 AOTU025（乙酰胆碱，投射同侧，外周视野）→ DNa02（转向下行神经元），左右 DNa02 的放电差决定转向。"}}, {"@type": "Question", "name": "打乱接线或敲除神经元会怎样？", "acceptedAnswer": {"@type": "Answer", "text": "在同一回路驱动的 Doom“守中心”对照实验中（每组 10 局、相同随机种子），真实接线平均每局击杀 10.2，保持连接数与正负号只打乱连接对象后仅 0.7（p≈0.002），敲除 AOTU025 为 5.5；直接读取敌人方位的上限为 11.5。"}}, {"@type": "Question", "name": "需要安装吗？代码开源吗？", "acceptedAnswer": {"@type": "Answer", "text": "不需要安装，支持 WebGL 的现代浏览器即可，神经仿真在 Web Worker 中实时运行。代码与实验脚本开源于 GitHub 仓库 webergithub/fruitfly-lab。"}}, {"@type": "Question", "name": "What is Fly Marksman?", "acceptedAnswer": {"@type": "Answer", "text": "A 3D aim-and-shoot experiment in the browser: when a target enters the fly's field of view, a pursuit circuit taken from the real FlyWire fruit fly connectome (3,963 spiking neurons, 354,879 connections, no training) computes steering and firing in real time, and every neuron's spikes are visualized on screen."}}, {"@type": "Question", "name": "Is a fruit fly brain really doing the aiming?", "acceptedAnswer": {"@type": "Answer", "text": "The wiring (who connects to whom, synapse counts, excitatory or inhibitory sign) comes from the real connectome, and the neuron equations follow the Shiu et al. 2024 Nature whole-brain LIF model. The visual encoding, firing rule and thresholds are engineered; there is no learning or memory, and it is not a whole brain."}}, {"@type": "Question", "name": "Which neural circuit is used?", "acceptedAnswer": {"@type": "Answer", "text": "The visual pathway flies use to pursue small moving objects: LC10a (small moving objects) → AOTU019 (GABA, contralateral, central field) and AOTU025 (acetylcholine, ipsilateral, periphery) → DNa02 (steering descending neuron); the left-right DNa02 difference sets the turn."}}, {"@type": "Question", "name": "What happens if the wiring is scrambled or neurons are silenced?", "acceptedAnswer": {"@type": "Answer", "text": "In a Doom defend-the-center control experiment driven by the same circuit (10 episodes per condition, same seeds), real wiring averaged 10.2 kills, degree-preserving scrambled wiring 0.7 (p ≈ 0.002) and silencing AOTU025 5.5, against an oracle upper bound of 11.5."}}, {"@type": "Question", "name": "Do I need to install anything? Is it open source?", "acceptedAnswer": {"@type": "Answer", "text": "No installation: any modern browser with WebGL works, and the neural simulation runs in a Web Worker in real time. Code and experiment scripts are open source at github.com/webergithub/fruitfly-lab."}}]}]}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
-<link rel="stylesheet" href="style.css?v=1.0.0">
+<link rel="stylesheet" href="style.css?v=1.0.1">
 <script type="importmap">
 {
   "imports": {
     "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
     "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
-    "./js/i18n.js": "./js/i18n.js?v=1.0.0",
-    "./js/neural-panel.js": "./js/neural-panel.js?v=1.0.0",
-    "./js/window-manager.js": "./js/window-manager.js?v=1.0.0"
+    "./js/i18n.js": "./js/i18n.js?v=1.0.1",
+    "./js/neural-panel.js": "./js/neural-panel.js?v=1.0.1",
+    "./js/window-manager.js": "./js/window-manager.js?v=1.0.1"
   }
 }
 </script>
 </head>
 <body>
+<noscript><p style="padding:80px 20px;color:#e8e3dc;font-family:sans-serif">果蝇神射手需要启用 JavaScript 与 WebGL。Fly Marksman needs JavaScript and WebGL. 代码 / Code: <a style="color:#e8b86d" href="https://github.com/webergithub/fruitfly-lab">github.com/webergithub/fruitfly-lab</a></p></noscript>
 <header>
   <a class="navlink" href="/" data-i18n="back"></a>
-  <div class="brand"><h1 data-i18n="brand"></h1><span class="sub" data-i18n="sub"></span></div>
+  <div class="brand"><h1 data-i18n="brand">果蝇神射手</h1><span class="sub" data-i18n="sub">FlyWire 真实视觉追踪回路 · 3,963 个神经元实时驱动瞄准</span></div>
   <div class="spacer"></div>
   <button class="tgl" id="btn-pause" type="button" data-i18n="pause"></button>
   <div class="seg" id="speed-seg" role="group">
@@ -135,18 +159,67 @@
 </section>
 
 <section class="panel" id="win-about">
-  <div class="panel-head"><h2 data-i18n="winAbout"></h2></div>
+  <div class="panel-head"><h2 data-i18n="winAbout">哪些是真的</h2></div>
   <div class="about">
-    <h3 data-i18n="aboutRealH"></h3>
-    <ul><li data-i18n="aboutReal1"></li><li data-i18n="aboutReal2"></li><li data-i18n="aboutReal3"></li></ul>
-    <h3 data-i18n="aboutEngH"></h3>
-    <ul><li data-i18n="aboutEng1"></li><li data-i18n="aboutEng2"></li><li data-i18n="aboutEng3"></li><li data-i18n="aboutEng4"></li></ul>
-    <h3 data-i18n="aboutTryH"></h3>
-    <ul><li data-i18n="aboutTry1"></li><li data-i18n="aboutTry2"></li></ul>
-    <p class="hint" data-i18n="aboutSrc"></p>
+    <article class="lang-zh" lang="zh-CN">
+      <h2>果蝇神射手：用真实果蝇大脑连接组瞄准射击</h2>
+      <p>果蝇神射手把 FlyWire 真实果蝇大脑连接组中的视觉追踪回路搬进浏览器：3,963 个脉冲神经元、354,879 条连接，没有任何训练。目标进入果蝇视野后，回路实时算出转向与开火，左侧面板逐个显示神经元放电，也可以切到 13.9 万个神经元胞体组成的 3D 大脑视图。</p>
+      <h3>来自真实数据</h3>
+      <ul>
+        <li>神经元与连接的结构、突触数量、兴奋/抑制符号，全部来自 FlyWire v783 雌性果蝇全脑连接组。</li>
+        <li>回路主干：LC10a（检测小的移动物体）→ AOTU019（GABA，投射对侧，中央视野 0–40°）/ AOTU025（乙酰胆碱，投射同侧，外周 40–90°）→ DNa02（转向下行神经元），与 2026 年 Neuron 论文描述一致。</li>
+        <li>神经元方程与参数照搬 Shiu 等人 2024 年 Nature 全脑 LIF 模型；单侧刺激时 DNa02 的转向方向与 13.9 万神经元全脑模型一致。</li>
+      </ul>
+      <h3>工程化假设（不是生物学事实）</h3>
+      <ul>
+        <li>视觉编码：目标方位角直接刺激对应眼的 LC10a，跳过复眼光学与视叶处理。</li>
+        <li>LC10a 的视野位置用“连到 AOTU019 还是 AOTU025 更多”作为代理，中央/外周分工部分由此构造。</li>
+        <li>转向 = DNa02 与 AOTU019 左右差；左右 AOTU019 同时活跃（目标在双眼重叠区）就开火。阈值由方位角扫描标定一次后固定。</li>
+        <li>没有学习或训练；子图之外的大脑、身体运动系统与飞行都没有模拟。</li>
+      </ul>
+      <h3>对照实验结果</h3>
+      <p>同一回路驱动 Doom“守中心”场景，每组 10 局、相同随机种子：真实接线平均击杀 10.2；直接读敌人方位的上限 11.5；敲除 AOTU025 为 5.5（p = 0.048）；打乱接线 0.7（p = 0.002）；随机按键 0.9。在实验台里切换“打乱接线”或勾选敲除，可以亲自复现这种差异。</p>
+      <h3>常见问题</h3>
+      <dl>
+        <dt>果蝇神射手是什么？</dt><dd>一个浏览器里的 3D 瞄准射击实验：目标出现在果蝇视野中后，由 FlyWire 真实果蝇大脑连接组中的视觉追踪回路（3,963 个脉冲神经元、354,879 条连接，不经任何训练）实时计算转向与开火，并同屏可视化每个神经元的放电。</dd>
+        <dt>真的是果蝇大脑在瞄准吗？</dt><dd>回路结构（谁连着谁、突触数量、兴奋或抑制）来自真实连接组，神经元方程与参数来自 Shiu 等人 2024 年发表在 Nature 的全脑 LIF 模型。视觉编码、开火规则与阈值是工程设定；它没有学习和记忆，也不是完整的大脑。</dd>
+        <dt>用的是哪条神经回路？</dt><dd>果蝇追踪移动小物体时使用的视觉通路：LC10a（检测小的移动物体）→ AOTU019（GABA，投射对侧，中央视野）与 AOTU025（乙酰胆碱，投射同侧，外周视野）→ DNa02（转向下行神经元），左右 DNa02 的放电差决定转向。</dd>
+        <dt>打乱接线或敲除神经元会怎样？</dt><dd>在同一回路驱动的 Doom“守中心”对照实验中（每组 10 局、相同随机种子），真实接线平均每局击杀 10.2，保持连接数与正负号只打乱连接对象后仅 0.7（p≈0.002），敲除 AOTU025 为 5.5；直接读取敌人方位的上限为 11.5。</dd>
+        <dt>需要安装吗？代码开源吗？</dt><dd>不需要安装，支持 WebGL 的现代浏览器即可，神经仿真在 Web Worker 中实时运行。代码与实验脚本开源于 GitHub 仓库 webergithub/fruitfly-lab。</dd>
+      </dl>
+      <p class="hint">代码与实验：<a href="https://github.com/webergithub/fruitfly-lab" rel="noopener">GitHub · fruitfly-lab</a> · 数据：<a href="https://github.com/flyconnectome/flywire_annotations" rel="noopener">FlyWire annotations</a> · 模型：<a href="https://github.com/philshiu/Drosophila_brain_model" rel="noopener">Shiu et al. 2024</a> · 回路：<a href="https://www.cell.com/neuron/fulltext/S0896-6273(26)00001-2" rel="noopener">Neuron 2026</a></p>
+    </article>
+    <article class="lang-en" lang="en">
+      <h2>Fly Marksman: aiming with a real fruit fly connectome</h2>
+      <p>Fly Marksman brings a visual pursuit circuit from the real FlyWire fruit fly connectome into your browser: 3,963 spiking neurons and 354,879 connections, with no training. When a target enters the fly's view, the circuit computes steering and firing in real time; the left panel shows every neuron spike, and a 3D view places them among 139,000 FlyWire soma positions.</p>
+      <h3>From real data</h3>
+      <ul>
+        <li>Neurons, connections, synapse counts and excitatory/inhibitory signs all come from the FlyWire v783 adult female whole-brain connectome.</li>
+        <li>Circuit backbone: LC10a (small moving objects) → AOTU019 (GABA, contralateral, central field 0–40°) / AOTU025 (acetylcholine, ipsilateral, periphery 40–90°) → DNa02 (steering descending neuron), as described in a 2026 Neuron paper.</li>
+        <li>Neuron equations and parameters follow the Shiu et al. 2024 Nature whole-brain LIF model; one-eye stimulation steers DNa02 the same way as in the 139,000-neuron full-brain model.</li>
+      </ul>
+      <h3>Engineered assumptions (not biology)</h3>
+      <ul>
+        <li>Vision: target bearing directly drives LC10a in the matching eye, skipping compound-eye optics and optic-lobe processing.</li>
+        <li>Each LC10a cell's visual position is proxied by whether it wires more to AOTU019 or AOTU025, so the central/peripheral split is partly built in.</li>
+        <li>Steer = DNa02 and AOTU019 left-right difference; fire when both AOTU019 are active (target in the binocular zone). Thresholds come from one calibration sweep and stay fixed.</li>
+        <li>No learning or training; the rest of the brain, the motor system and flight are not simulated.</li>
+      </ul>
+      <h3>Control experiment results</h3>
+      <p>The same circuit played Doom's defend-the-center scenario, 10 episodes per condition with the same seeds: real wiring 10.2 kills per episode; oracle upper bound 11.5; AOTU025 silenced 5.5 (p = 0.048); scrambled wiring 0.7 (p = 0.002); random buttons 0.9. Switch to scrambled wiring or silence neurons on the lab bench to see the difference yourself.</p>
+      <h3>FAQ</h3>
+      <dl>
+        <dt>What is Fly Marksman?</dt><dd>A 3D aim-and-shoot experiment in the browser: when a target enters the fly's field of view, a pursuit circuit taken from the real FlyWire fruit fly connectome (3,963 spiking neurons, 354,879 connections, no training) computes steering and firing in real time, and every neuron's spikes are visualized on screen.</dd>
+        <dt>Is a fruit fly brain really doing the aiming?</dt><dd>The wiring (who connects to whom, synapse counts, excitatory or inhibitory sign) comes from the real connectome, and the neuron equations follow the Shiu et al. 2024 Nature whole-brain LIF model. The visual encoding, firing rule and thresholds are engineered; there is no learning or memory, and it is not a whole brain.</dd>
+        <dt>Which neural circuit is used?</dt><dd>The visual pathway flies use to pursue small moving objects: LC10a (small moving objects) → AOTU019 (GABA, contralateral, central field) and AOTU025 (acetylcholine, ipsilateral, periphery) → DNa02 (steering descending neuron); the left-right DNa02 difference sets the turn.</dd>
+        <dt>What happens if the wiring is scrambled or neurons are silenced?</dt><dd>In a Doom defend-the-center control experiment driven by the same circuit (10 episodes per condition, same seeds), real wiring averaged 10.2 kills, degree-preserving scrambled wiring 0.7 (p ≈ 0.002) and silencing AOTU025 5.5, against an oracle upper bound of 11.5.</dd>
+        <dt>Do I need to install anything? Is it open source?</dt><dd>No installation: any modern browser with WebGL works, and the neural simulation runs in a Web Worker in real time. Code and experiment scripts are open source at github.com/webergithub/fruitfly-lab.</dd>
+      </dl>
+      <p class="hint">Code and experiments: <a href="https://github.com/webergithub/fruitfly-lab" rel="noopener">GitHub · fruitfly-lab</a> · Data: <a href="https://github.com/flyconnectome/flywire_annotations" rel="noopener">FlyWire annotations</a> · Model: <a href="https://github.com/philshiu/Drosophila_brain_model" rel="noopener">Shiu et al. 2024</a> · Circuit: <a href="https://www.cell.com/neuron/fulltext/S0896-6273(26)00001-2" rel="noopener">Neuron 2026</a></p>
+    </article>
   </div>
 </section>
 
-<script type="module" src="js/main.js?v=1.0.0"></script>
+<script type="module" src="js/main.js?v=1.0.1"></script>
 </body>
 </html>
