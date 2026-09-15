@@ -1,0 +1,19 @@
+# Python 环境与缓存
+.venv/
+__pycache__/
+*.pyc
+
+# 上游仓库（按 README 重新 clone）
+Drosophila_brain_model/
+flygym-src/
+
+# 可重新下载 / 重新生成的大文件
+data/*.tsv
+videos/
+logs/
+doom/frames/
+doom/results/*.mp4
+output/*.mp4
+output/*.png
+
+.DS_Store

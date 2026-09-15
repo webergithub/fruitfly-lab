@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>果蝇神射手 · Fly Marksman</title>
+<meta name="description" content="用 FlyWire 真实果蝇视觉追踪回路（3,963 个神经元）实时驱动瞄准射击，并可视化每一次神经放电。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="style.css?v=1.0.0">
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+    "./js/i18n.js": "./js/i18n.js?v=1.0.0",
+    "./js/neural-panel.js": "./js/neural-panel.js?v=1.0.0",
+    "./js/window-manager.js": "./js/window-manager.js?v=1.0.0"
+  }
+}
+</script>
+</head>
+<body>
+<header>
+  <a class="navlink" href="/" data-i18n="back"></a>
+  <div class="brand"><h1 data-i18n="brand"></h1><span class="sub" data-i18n="sub"></span></div>
+  <div class="spacer"></div>
+  <button class="tgl" id="btn-pause" type="button" data-i18n="pause"></button>
+  <div class="seg" id="speed-seg" role="group">
+    <span class="seg-label" data-i18n="brainSpeed"></span>
+    <button type="button" class="tgl" data-speed="0.25">¼×</button>
+    <button type="button" class="tgl" data-speed="0.5">½×</button>
+    <button type="button" class="tgl on" data-speed="1">1×</button>
+  </div>
+  <div class="sep"></div>
+  <div class="dock" id="dock" role="group" aria-label="panels">
+    <button type="button" class="tgl dock-btn" data-win="circuit" data-i18n="winCircuit"></button>
+    <button type="button" class="tgl dock-btn" data-win="signals" data-i18n="winSignals"></button>
+    <button type="button" class="tgl dock-btn" data-win="lab" data-i18n="winLab"></button>
+    <button type="button" class="tgl dock-btn" data-win="score" data-i18n="winScore"></button>
+    <button type="button" class="tgl dock-btn" data-win="about" data-i18n="winAbout"></button>
+  </div>
+  <button class="tgl" id="btn-reset" type="button" data-i18n="resetLayout"></button>
+  <button id="lang-btn" type="button" aria-label="switch language"></button>
+</header>
+
+<main class="viewport" id="viewport">
+  <div class="vp-tip" data-i18n="vpTip"></div>
+  <div class="loading" id="loading"><span data-i18n="loading"></span></div>
+  <div class="hud" id="hud" aria-live="polite">
+    <span class="hud-chip" id="hud-left" data-i18n="turnL"></span>
+    <span class="hud-chip" id="hud-hold" data-i18n="hold"></span>
+    <span class="hud-chip" id="hud-right" data-i18n="turnR"></span>
+    <span class="hud-chip fire" id="hud-fire" data-i18n="fire"></span>
+    <span class="hud-state" id="hud-state"></span>
+  </div>
+</main>
+
+<section class="panel" id="win-circuit">
+  <div class="panel-head"><h2 data-i18n="winCircuit"></h2></div>
+  <div class="tabs" role="tablist">
+    <button type="button" class="tab on" id="tab-map" data-tab="map" data-i18n="tabMap"></button>
+    <button type="button" class="tab" id="tab-brain" data-tab="brain" data-i18n="tabBrain"></button>
+    <span class="tab-stat mono" id="net-stat"></span>
+  </div>
+  <div class="map-wrap" id="map-wrap">
+    <canvas id="map-canvas"></canvas>
+    <canvas id="brain-canvas" hidden></canvas>
+  </div>
+  <div class="legend-row">
+    <span><i class="sw ach"></i><span data-i18n="ntAch"></span></span>
+    <span><i class="sw gaba"></i><span data-i18n="ntGaba"></span></span>
+    <span><i class="sw glu"></i><span data-i18n="ntGlu"></span></span>
+    <span><i class="sw oth"></i><span data-i18n="ntOther"></span></span>
+    <span class="legend-note" data-i18n="mapNote"></span>
+  </div>
+</section>
+
+<section class="panel" id="win-signals">
+  <div class="panel-head"><h2 data-i18n="winSignals"></h2></div>
+  <div class="signals">
+    <div class="meters" id="meters"></div>
+    <div class="steer">
+      <div class="steer-head"><span data-i18n="steerSignal"></span><span class="mono" id="steer-val"></span></div>
+      <div class="steer-track" id="steer-track"><i class="th th-l"></i><i class="th th-r"></i><i class="needle" id="steer-needle"></i></div>
+      <div class="steer-foot"><span data-i18n="turnL"></span><span data-i18n="hold"></span><span data-i18n="turnR"></span></div>
+    </div>
+    <canvas id="trace-canvas"></canvas>
+    <div class="legend-row small" id="trace-legend"></div>
+  </div>
+</section>
+
+<section class="panel" id="win-lab">
+  <div class="panel-head"><h2 data-i18n="winLab"></h2></div>
+  <div class="lab">
+    <div class="field">
+      <span class="label" data-i18n="wiring"></span>
+      <div class="seg wide">
+        <button type="button" class="tgl on" id="wiring-real" data-i18n="wiringReal"></button>
+        <button type="button" class="tgl" id="wiring-scr" data-i18n="wiringScr"></button>
+      </div>
+    </div>
+    <div class="field">
+      <span class="label" data-i18n="lesionTitle"></span>
+      <div class="lesions" id="lesions"></div>
+    </div>
+    <div class="field">
+      <label class="label" for="in-targets"><span data-i18n="targets"></span> <b class="mono" id="out-targets">3</b></label>
+      <input type="range" id="in-targets" min="1" max="6" step="1" value="3">
+    </div>
+    <div class="field">
+      <label class="label" for="in-tspeed"><span data-i18n="targetSpeed"></span> <b class="mono" id="out-tspeed">1.0×</b></label>
+      <input type="range" id="in-tspeed" min="0.3" max="2" step="0.1" value="1">
+    </div>
+    <button type="button" class="tgl" id="btn-brain-reset" data-i18n="brainReset"></button>
+    <p class="hint" data-i18n="labHint"></p>
+  </div>
+</section>
+
+<section class="panel" id="win-score">
+  <div class="panel-head"><h2 data-i18n="winScore"></h2></div>
+  <div class="score">
+    <div class="kpis">
+      <div><span data-i18n="statHits"></span><b class="mono" id="k-hits">0</b></div>
+      <div><span data-i18n="statShots"></span><b class="mono" id="k-shots">0</b></div>
+      <div><span data-i18n="statAcc"></span><b class="mono" id="k-acc">–</b></div>
+      <div><span data-i18n="statKpm"></span><b class="mono" id="k-kpm">–</b></div>
+    </div>
+    <table class="cond">
+      <thead><tr><th data-i18n="statCond"></th><th data-i18n="statTime"></th><th data-i18n="statHits"></th><th data-i18n="statKpm"></th><th data-i18n="statAcc"></th></tr></thead>
+      <tbody id="cond-body"></tbody>
+    </table>
+  </div>
+</section>
+
+<section class="panel" id="win-about">
+  <div class="panel-head"><h2 data-i18n="winAbout"></h2></div>
+  <div class="about">
+    <h3 data-i18n="aboutRealH"></h3>
+    <ul><li data-i18n="aboutReal1"></li><li data-i18n="aboutReal2"></li><li data-i18n="aboutReal3"></li></ul>
+    <h3 data-i18n="aboutEngH"></h3>
+    <ul><li data-i18n="aboutEng1"></li><li data-i18n="aboutEng2"></li><li data-i18n="aboutEng3"></li><li data-i18n="aboutEng4"></li></ul>
+    <h3 data-i18n="aboutTryH"></h3>
+    <ul><li data-i18n="aboutTry1"></li><li data-i18n="aboutTry2"></li></ul>
+    <p class="hint" data-i18n="aboutSrc"></p>
+  </div>
+</section>
+
+<script type="module" src="js/main.js?v=1.0.0"></script>
+</body>
+</html>

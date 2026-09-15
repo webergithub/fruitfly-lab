@@ -1,0 +1,12 @@
+LC10a_L  subgraph   DNa02 L= 103.8 R=   0.0  R-L=-103.8  AOTU019 L/R=222/0  AOTU025 L/R=169/0  (1.4s)
+LC10a_L  scrambled  DNa02 L=  21.0 R=   0.2  R-L= -20.8  AOTU019 L/R=1/22  AOTU025 L/R=0/3  (1.3s)
+>>> Experiment:     LC10a_L
+    Elapsed time:   127 s
+LC10a_L  full_brain DNa02 L= 105.6 R=   0.0  R-L=-105.6  AOTU019 L/R=171/0  AOTU025 L/R=150/0  (127.8s)
+LC10a_R  subgraph   DNa02 L=   0.0 R=   4.0  R-L=  +4.0  AOTU019 L/R=0/244  AOTU025 L/R=0/60  (1.4s)
+LC10a_R  scrambled  DNa02 L=  46.0 R=   0.0  R-L= -46.0  AOTU019 L/R=18/36  AOTU025 L/R=0/31  (1.4s)
+>>> Experiment:     LC10a_R
+    Elapsed time:   128 s
+LC10a_R  full_brain DNa02 L=   0.0 R=  58.8  R-L= +58.8  AOTU019 L/R=0/185  AOTU025 L/R=0/118  (129.1s)
+已保存 output/validation.json
+done

@@ -1,0 +1,535 @@
+<title>果蝇回路射击实验</title>
+<meta name="description" content="用 FlyWire 真实果蝇视觉追踪回路（3,963 个神经元，不训练）驱动瞄准射击与 Doom 的实验报告：设计、验证、对照、结果与局限。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@600;900&display=swap">
+<style>
+:root{
+  --ground:#EEF1EF; --paper:#FBFCFB; --ink:#16201C; --ink-2:#4E5A55; --ink-3:#77837D;
+  --rule:#D3DAD6; --rule-2:#E3E8E5; --code-bg:#E6EBE8;
+  --eye:#B42D24; --real:#00897A; --scr:#B07A12; --les:#C0332A; --neutral:#8C9690;
+  --ok-bg:#DDEFEA; --warn-bg:#F5EAD3; --bad-bg:#F6DEDA;
+  --serif:"Noto Serif SC","Songti SC","STSong",serif;
+  --sans:"Noto Sans SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+  --mono:"JetBrains Mono","SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#0F1311; --paper:#161B19; --ink:#E0E6E2; --ink-2:#A3AEA8; --ink-3:#7B8781;
+    --rule:#2B3430; --rule-2:#222A26; --code-bg:#1D2421;
+    --eye:#E0584B; --real:#16998A; --scr:#B8821E; --les:#DD5446; --neutral:#7F8A84;
+    --ok-bg:#15302B; --warn-bg:#33291A; --bad-bg:#3A1F1C;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0F1311; --paper:#161B19; --ink:#E0E6E2; --ink-2:#A3AEA8; --ink-3:#7B8781;
+  --rule:#2B3430; --rule-2:#222A26; --code-bg:#1D2421;
+  --eye:#E0584B; --real:#16998A; --scr:#B8821E; --les:#DD5446; --neutral:#7F8A84;
+  --ok-bg:#15302B; --warn-bg:#33291A; --bad-bg:#3A1F1C;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+body{background:var(--ground);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.75;padding-inline:16px;padding-block:0 64px}
+a{color:var(--real);text-underline-offset:3px;text-decoration-thickness:1px}
+a:hover{color:var(--eye)}
+:focus-visible{outline:2px solid var(--eye);outline-offset:2px}
+.wrap{max-width:1180px;margin:0 auto}
+.num,.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+code{font-family:var(--mono);font-size:.88em;background:var(--code-bg);padding:1px 5px;border-radius:3px;overflow-wrap:anywhere}
+
+.label{border-bottom:1px solid var(--rule);padding-block:28px 24px;display:grid;gap:16px}
+.meta{font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:var(--ink-3);display:flex;flex-wrap:wrap;gap:6px 18px;text-transform:uppercase}
+.meta b{color:var(--ink-2);font-weight:600}
+h1{font-family:var(--serif);font-weight:900;font-size:clamp(28px,5vw,54px);line-height:1.14;margin:0;text-wrap:balance}
+h1 em{font-style:normal;color:var(--real)}
+.lede{font-size:18px;color:var(--ink-2);max-width:42em;margin:0}
+
+.versus{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;padding-block:24px 6px}
+@media (max-width:820px){.versus{grid-template-columns:1fr}}
+figure{margin:0}
+.plate{background:var(--paper);border:1px solid var(--rule);display:flex;flex-direction:column}
+.plate-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:2px 12px;padding:10px 14px;border-bottom:1px solid var(--rule-2);font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+.plate-head strong{font-family:var(--sans);font-size:14px;color:var(--ink)}
+.plate video,.plate img{display:block;width:100%;height:auto;max-width:100%;aspect-ratio:920/480;background:#0d0a07}
+.plate figcaption{padding:10px 14px 14px;font-size:14px;color:var(--ink-2);line-height:1.6}
+.big{display:flex;align-items:baseline;gap:10px;padding:12px 14px 0}
+.big b{font-family:var(--serif);font-size:44px;line-height:1;font-weight:900}
+.big span{font-size:14px;color:var(--ink-2)}
+.real-c{color:var(--real)} .scr-c{color:var(--scr)} .les-c{color:var(--les)}
+
+.body{display:grid;grid-template-columns:200px minmax(0,1fr);gap:48px;padding-top:30px}
+@media (max-width:960px){.body{grid-template-columns:1fr;gap:0}.toc{display:none}}
+.toc{position:sticky;top:20px;align-self:start;font-size:14px}
+.toc ol{list-style:none;padding:0;margin:0;display:grid;gap:2px;border-left:1px solid var(--rule)}
+.toc a{display:block;padding:4px 0 4px 14px;color:var(--ink-2);text-decoration:none;margin-left:-1px;border-left:2px solid transparent}
+.toc a:hover{color:var(--ink);border-left-color:var(--real)}
+.toc .k{font-family:var(--mono);font-size:11px;color:var(--ink-3);margin-right:6px}
+main{min-width:0}
+section{padding-block:8px 40px;border-bottom:1px solid var(--rule)}
+section:last-child{border-bottom:0}
+.sec-k{font-family:var(--mono);font-size:12px;letter-spacing:.12em;color:var(--real);text-transform:uppercase;margin:28px 0 4px}
+h2{font-family:var(--serif);font-weight:900;font-size:clamp(24px,3.2vw,32px);line-height:1.28;margin:0 0 16px;text-wrap:balance}
+h3{font-family:var(--serif);font-weight:600;font-size:20px;line-height:1.4;margin:30px 0 10px;text-wrap:balance}
+p,li{max-width:42em}
+p{margin:0 0 14px}
+ul,ol{padding-left:1.3em;margin:0 0 14px}
+li{margin-bottom:6px}
+.note{font-size:14px;color:var(--ink-2)}
+
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1px;background:var(--rule-2);border:1px solid var(--rule-2);margin:6px 0 22px}
+.facts div{background:var(--paper);padding:12px 14px}
+.facts dt{font-size:12px;color:var(--ink-3)}
+.facts dd{margin:2px 0 0;font-family:var(--mono);font-size:20px;font-variant-numeric:tabular-nums}
+dl{margin:0}
+
+.tbl-wrap{overflow-x:auto;margin:6px 0 18px;border:1px solid var(--rule);background:var(--paper)}
+table{border-collapse:collapse;width:100%;font-size:14px;line-height:1.55}
+th,td{text-align:left;vertical-align:top;padding:9px 12px;border-bottom:1px solid var(--rule-2)}
+th{font-size:12px;font-weight:700;color:var(--ink-3);letter-spacing:.05em;background:var(--ground);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td.n{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right}
+th.n{text-align:right}
+tr.hl td{background:color-mix(in srgb,var(--real) 8%,transparent)}
+.pill{display:inline-block;font-size:12px;font-weight:700;padding:1px 8px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-bg);color:var(--real)} .pill.warn{background:var(--warn-bg);color:var(--scr)} .pill.bad{background:var(--bad-bg);color:var(--les)}
+
+.chart{background:var(--paper);border:1px solid var(--rule);padding:12px 12px 8px;margin:8px 0 18px;position:relative}
+.chart-title{font-size:14px;font-weight:700;margin:0 0 2px}
+.chart-sub{font-size:13px;color:var(--ink-2);margin:0 0 8px}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.chart .axis{font-family:var(--mono);font-size:11px;fill:var(--ink-3)}
+.chart .lab{font-size:12px;fill:var(--ink)}
+.chart .val{font-family:var(--mono);font-size:11.5px;fill:var(--ink-2)}
+.chart .grid{stroke:var(--rule-2);stroke-width:1}
+.legend{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:12.5px;color:var(--ink-2);margin:4px 2px 6px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{display:inline-block;width:16px;height:3px;border-radius:2px}
+.legend i.dash{background:repeating-linear-gradient(90deg,currentColor 0 5px,transparent 5px 8px)!important}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--paper);font-size:12px;line-height:1.5;padding:6px 9px;border-radius:4px;white-space:nowrap;font-family:var(--mono);transform:translate(-50%,-115%);z-index:5}
+
+.flow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1px solid var(--rule);background:var(--paper);margin:8px 0 20px}
+.flow > div{padding:14px 14px 16px;border-right:1px solid var(--rule-2);position:relative}
+.flow > div:last-child{border-right:0}
+.flow > div:not(:last-child)::after{content:"→";position:absolute;right:-9px;top:14px;background:var(--paper);color:var(--real);font-weight:700;line-height:1;padding:2px 0}
+.flow .k{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--ink-3);text-transform:uppercase}
+.flow b{display:block;font-family:var(--serif);font-size:17px;margin:2px 0 6px}
+.flow p{font-size:13.5px;color:var(--ink-2);margin:0;line-height:1.6}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:0 6px;border-radius:3px;margin-left:4px;vertical-align:1px}
+.tag.data{background:var(--ok-bg);color:var(--real)} .tag.eng{background:var(--warn-bg);color:var(--scr)}
+@media (max-width:760px){.flow{grid-template-columns:1fr}.flow > div{border-right:0;border-bottom:1px solid var(--rule-2)}.flow > div:not(:last-child)::after{content:"↓";right:auto;left:14px;top:auto;bottom:-10px;padding:0 4px}}
+
+.syn{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--rule-2);border:1px solid var(--rule-2);margin:6px 0 18px}
+.syn div{background:var(--paper);padding:10px 14px;display:flex;justify-content:space-between;gap:10px;font-size:14px}
+.syn .w{font-family:var(--mono);font-variant-numeric:tabular-nums}
+@media (max-width:560px){.syn{grid-template-columns:1fr}}
+
+.code{position:relative;margin:8px 0 16px;background:var(--code-bg);border:1px solid var(--rule-2);border-radius:4px}
+.code pre{margin:0;padding:12px 14px;overflow-x:auto;font-family:var(--mono);font-size:13px;line-height:1.65;color:var(--ink)}
+.code .cm{color:var(--ink-3)}
+.copy{position:absolute;top:6px;right:6px;font:600 11px var(--mono);background:var(--paper);color:var(--ink-2);border:1px solid var(--rule);border-radius:3px;padding:3px 8px;cursor:pointer}
+.frames{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:8px 0 18px}
+@media (max-width:720px){.frames{grid-template-columns:1fr}}
+.frames img{width:100%;height:auto;max-width:100%;display:block;border:1px solid var(--rule)}
+.frames figcaption{font-size:13px;color:var(--ink-2);padding-top:6px}
+.sources{columns:2 320px;column-gap:32px;font-size:14px}
+.sources li{break-inside:avoid;max-width:none}
+footer{padding-top:24px;font-size:13px;color:var(--ink-3);font-family:var(--mono)}
+</style>
+
+<div class="wrap">
+  <header class="label">
+    <div class="meta"><span><b>fruitfly-lab · 实验报告 v1</b></span><span>FlyWire v783 · ViZDoom 1.3</span><span>Apple M5 / 24 GB</span><span>2026-09-15</span></div>
+    <h1>同一个 3,963 神经元的果蝇回路：<em>接线对了能打 Doom</em>，打乱就不行</h1>
+    <p class="lede">我从真实果蝇大脑接线图里抽出“看到移动小物体 → 转身”的追踪回路，不做任何训练，直接接到网页射击游戏和 Doom 上。本报告记录设计、与全脑模型的对照验证、7 组对照实验的结果，以及哪些部分是工程假设。</p>
+  </header>
+
+  <div class="versus">
+    <figure class="plate">
+      <div class="plate-head"><strong>真实连接组</strong><span>种子 687 · 前台实时录像</span></div>
+      <video src="live_fly_seed687.mp4" controls muted loop playsinline preload="metadata" poster="live_fly_fire.jpg" aria-label="真实果蝇回路控制 Doom 转身开火的录像"></video>
+      <div class="big"><b class="real-c num" id="big-real">10.2</b><span>10 局平均击杀（上限 oracle 为 <span class="num" id="big-oracle">11.5</span>）</span></div>
+      <figcaption>右侧面板是同一时刻的神经活动：敌人在正前方时，左右 AOTU019 同时放电，触发开火。</figcaption>
+    </figure>
+    <figure class="plate">
+      <div class="plate-head"><strong>打乱接线（对照）</strong><span>同一种子 · 同样的神经元与连接数</span></div>
+      <video src="live_scrambled_seed687.mp4" controls muted loop playsinline preload="metadata" aria-label="打乱接线后的果蝇回路控制 Doom 的录像"></video>
+      <div class="big"><b class="scr-c num" id="big-scr">0.7</b><span>10 局平均击杀，配对置换检验 p = <span class="num" id="big-p">0.002</span></span></div>
+      <figcaption>每个神经元的连接数量、正负号都不变，只打乱“连给谁”。回路还在放电，但信号到不了正确的转向神经元。</figcaption>
+    </figure>
+  </div>
+
+  <div class="body">
+    <nav class="toc" aria-label="目录"><ol>
+      <li><a href="#summary"><span class="k">§1</span>结论速览</a></li>
+      <li><a href="#projects"><span class="k">§2</span>其他有意思的项目</a></li>
+      <li><a href="#design"><span class="k">§3</span>实验设计</a></li>
+      <li><a href="#validate"><span class="k">§4</span>子图验证</a></li>
+      <li><a href="#tuning"><span class="k">§5</span>转向调谐</a></li>
+      <li><a href="#doom"><span class="k">§6</span>Doom 实验</a></li>
+      <li><a href="#web"><span class="k">§7</span>网页：果蝇神射手</a></li>
+      <li><a href="#limits"><span class="k">§8</span>局限与诚实声明</a></li>
+      <li><a href="#repro"><span class="k">§9</span>复现步骤</a></li>
+      <li><a href="#files"><span class="k">§10</span>文件与来源</a></li>
+    </ol></nav>
+    <main>
+      <section id="summary">
+        <p class="sec-k">§1 · Summary</p>
+        <h2>结论速览</h2>
+        <dl class="facts" id="facts"></dl>
+        <ul>
+          <li><b>回路抽取是可信的。</b>单侧刺激 LC10a 时，子图里 DNa02 的转向方向与 13.9 万神经元全脑模型一致；左侧放电率几乎相同（子图 104 Hz vs 全脑 106 Hz），右侧子图偏弱（4 Hz vs 59 Hz）。</li>
+          <li><b>不训练，真实接线就能瞄准开火。</b>10 局 Doom“守中心”平均击杀 10.2，达到“直接读敌人方位”上限（11.5）的 89%，两者差异不显著（p = 0.35）。</li>
+          <li><b>接线结构是关键。</b>打乱接线后击杀降到 0.7（用它自己的阈值）或 0（沿用真实阈值），与随机按键（0.9）同一水平。</li>
+          <li><b>敲除有剂量效应。</b>只敲除外周通路 AOTU025，击杀减半到 5.5（p = 0.048）；两个 AOTU 一起敲除降为 0，但这一项部分由读出规则决定，见 §8。</li>
+          <li><b>它不是“会学习的果蝇大脑”。</b>视觉编码、开火规则与阈值都是工程设定，只有中间 354,879 条连接来自真实数据。</li>
+        </ul>
+      </section>
+
+      <section id="projects">
+        <p class="sec-k">§2 · Landscape</p>
+        <h2>其他有意思的果蝇项目：它们实际做了什么</h2>
+        <p>9 月 MaleCNS 发布后，社区在两周内做出了几十个项目（汇总于 <a href="https://github.com/cobanov/awesome-fly" target="_blank" rel="noopener">awesome-fly</a>）。挑出最值得看的，并按“接线图真正承担了多少工作”标注。</p>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>项目</th><th>做了什么</th><th>接线图的角色</th><th>能直接玩</th></tr></thead>
+          <tbody>
+            <tr><td><a href="https://fruitfly-tiny-brain.vercel.app/" target="_blank" rel="noopener">Swat</a></td><td>拍苍蝇街机游戏，可视化逃逸回路</td><td>6,000 个 MaleCNS 神经元影响闪避，叠加人工设计的游戏机制</td><td><span class="pill ok">浏览器</span></td></tr>
+            <tr><td><a href="https://fly-escape.vercel.app/" target="_blank" rel="noopener">Help the Fly Escape</a></td><td>摆放家具，看果蝇在 3D 房间里找出路</td><td>Rust/WASM 跑选定的 MaleCNS 子回路；方程、感觉输入与运动规则为模型</td><td><span class="pill ok">浏览器</span></td></tr>
+            <tr><td><a href="https://tolatolatop.github.io/fly-chess/" target="_blank" rel="noopener">Fly Chess Lab</a></td><td>果蝇下国际象棋</td><td>FlyWire LIF + 断连对照；落子读出是工程化、未训练的</td><td><span class="pill ok">浏览器</span></td></tr>
+            <tr><td><a href="https://flydino.cobanov.dev/" target="_blank" rel="noopener">Fly Dino</a></td><td>Chrome 断网小恐龙</td><td>固定的 80 神经元回路 + 用交叉熵方法训练的 243 参数读出</td><td><span class="pill ok">浏览器</span></td></tr>
+            <tr><td><a href="https://github.com/nftechie/doomfly" target="_blank" rel="noopener">DOOMFLY</a></td><td>刷屏的“果蝇玩 Doom”</td><td>完整 MaleCNS；3,335 个 R1–R6 + 811 个 R8 光感受器输入；DNp20/DNpe017 读出由作者指定；多巴胺调节 KC→MBON11 可塑性。作者自述 v6 未通过视觉、条件化与生存验证</td><td><span class="pill warn">需数 GB 内存</span></td></tr>
+            <tr><td><a href="https://github.com/eganeganegan/flydoom" target="_blank" rel="noopener">FlyDoom</a></td><td>研究框架：真实接线 vs 随机图 vs 度保持重连 vs MLP/GRU</td><td>子图 1,000–10,000 神经元 + PPO 或三因子学习；README 未报告对比结果</td><td><span class="pill warn">需自己跑</span></td></tr>
+            <tr><td><a href="https://github.com/ornata/fly" target="_blank" rel="noopener">Fly64</a> · <a href="https://github.com/blendi-remade/fly-brain-minecraft" target="_blank" rel="noopener">Minecraft 模组</a></td><td>马里奥 64 控制器；Minecraft 里每只苍蝇跑一个过滤后的 MaleCNS 图</td><td>模型化的感觉输入与运动读出，偏娱乐演示</td><td><span class="pill warn">需游戏本体</span></td></tr>
+            <tr><td><a href="https://github.com/seanphan/flyt3" target="_blank" rel="noopener">FLYT3</a> · <a href="https://github.com/liuzihe02/fly-craftax" target="_blank" rel="noopener">fly-craftax</a></td><td>井字棋；Craftax 生存游戏</td><td>冻结的全图 LIF + 强化学习训练的下行神经元读出，带基线对比</td><td><span class="pill warn">需训练</span></td></tr>
+            <tr><td><a href="https://github.com/ZeroXClem/closed-loop-fly" target="_blank" rel="noopener">Closed-Loop Fly</a></td><td>浏览器里：复眼模型 → 视叶 → 下行神经元 → 飞行身体</td><td>完整感觉运动闭环，映射为近似</td><td><span class="pill warn">需本地</span></td></tr>
+            <tr><td><a href="https://github.com/Ibtisam-Mohammad/Fly.exe" target="_blank" rel="noopener">Fly.exe</a></td><td>16.5 万神经元 MaleCNS 闭环驱动 12 只 NeuroMechFly</td><td>逐条标注验证等级：“步态是工程实现”“无社会行为”</td><td><span class="pill bad">需 NVIDIA</span></td></tr>
+          </tbody>
+        </table></div>
+        <p class="note">共同点：几乎所有“果蝇玩游戏”都需要一个人为指定或另外训练的读出层；只有少数项目发布了打乱接线的对照。本实验把对照放在第一位。另注：9 月 15 日实测 flybrain.app 已换成企业品牌版，喂食与吹风工具不再可用。</p>
+      </section>
+
+      <section id="design">
+        <p class="sec-k">§3 · Design</p>
+        <h2>实验设计：借用果蝇追踪配偶的那条回路来瞄准</h2>
+        <p>雄果蝇求偶时会一路追着雌蝇转向，这靠的是一条已被研究清楚的通路（Neuron 2026）：<b>LC10a</b> 视觉投射神经元检测小的移动物体，经前视结节的 <b>AOTU019</b>（GABA，投射对侧，负责中央 0–40° 视野）和 <b>AOTU025</b>（乙酰胆碱，投射同侧，负责外周 40–90°）汇聚到转向下行神经元 <b>DNa02</b>，左右 DNa02 的放电差决定约 200 ms 后的转向。瞄准本质上就是“把目标转到正前方”，所以直接借用。</p>
+        <div class="flow">
+          <div><span class="k">① 输入</span><b>视觉编码 <span class="tag eng">工程</span></b><p>目标方位角 → 对应眼的 LC10a 泊松刺激（≤150 Hz）。±6° 内两侧同时刺激（双眼重叠区）。</p></div>
+          <div><span class="k">② 回路</span><b>3,963 个 LIF <span class="tag data">数据</span></b><p>FlyWire v783 子图的全部连接与正负号；方程与参数照搬 Shiu et al. 2024，0.1 ms 步长。</p></div>
+          <div><span class="k">③ 读出</span><b>转向与开火 <span class="tag eng">工程</span></b><p>转向 = (DNa02 右−左) + (AOTU019 右−左)；左右 AOTU019 都超过阈值 → 开火。</p></div>
+          <div><span class="k">④ 执行</span><b>游戏动作</b><p>Doom：左转/右转/开火按键，每 tic（1/35 s）跑 286 步神经仿真。网页：转速与转向信号成正比。</p></div>
+        </div>
+        <h3>子图怎么抽</h3>
+        <p>在突触数 ≥ 5 的连接上，从 LC10a 往下游走 ≤ 2 步、从 5 类转向 DN（DNa01/02/03/04/11）往上游走 ≤ 2 步，取交集加上起点终点，再保留子图内部所有强度的连接。</p>
+        <dl class="facts" id="circuit-facts"></dl>
+        <h3>回路里的关键突触（真实数据）</h3>
+        <p class="note">数值 = 突触数 × 正负号（负数为抑制）。左右并不完全对称：AOTU019 左 → DNa02 右的抑制（−216）约为右侧对应连接（−121）的 1.8 倍。</p>
+        <div class="syn" id="syn"></div>
+        <h3>LC10a 的“视野位置”从哪来</h3>
+        <p>连接组里没有每个 LC10a 的感受野坐标。我用一个代理：某个 LC10a 连到 AOTU019 的突触越多，就认为它偏中央视野；连到 AOTU025 越多，就偏外周。这是本实验最重要的工程假设之一，§5 的中央/外周分工有一部分由它构造而来。</p>
+      </section>
+
+      <section id="validate">
+        <p class="sec-k">§4 · Validation</p>
+        <h2>子图验证：和 13.9 万神经元的全脑模型对得上吗</h2>
+        <p>条件：以 100 Hz 刺激左眼或右眼全部 LC10a，每个条件 5 次 × 1 秒。全脑模型用 Brian2 跑 Shiu 模型 + v783 数据，每个条件约 128 秒；子图（numpy）约 1.4 秒。</p>
+        <div class="tbl-wrap"><table id="val-table"><thead><tr><th>刺激</th><th>模型</th><th class="n">DNa02 左</th><th class="n">DNa02 右</th><th class="n">右−左</th><th class="n">AOTU019 左/右</th><th class="n">AOTU025 左/右</th><th>方向</th></tr></thead><tbody></tbody></table></div>
+        <p><b>读法</b>：真实接线下，刺激哪只眼，同侧 DNa02 就放电，这是“同侧转向”，与论文一致。子图在左侧几乎复现全脑数值，右侧方向正确但偏弱，说明深度 2 的截断丢掉了一部分右侧的输入。打乱接线后，右眼刺激反而让左侧 DNa02 放电，方向错了。</p>
+      </section>
+
+      <section id="tuning">
+        <p class="sec-k">§5 · Calibration</p>
+        <h2>转向调谐：目标在哪个方向，回路怎么响应</h2>
+        <p>把单个目标依次放在 −90° 到 +90° 的 17 个方位，每个方位先预热 10 tic、再平均 20 tic 的放电率。读出阈值由这条曲线一次性确定，之后所有实验固定不变。</p>
+        <div class="chart" id="chart-steer"><p class="chart-title">转向信号 vs 目标方位</p><p class="chart-sub">正值 = 右转。阴影带 = 真实回路的转向阈值（±<span class="num" id="turn-th"></span>），带内不转。</p><div class="legend" id="leg-steer"></div><svg id="svg-steer" role="img" aria-label="转向信号随目标方位变化的曲线"></svg></div>
+        <div class="chart" id="chart-aotu"><p class="chart-title">真实回路：AOTU019 与 AOTU025 的方位偏好</p><p class="chart-sub">AOTU019 在中央 ±15–30° 最强，AOTU025 在外周 60–90° 最强，与论文的中央/外周分工一致（部分由 §3 的位置代理构造）。</p><div class="legend" id="leg-aotu"></div><svg id="svg-aotu" role="img" aria-label="AOTU019 与 AOTU025 放电率随目标方位变化"></svg></div>
+        <p>中央 ±30° 内 DNa02 几乎不放电：子图里 DNa02 没有基线活动，AOTU019 的对侧抑制无处施加。这就是读出里加入“AOTU019 左右差”的原因（§8 第 3 条）。</p>
+      </section>
+
+      <section id="doom">
+        <p class="sec-k">§6 · Doom</p>
+        <h2>Doom 实验：7 个条件 × 10 局</h2>
+        <p>场景：ViZDoom 自带的 <code>defend_the_center</code>，玩家站在圆形场地中央只能左转、右转、开火，敌人从四周走来，弹药 26 发。每个条件用同样的 10 个随机种子（配对设计）。</p>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>条件</th><th>含义</th></tr></thead>
+          <tbody>
+            <tr><td><b>fly</b></td><td>真实连接组</td></tr>
+            <tr><td>oracle</td><td>不经大脑，直接按敌人方位转向开火（上限参照）</td></tr>
+            <tr><td>lesion025</td><td>敲除左右 AOTU025（外周通路）</td></tr>
+            <tr><td>lesion</td><td>敲除左右 AOTU019 + AOTU025</td></tr>
+            <tr><td>scrambled_cal</td><td>度保持打乱接线，用它自己的标定阈值（更公平）</td></tr>
+            <tr><td>scrambled</td><td>度保持打乱接线，沿用真实回路阈值</td></tr>
+            <tr><td>random</td><td>随机按键（下限参照）</td></tr>
+          </tbody>
+        </table></div>
+        <div class="chart" id="chart-kills"><p class="chart-title">每局击杀数</p><p class="chart-sub">条形 = 10 局平均，横线 = 自助法 95% 置信区间，点 = 每一局。</p><svg id="svg-kills" role="img" aria-label="各条件每局击杀数条形图"></svg></div>
+        <div class="tbl-wrap"><table id="doom-table"><thead><tr><th>条件</th><th class="n">击杀 均值±标准差</th><th class="n">95% CI</th><th class="n">存活 (s)</th><th class="n">命中率</th><th class="n">p（vs fly）</th><th class="n">转错方向</th></tr></thead><tbody></tbody></table></div>
+        <p class="note">p 值为同种子配对的符号翻转置换检验（20,000 次，双侧）。“转错方向”取自第 1 局逐帧记录：目标偏离 ±6° 以外时，发出反向转向指令的帧占比。真实回路全程 0%。</p>
+        <div class="chart" id="chart-trace"><p class="chart-title">一局里的瞄准过程（真实回路，第 1 局前 12 秒）</p><p class="chart-sub">上：最近敌人的方位（果蝇视野角），灰带为 ±6° 双眼重叠区。下：关键神经元放电率；红色竖线 = 开火。</p><div class="legend" id="leg-trace"></div><svg id="svg-trace" role="img" aria-label="一局中目标方位、神经放电与开火的时间序列"></svg></div>
+        <div class="frames">
+          <figure><img src="doom_fly_10s.jpg" alt="Doom 第 10 秒：敌人在右侧，右侧 AOTU025 和 DNa02 放电，果蝇右转" loading="lazy"><figcaption>第 10 秒：敌人在右侧外周 → AOTU025 右 125 Hz → DNa02 右 124 Hz → 右转。</figcaption></figure>
+          <figure><img src="live_fly_fire.jpg" alt="Doom 前台录像：敌人在正前方，左右 AOTU019 同时放电，开火" loading="lazy"><figcaption>前台录像第 9 秒：敌人在正前方 → AOTU019 左 192 / 右 204 Hz → 开火。</figcaption></figure>
+        </div>
+        <h3>两次前台实时演示</h3>
+        <div class="tbl-wrap"><table id="live-table"><thead><tr><th>种子</th><th class="n">真实连接组 击杀 / 存活</th><th class="n">打乱接线 击杀 / 存活</th></tr></thead><tbody></tbody></table></div>
+      </section>
+
+      <section id="web">
+        <p class="sec-k">§7 · Web game</p>
+        <h2>网页：果蝇神射手</h2>
+        <p>同一个回路、同一套方程在浏览器的 Web Worker 里实时运行（1× 实时，约 1,500–2,000 次放电/秒），3D 场景里果蝇站在台座上，青色目标绕场飞行。</p>
+        <ul>
+          <li><b>神经回路窗</b>：3,963 个神经元按“眼 → 第 1 层 → 第 2 层 → 下行 DN”分层排列，左脑在左、右脑在右，每次放电都会闪亮；AOTU019/025 与 DN 画成带放电率的大节点，关键连接的线宽随源头活动变化。切到“大脑 3D 位置”可看这些神经元在真实大脑里的胞体坐标闪烁。</li>
+          <li><b>关键神经元窗</b>：8 个关键群的实时放电率、转向信号指针与阈值刻度、最近 4 秒的放电轨迹与开火标记。</li>
+          <li><b>实验台</b>：一键切换真实/打乱接线，勾选敲除 AOTU019、AOTU025、DNa02 左右，调目标数量和速度。</li>
+          <li><b>战绩</b>：按条件分别记录命中、射击、命中率、击杀/分，方便现场对比。</li>
+          <li>全部窗口可拖动、最小化、关闭、缩放，顶栏可重新打开与复位；中英双语。</li>
+        </ul>
+        <p class="note">与 Doom 的差别：网页用比例转向（转速 ∝ 转向信号），论文中 DNa02 左右差对应的就是转向角速度；Doom 只能离散按键。本地运行时实测 12 秒内曾出现“目标停在视野边缘、信号低于阈值而卡住”，改为比例转向后解决。</p>
+        <div class="code"><pre><span class="cm"># 本地运行（fruitfly-lab 目录下）</span>
+node fly-aim/tools/serve.mjs 8765
+open http://localhost:8765</pre></div>
+      </section>
+
+      <section id="limits">
+        <p class="sec-k">§8 · Limits</p>
+        <h2>局限与诚实声明</h2>
+        <ol>
+          <li><b>视觉是捷径。</b>敌人方位来自 ViZDoom 的物体标签，不是从像素里算出来的；复眼光学与视叶处理全部跳过。</li>
+          <li><b>视野位置代理有循环性。</b>LC10a 的中央/外周偏好由它连到 AOTU019 还是 AOTU025 定义，所以 AOTU019/025 的方位调谐不能当作独立证据；独立的证据是同侧转向方向与打乱对照。</li>
+          <li><b>读出读了中间神经元。</b>子图里 DNa02 没有基线放电，AOTU019 的抑制性转向无法在 DN 上体现，因此直接读 AOTU019 左右差和双侧活跃度。这让“敲除 AOTU019+025 → 0 击杀”部分成为规则的必然结果；更有信息量的是只敲除 AOTU025（5.5，p = 0.048，样本仅 10 局，属边缘显著）。</li>
+          <li><b>阈值偏向真实回路。</b>scrambled 沿用真实回路阈值对它不利，所以另设 scrambled_cal 用自己的标定；两者都接近随机水平。</li>
+          <li><b>子图截断。</b>只保留深度 2、突触 ≥ 5 的路径，右侧 DNa02 幅度明显低于全脑模型；大脑其余部分、身体运动系统与飞行都没有模拟。</li>
+          <li><b>神经元极简。</b>LIF 模型，无树突、无可塑性、无神经调质；雌性 FlyWire 数据，不是 9 月发布的雄性 MaleCNS。</li>
+          <li><b>统计有限。</b>每个条件 10 局；fly 与 oracle 的差异不显著（p = 0.35），不能说“接近上限”以外的更强结论。瞄准质量指标只来自第 1 局的逐帧记录。</li>
+          <li><b>任务很简单。</b><code>defend_the_center</code> 只有转向与开火，26 发弹药限制了击杀上限。</li>
+        </ol>
+      </section>
+
+      <section id="repro">
+        <p class="sec-k">§9 · Reproduce</p>
+        <h2>复现步骤</h2>
+        <div class="code"><pre><span class="cm"># 0. 环境（均已在本机建好）</span>
+uv venv --python 3.12 doom-play/.venv
+uv pip install --python doom-play/.venv/bin/python vizdoom numpy numba imageio imageio-ffmpeg pillow
+curl -sL -o data/flywire_annotations_783.tsv https://raw.githubusercontent.com/flyconnectome/flywire_annotations/main/supplemental_files/Supplemental_file1_neuron_annotations.tsv
+
+<span class="cm"># 1. 抽回路 → circuit/meta.json + edges.bin</span>
+Drosophila_brain_model/.venv/bin/python flycircuit/extract.py
+<span class="cm"># 2. 子图 vs 全脑 vs 打乱 验证（全脑部分约 4 分钟）</span>
+Drosophila_brain_model/.venv/bin/python flycircuit/validate.py
+<span class="cm"># 3. 标定 + 7 个条件各 10 局 + 统计</span>
+doom-play/.venv/bin/python doom/fly_doom.py --calibrate
+for p in fly scrambled scrambled_cal lesion lesion025 random oracle; do doom-play/.venv/bin/python doom/fly_doom.py --policy $p --episodes 10 --record; done
+doom-play/.venv/bin/python doom/analyze.py
+<span class="cm"># 4. 前台实时演示 + 录像</span>
+open run_doom_demo.command</pre></div>
+      </section>
+
+      <section id="files">
+        <p class="sec-k">§10 · Files</p>
+        <h2>文件与来源</h2>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>路径（fruitfly-lab/）</th><th>内容</th></tr></thead>
+          <tbody>
+            <tr><td><code>flycircuit/extract.py · lif.py · validate.py</code></td><td>回路抽取、LIF 仿真（numba/numpy）、全脑对照验证</td></tr>
+            <tr><td><code>circuit/</code></td><td>子图数据：meta.json（神经元、分组、坐标）+ edges.bin（CSR）</td></tr>
+            <tr><td><code>doom/fly_doom.py · live_demo.py · analyze.py</code></td><td>批量实验、前台演示与录像、统计</td></tr>
+            <tr><td><code>doom/results/</code></td><td>各条件 JSON、逐帧轨迹、第 1 局录像、标定曲线、analysis.json</td></tr>
+            <tr><td><code>videos/</code></td><td>前台实时录像（带时间戳）</td></tr>
+            <tr><td><code>fly-aim/</code></td><td>网页“果蝇神射手”（静态站点，可部署）</td></tr>
+            <tr><td><code>run_doom_demo.command</code></td><td>一键前台演示 + 录像</td></tr>
+          </tbody>
+        </table></div>
+        <ol class="sources">
+          <li><a href="https://www.cell.com/neuron/fulltext/S0896-6273(26)00001-2" target="_blank" rel="noopener">Neuron 2026：Specialized parallel pathways for adaptive control of visual object pursuit</a></li>
+          <li><a href="https://github.com/philshiu/Drosophila_brain_model" target="_blank" rel="noopener">Shiu et al. 2024：Drosophila brain model（Brian2 LIF）</a></li>
+          <li><a href="https://github.com/flyconnectome/flywire_annotations" target="_blank" rel="noopener">FlyWire annotations（Schlegel et al. 2024）</a></li>
+          <li><a href="https://vizdoom.farama.org/" target="_blank" rel="noopener">ViZDoom</a></li>
+          <li><a href="https://github.com/cobanov/awesome-fly" target="_blank" rel="noopener">awesome-fly 项目清单</a></li>
+          <li><a href="https://github.com/nftechie/doomfly" target="_blank" rel="noopener">DOOMFLY</a> · <a href="https://github.com/eganeganegan/flydoom" target="_blank" rel="noopener">FlyDoom</a></li>
+          <li><a href="https://research.google/blog/a-connectomics-milestone-mapping-the-complete-male-fruit-fly-brain/" target="_blank" rel="noopener">Google Research：MaleCNS 发布</a></li>
+          <li><a href="https://www.stork.ai/blog/google-unleashed-a-fly-brain-chaos-ensued" target="_blank" rel="noopener">Stork.AI：刷屏演示的机制拆解</a></li>
+        </ol>
+        <footer>fruitfly-lab · 实验报告 v1 · 所有数值由 build_report.py 从原始结果文件嵌入</footer>
+      </section>
+    </main>
+  </div>
+</div>
+
+<script>
+const DATA = /*DATA*/null;
+(function(){
+  const $ = (s) => document.querySelector(s);
+  const css = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const NS = "http://www.w3.org/2000/svg";
+  const el = (tag, attrs = {}, parent) => { const e = document.createElementNS(NS, tag); for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v); if (parent) parent.appendChild(e); return e; };
+  const D = DATA.doom, C = DATA.calibration;
+  const NAME = { fly: "真实连接组", oracle: "oracle（不经大脑）", lesion025: "敲除 AOTU025", lesion: "敲除 AOTU019+025", scrambled_cal: "打乱接线·自标定", scrambled: "打乱接线·沿用阈值", random: "随机按键" };
+  const ORDER = ["oracle", "fly", "lesion025", "scrambled_cal", "scrambled", "lesion", "random"];
+  const colorOf = (k) => k === "fly" ? css("--real") : k.startsWith("scr") ? css("--scr") : k.startsWith("lesion") ? css("--les") : css("--neutral");
+  const fmtP = (p) => p == null ? "—" : p < 0.001 ? "< 0.001" : p.toFixed(3);
+
+  // 顶部数字
+  $("#big-real").textContent = D.fly.kills.toFixed(1);
+  $("#big-oracle").textContent = D.oracle.kills.toFixed(1);
+  $("#big-scr").textContent = D.scrambled_cal.kills.toFixed(1);
+  $("#big-p").textContent = fmtP(D.scrambled_cal.p_vs_fly);
+  const facts = [
+    ["真实回路平均击杀", D.fly.kills.toFixed(1)], ["占上限 oracle", Math.round(100 * D.fly.kills / D.oracle.kills) + "%"],
+    ["打乱接线平均击杀", D.scrambled_cal.kills.toFixed(1)], ["敲除 AOTU025", D.lesion025.kills.toFixed(1)],
+    ["神经元 / 连接", `${DATA.circuit.n.toLocaleString()} / ${(DATA.circuit.e / 1000).toFixed(0)}k`], ["训练参数", "0"],
+  ];
+  $("#facts").innerHTML = facts.map(([a, b]) => `<div><dt>${a}</dt><dd>${b}</dd></div>`).join("");
+  const L = DATA.circuit.layers;
+  $("#circuit-facts").innerHTML = [["神经元", DATA.circuit.n.toLocaleString()], ["连接", DATA.circuit.e.toLocaleString()], ["抑制性连接", DATA.circuit.inh_pct + "%"],
+    ["LC10a（眼）", L["0"]], ["第 1 层", L["1"]], ["第 2 层", L["2"]], ["转向 DN", L["3"]]].map(([a, b]) => `<div><dt>${a}</dt><dd>${b}</dd></div>`).join("");
+  const synName = (k) => k.replace(">", " → ").replaceAll("_L", " 左").replaceAll("_R", " 右");
+  $("#syn").innerHTML = Object.entries(DATA.keyw).map(([k, v]) => `<div><span>${synName(k)}</span><span class="w" style="color:${v < 0 ? css("--scr") : css("--real")}">${v > 0 ? "+" : ""}${v.toLocaleString()}</span></div>`).join("");
+
+  // 验证表
+  const V = DATA.validation, vt = $("#val-table tbody");
+  const MN = { subgraph: "子图", scrambled: "子图·打乱", full_brain: "全脑 Brian2" };
+  for (const stim of ["LC10a_L", "LC10a_R"]) for (const m of ["full_brain", "subgraph", "scrambled"]) {
+    const r = V[`${stim}/${m}`]; if (!r) continue;
+    const d = r.DNa02_R - r.DNa02_L, want = stim.endsWith("_R") ? 1 : -1;
+    const ok = Math.sign(d) === want && Math.abs(d) > 1;
+    vt.insertAdjacentHTML("beforeend", `<tr class="${m === "subgraph" ? "hl" : ""}"><td>${stim.endsWith("_L") ? "左眼" : "右眼"} LC10a</td><td>${MN[m]}</td><td class="n">${r.DNa02_L.toFixed(1)}</td><td class="n">${r.DNa02_R.toFixed(1)}</td><td class="n">${d > 0 ? "+" : ""}${d.toFixed(1)}</td><td class="n">${r.AOTU019_L.toFixed(0)} / ${r.AOTU019_R.toFixed(0)}</td><td class="n">${r.AOTU025_L.toFixed(0)} / ${r.AOTU025_R.toFixed(0)}</td><td><span class="pill ${ok ? "ok" : "bad"}">${ok ? "同侧 ✓" : "方向错"}</span></td></tr>`);
+  }
+
+  // 通用：tooltip
+  function tipFor(chart) { const t = document.createElement("div"); t.className = "tip"; t.hidden = true; chart.appendChild(t); return t; }
+  function showTip(tip, chart, evt, html) { const r = chart.getBoundingClientRect(); tip.hidden = false; tip.innerHTML = html; tip.style.left = Math.min(Math.max(evt.clientX - r.left, 90), r.width - 90) + "px"; tip.style.top = (evt.clientY - r.top) + "px"; }
+
+  function lineChart(svg, { series, xDomain, yDomain, xTicks, yTicks, xLabel, band, height = 260, chart }) {
+    svg.innerHTML = "";
+    const W = svg.clientWidth || 640, H = height, M = { l: 44, r: 16, t: 10, b: 34 };
+    svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+    const x = (v) => M.l + (v - xDomain[0]) / (xDomain[1] - xDomain[0]) * (W - M.l - M.r);
+    const y = (v) => H - M.b - (v - yDomain[0]) / (yDomain[1] - yDomain[0]) * (H - M.t - M.b);
+    if (band) el("rect", { x: M.l, y: y(band[1]), width: W - M.l - M.r, height: y(band[0]) - y(band[1]), fill: css("--ink-3"), "fill-opacity": 0.12 }, svg);
+    for (const v of yTicks) { el("line", { x1: M.l, x2: W - M.r, y1: y(v), y2: y(v), class: "grid" }, svg); const t = el("text", { x: M.l - 6, y: y(v) + 4, "text-anchor": "end", class: "axis" }, svg); t.textContent = v; }
+    for (const v of xTicks) { const t = el("text", { x: x(v), y: H - M.b + 16, "text-anchor": "middle", class: "axis" }, svg); t.textContent = v; }
+    const xl = el("text", { x: W - M.r, y: H - 4, "text-anchor": "end", class: "axis" }, svg); xl.textContent = xLabel;
+    el("line", { x1: M.l, x2: W - M.r, y1: y(Math.max(yDomain[0], 0)), y2: y(Math.max(yDomain[0], 0)), stroke: css("--ink-3"), "stroke-width": 1 }, svg);
+    for (const s of series) {
+      el("path", { d: s.pts.map((p, i) => `${i ? "L" : "M"}${x(p[0]).toFixed(1)},${y(p[1]).toFixed(1)}`).join(""), fill: "none", stroke: s.color, "stroke-width": 2, "stroke-dasharray": s.dash ? "6 4" : "none" }, svg);
+      for (const p of s.pts) el("circle", { cx: x(p[0]), cy: y(p[1]), r: 3, fill: s.color, stroke: css("--paper"), "stroke-width": 1.5 }, svg);
+    }
+    // hover crosshair
+    const tip = tipFor(chart), cross = el("line", { y1: M.t, y2: H - M.b, stroke: css("--ink-3"), "stroke-dasharray": "3 3", visibility: "hidden" }, svg);
+    const hit = el("rect", { x: M.l, y: M.t, width: W - M.l - M.r, height: H - M.t - M.b, fill: "transparent" }, svg);
+    const xs = series[0].pts.map((p) => p[0]);
+    hit.addEventListener("mousemove", (e) => {
+      const r = svg.getBoundingClientRect(), px = (e.clientX - r.left) * W / r.width;
+      const xv = xs.reduce((a, b) => Math.abs(x(b) - px) < Math.abs(x(a) - px) ? b : a);
+      cross.setAttribute("x1", x(xv)); cross.setAttribute("x2", x(xv)); cross.setAttribute("visibility", "visible");
+      showTip(tip, chart, e, `${xLabel.split(" ")[0]} ${xv}<br>` + series.map((s) => `${s.name}: ${(s.pts.find((p) => p[0] === xv) || [0, 0])[1].toFixed(1)}`).join("<br>"));
+    });
+    hit.addEventListener("mouseleave", () => { tip.hidden = true; cross.setAttribute("visibility", "hidden"); });
+  }
+  const legend = (id, items) => { $(id).innerHTML = items.map((s) => `<span style="color:${s.color}"><i class="${s.dash ? "dash" : ""}" style="background:${s.color}"></i><span style="color:${css("--ink-2")}">${s.name}</span></span>`).join(""); };
+
+  function drawSteer() {
+    const th = C.fly.cal.turn_th; $("#turn-th").textContent = th.toFixed(0);
+    const series = [
+      { name: "真实连接组", color: css("--real"), pts: C.fly.rows.map((r) => [r.az, r.steer]) },
+      { name: "打乱接线", color: css("--scr"), pts: C.scrambled.rows.map((r) => [r.az, r.steer]), dash: true },
+    ];
+    legend("#leg-steer", series);
+    lineChart($("#svg-steer"), { series, xDomain: [-90, 90], yDomain: [-300, 300], xTicks: [-90, -60, -30, 0, 30, 60, 90], yTicks: [-300, -150, 0, 150, 300], xLabel: "目标方位 (°)", band: [-th, th], chart: $("#chart-steer") });
+  }
+  function drawAotu() {
+    const R = C.fly.rows;
+    const series = [
+      { name: "AOTU019 左", color: css("--real"), pts: R.map((r) => [r.az, r.AOTU019_L]) },
+      { name: "AOTU019 右", color: css("--real"), pts: R.map((r) => [r.az, r.AOTU019_R]), dash: true },
+      { name: "AOTU025 左", color: css("--scr"), pts: R.map((r) => [r.az, r.AOTU025_L]) },
+      { name: "AOTU025 右", color: css("--scr"), pts: R.map((r) => [r.az, r.AOTU025_R]), dash: true },
+    ];
+    legend("#leg-aotu", series);
+    lineChart($("#svg-aotu"), { series, xDomain: [-90, 90], yDomain: [0, 260], xTicks: [-90, -60, -30, 0, 30, 60, 90], yTicks: [0, 100, 200], xLabel: "目标方位 (°) · Hz", chart: $("#chart-aotu") });
+  }
+
+  function drawKills() {
+    const svg = $("#svg-kills"), chart = $("#chart-kills"); svg.innerHTML = "";
+    const W = svg.clientWidth || 640, rowH = 34, M = { l: 150, r: 64, t: 8, b: 30 }, H = M.t + ORDER.length * rowH + M.b;
+    svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+    const max = 20, x = (v) => M.l + v / max * (W - M.l - M.r);
+    for (const v of [0, 5, 10, 15, 20]) { el("line", { x1: x(v), x2: x(v), y1: M.t, y2: H - M.b, class: "grid" }, svg); const t = el("text", { x: x(v), y: H - M.b + 16, "text-anchor": "middle", class: "axis" }, svg); t.textContent = v; }
+    const tip = tipFor(chart);
+    ORDER.forEach((k, i) => {
+      const d = D[k]; if (!d) return;
+      const yc = M.t + i * rowH + rowH / 2, c = colorOf(k);
+      const lab = el("text", { x: M.l - 10, y: yc + 4, "text-anchor": "end", class: "lab" }, svg); lab.textContent = NAME[k];
+      el("rect", { x: M.l, y: yc - 9, width: Math.max(0, x(d.kills) - M.l), height: 18, rx: 3, fill: c, "fill-opacity": k === "fly" ? 0.9 : 0.55 }, svg);
+      const [lo, hi] = d.kills_ci95;
+      el("line", { x1: x(lo), x2: x(hi), y1: yc, y2: yc, stroke: css("--ink"), "stroke-width": 1.5 }, svg);
+      for (const e of [lo, hi]) el("line", { x1: x(e), x2: x(e), y1: yc - 5, y2: yc + 5, stroke: css("--ink"), "stroke-width": 1.5 }, svg);
+      d.kills_list.forEach((v, j) => el("circle", { cx: x(v), cy: yc + 13 - (j % 3) * 0, r: 2.4, fill: css("--ink"), "fill-opacity": 0.55 }, svg));
+      const val = el("text", { x: W - M.r + 8, y: yc + 4, class: "val" }, svg); val.textContent = d.kills.toFixed(1);
+      const hit = el("rect", { x: 0, y: yc - rowH / 2, width: W, height: rowH, fill: "transparent" }, svg);
+      hit.addEventListener("mousemove", (e) => showTip(tip, chart, e, `${NAME[k]}<br>均值 ${d.kills.toFixed(1)} · 95%CI [${lo}, ${hi}]<br>每局 ${d.kills_list.join(", ")}`));
+      hit.addEventListener("mouseleave", () => { tip.hidden = true; });
+    });
+    const xl = el("text", { x: W - 4, y: H - M.b + 16, "text-anchor": "end", class: "axis" }, svg); xl.textContent = "击杀/局";
+  }
+
+  function doomTable() {
+    $("#doom-table tbody").innerHTML = ORDER.filter((k) => D[k]).map((k) => {
+      const d = D[k], wrong = d.aim && d.aim.turn_wrong_pct != null ? d.aim.turn_wrong_pct + "%" : "—";
+      return `<tr class="${k === "fly" ? "hl" : ""}"><td><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${colorOf(k)};margin-right:8px;vertical-align:-1px"></span>${NAME[k]}</td><td class="n">${d.kills.toFixed(1)} ± ${d.kills_sd.toFixed(1)}</td><td class="n">[${d.kills_ci95[0]}, ${d.kills_ci95[1]}]</td><td class="n">${d.survival_s.toFixed(1)}</td><td class="n">${Math.round(100 * d.accuracy)}%</td><td class="n">${fmtP(d.p_vs_fly)}</td><td class="n">${k === "random" || k === "oracle" ? "—" : wrong}</td></tr>`;
+    }).join("");
+    $("#live-table tbody").innerHTML = DATA.live.map((l) => `<tr><td class="num">${l.seed}</td><td class="n">${l.fly[0]} / ${l.fly[1]} s</td><td class="n">${l.scrambled_cal[0]} / ${l.scrambled_cal[1]} s</td></tr>`).join("");
+  }
+
+  function drawTrace() {
+    const svg = $("#svg-trace"), chart = $("#chart-trace"); svg.innerHTML = "";
+    const T = DATA.trace, W = svg.clientWidth || 640, H = 330, M = { l: 44, r: 16, t: 8, b: 30 }, split = 120;
+    svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+    const x = (i) => M.l + i / (T.length - 1) * (W - M.l - M.r);
+    const ya = (v) => M.t + (90 - v) / 180 * (split - M.t);
+    const yr = (v) => H - M.b - Math.min(v, 250) / 250 * (H - M.b - split - 18);
+    el("rect", { x: M.l, y: ya(6), width: W - M.l - M.r, height: ya(-6) - ya(6), fill: css("--ink-3"), "fill-opacity": 0.14 }, svg);
+    for (const v of [-90, 0, 90]) { el("line", { x1: M.l, x2: W - M.r, y1: ya(v), y2: ya(v), class: "grid" }, svg); const t = el("text", { x: M.l - 6, y: ya(v) + 4, "text-anchor": "end", class: "axis" }, svg); t.textContent = v + "°"; }
+    for (const v of [0, 100, 200]) { el("line", { x1: M.l, x2: W - M.r, y1: yr(v), y2: yr(v), class: "grid" }, svg); const t = el("text", { x: M.l - 6, y: yr(v) + 4, "text-anchor": "end", class: "axis" }, svg); t.textContent = v; }
+    T.forEach((f, i) => { if (f.a[2]) el("line", { x1: x(i), x2: x(i), y1: split + 14, y2: H - M.b, stroke: css("--les"), "stroke-opacity": 0.35, "stroke-width": 1 }, svg); });
+    let d = "", pen = false;
+    T.forEach((f, i) => { if (f.az == null) { pen = false; return; } d += `${pen ? "L" : "M"}${x(i).toFixed(1)},${ya(f.az).toFixed(1)}`; pen = true; });
+    el("path", { d, fill: "none", stroke: css("--ink"), "stroke-width": 1.8 }, svg);
+    const series = [
+      { k: "DNa02_L", name: "DNa02 左", color: css("--scr") }, { k: "DNa02_R", name: "DNa02 右", color: css("--scr"), dash: true },
+      { k: "AOTU019_L", name: "AOTU019 左", color: css("--real") }, { k: "AOTU019_R", name: "AOTU019 右", color: css("--real"), dash: true },
+    ];
+    for (const s of series) el("path", { d: T.map((f, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${yr(f[s.k] || 0).toFixed(1)}`).join(""), fill: "none", stroke: s.color, "stroke-width": 1.6, "stroke-dasharray": s.dash ? "6 4" : "none" }, svg);
+    legend("#leg-trace", [{ name: "敌人方位", color: css("--ink") }, ...series, { name: "开火", color: css("--les") }]);
+    for (const s of [0, 3, 6, 9, 12]) { const i = Math.min(T.length - 1, Math.round(s * 35)); const t = el("text", { x: x(i), y: H - M.b + 16, "text-anchor": "middle", class: "axis" }, svg); t.textContent = s + "s"; }
+    const hz = el("text", { x: M.l - 6, y: split + 12, "text-anchor": "end", class: "axis" }, svg); hz.textContent = "Hz";
+    const tip = tipFor(chart), cross = el("line", { y1: M.t, y2: H - M.b, stroke: css("--ink-3"), "stroke-dasharray": "3 3", visibility: "hidden" }, svg);
+    const hit = el("rect", { x: M.l, y: M.t, width: W - M.l - M.r, height: H - M.t - M.b, fill: "transparent" }, svg);
+    hit.addEventListener("mousemove", (e) => {
+      const r = svg.getBoundingClientRect(), px = (e.clientX - r.left) * W / r.width;
+      const i = Math.max(0, Math.min(T.length - 1, Math.round((px - M.l) / (W - M.l - M.r) * (T.length - 1)))), f = T[i];
+      cross.setAttribute("x1", x(i)); cross.setAttribute("x2", x(i)); cross.setAttribute("visibility", "visible");
+      const act = ["左转", "右转", "开火"].filter((_, j) => f.a[j]).join("+") || "—";
+      showTip(tip, chart, e, `t=${(i / 35).toFixed(2)}s · 方位 ${f.az == null ? "无" : f.az + "°"}<br>DNa02 L/R ${f.DNa02_L}/${f.DNa02_R} Hz<br>AOTU019 L/R ${f.AOTU019_L}/${f.AOTU019_R} Hz<br>动作 ${act}`);
+    });
+    hit.addEventListener("mouseleave", () => { tip.hidden = true; cross.setAttribute("visibility", "hidden"); });
+  }
+
+  function drawAll() { drawSteer(); drawAotu(); drawKills(); drawTrace(); }
+  doomTable(); drawAll();
+  let rt; new ResizeObserver(() => { clearTimeout(rt); rt = setTimeout(drawAll, 120); }).observe(document.querySelector("main"));
+  new MutationObserver(drawAll).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", drawAll);
+
+  document.querySelectorAll(".code").forEach((block) => {
+    const b = document.createElement("button"); b.className = "copy"; b.type = "button"; b.textContent = "复制";
+    b.addEventListener("click", async () => {
+      const text = [...block.querySelector("pre").childNodes].filter((n) => !(n.classList && n.classList.contains("cm"))).map((n) => n.textContent).join("").replace(/\n{2,}/g, "\n").trim();
+      try { await navigator.clipboard.writeText(text); b.textContent = "已复制"; } catch { b.textContent = "请手动选择"; }
+      setTimeout(() => (b.textContent = "复制"), 1600);
+    });
+    block.appendChild(b);
+  });
+})();
+</script>

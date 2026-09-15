@@ -1,0 +1,37 @@
+[fly] az= -90°  DNa02 L/R= 203.6/   0.0  AOTU019 L/R=  15.8/   0.0  steer= -219.5
+[fly] az= -75°  DNa02 L/R= 207.9/   0.0  AOTU019 L/R=  76.0/   0.0  steer= -284.0
+[fly] az= -60°  DNa02 L/R= 196.4/   0.0  AOTU019 L/R= 138.9/   0.0  steer= -335.2
+[fly] az= -45°  DNa02 L/R= 101.7/   0.0  AOTU019 L/R= 182.0/   0.0  steer= -283.7
+[fly] az= -30°  DNa02 L/R=   3.8/   0.0  AOTU019 L/R= 217.8/   0.0  steer= -221.6
+[fly] az= -20°  DNa02 L/R=   0.1/   0.0  AOTU019 L/R= 229.8/   0.0  steer= -229.9
+[fly] az= -10°  DNa02 L/R=   0.0/   0.0  AOTU019 L/R= 238.8/   0.0  steer= -238.8
+[fly] az=  -5°  DNa02 L/R=   0.0/   0.0  AOTU019 L/R= 225.5/ 199.5  steer=  -26.0
+[fly] az=  +0°  DNa02 L/R=   0.0/   0.0  AOTU019 L/R= 219.9/ 191.4  steer=  -28.6
+[fly] az=  +5°  DNa02 L/R=   0.0/   0.0  AOTU019 L/R= 225.5/ 199.5  steer=  -26.0
+[fly] az= +10°  DNa02 L/R=   0.0/   0.0  AOTU019 L/R=  16.8/ 250.0  steer= +233.3
+[fly] az= +20°  DNa02 L/R=   0.0/   0.1  AOTU019 L/R=   1.9/ 249.0  steer= +247.2
+[fly] az= +30°  DNa02 L/R=   0.0/   0.1  AOTU019 L/R=   0.0/ 240.7  steer= +240.8
+[fly] az= +45°  DNa02 L/R=   0.0/  31.0  AOTU019 L/R=   0.0/ 207.3  steer= +238.4
+[fly] az= +60°  DNa02 L/R=   0.0/ 118.6  AOTU019 L/R=   0.0/ 159.3  steer= +277.9
+[fly] az= +75°  DNa02 L/R=   0.0/ 173.1  AOTU019 L/R=   0.0/  84.9  steer= +258.0
+[fly] az= +90°  DNa02 L/R=   0.0/ 154.3  AOTU019 L/R=   0.0/   4.2  steer= +158.6
+[fly] 读出阈值：{'turn_th': np.float64(130.93), 'fire_th': np.float64(95.68), 'quiet_th': 5.0, 'note': 'turn_th = |steer| 在 0° 与 ±10° 的中点；fire_th = 0° 时双侧 AOTU019 较小者的一半'}  （1.3s）
+[scrambled] az= -90°  DNa02 L/R=   1.7/  12.1  AOTU019 L/R=   3.2/  24.6  steer=  +31.7
+[scrambled] az= -75°  DNa02 L/R=   0.0/  11.2  AOTU019 L/R=  25.3/  36.2  steer=  +22.0
+[scrambled] az= -60°  DNa02 L/R=   0.0/  12.6  AOTU019 L/R=  47.4/  36.8  steer=   +2.0
+[scrambled] az= -45°  DNa02 L/R=   0.0/  16.1  AOTU019 L/R=  63.8/  20.6  steer=  -27.0
+[scrambled] az= -30°  DNa02 L/R=   6.5/  15.4  AOTU019 L/R=  64.1/  14.8  steer=  -40.3
+[scrambled] az= -20°  DNa02 L/R=   8.6/  11.3  AOTU019 L/R=  58.9/  11.0  steer=  -45.2
+[scrambled] az= -10°  DNa02 L/R=  15.2/  10.7  AOTU019 L/R=  50.4/   3.4  steer=  -51.5
+[scrambled] az=  -5°  DNa02 L/R=  14.0/   4.1  AOTU019 L/R=  39.5/  18.3  steer=  -31.1
+[scrambled] az=  +0°  DNa02 L/R=  21.3/   1.0  AOTU019 L/R=  33.4/  16.9  steer=  -36.8
+[scrambled] az=  +5°  DNa02 L/R=  14.0/   4.1  AOTU019 L/R=  39.5/  18.3  steer=  -31.1
+[scrambled] az= +10°  DNa02 L/R=  12.8/   0.0  AOTU019 L/R=   0.2/   5.3  steer=   -7.8
+[scrambled] az= +20°  DNa02 L/R=   8.1/   0.0  AOTU019 L/R=   0.0/   5.1  steer=   -3.0
+[scrambled] az= +30°  DNa02 L/R=   2.9/   0.0  AOTU019 L/R=   3.1/   1.6  steer=   -4.3
+[scrambled] az= +45°  DNa02 L/R=   0.0/   2.9  AOTU019 L/R=   6.5/   4.8  steer=   +1.2
+[scrambled] az= +60°  DNa02 L/R=   0.0/  10.3  AOTU019 L/R=   8.4/  14.3  steer=  +16.2
+[scrambled] az= +75°  DNa02 L/R=   0.0/   9.3  AOTU019 L/R=   8.7/  10.8  steer=  +11.4
+[scrambled] az= +90°  DNa02 L/R=   0.0/   3.2  AOTU019 L/R=   6.5/   0.0  steer=   -3.2
+[scrambled] 读出阈值：{'turn_th': np.float64(40.46), 'fire_th': np.float64(8.44), 'quiet_th': 5.0, 'note': 'turn_th = |steer| 在 0° 与 ±10° 的中点；fire_th = 0° 时双侧 AOTU019 较小者的一半'}  （1.0s）
+ALLDONE

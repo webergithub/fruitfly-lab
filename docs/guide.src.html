@@ -1,0 +1,564 @@
+<title>数字果蝇上手手册</title>
+<meta name="description" content="果蝇 AI 的来龙去脉、冷静解读，以及在 Mac 上亲手跑通全脑模型与数字身体的实测记录。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@600;900&display=swap">
+<style>
+:root{
+  --ground:#EEF1EF; --paper:#FBFCFB; --ink:#16201C; --ink-2:#4E5A55; --ink-3:#77837D;
+  --rule:#D3DAD6; --rule-2:#E3E8E5; --code-bg:#E6EBE8;
+  --eye:#B42D24; --amber:#B07A12; --teal:#00897A; --red:#C0332A;
+  --ok-bg:#DDEFEA; --warn-bg:#F5EAD3; --bad-bg:#F6DEDA;
+  --serif:"Noto Serif SC","Songti SC","STSong",serif;
+  --sans:"Noto Sans SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+  --mono:"JetBrains Mono","SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#0F1311; --paper:#161B19; --ink:#E0E6E2; --ink-2:#A3AEA8; --ink-3:#7B8781;
+    --rule:#2B3430; --rule-2:#222A26; --code-bg:#1D2421;
+    --eye:#E0584B; --amber:#B8821E; --teal:#16998A; --red:#DD5446;
+    --ok-bg:#15302B; --warn-bg:#33291A; --bad-bg:#3A1F1C;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0F1311; --paper:#161B19; --ink:#E0E6E2; --ink-2:#A3AEA8; --ink-3:#7B8781;
+  --rule:#2B3430; --rule-2:#222A26; --code-bg:#1D2421;
+  --eye:#E0584B; --amber:#B8821E; --teal:#16998A; --red:#DD5446;
+  --ok-bg:#15302B; --warn-bg:#33291A; --bad-bg:#3A1F1C;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+body{background:var(--ground);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.75;padding-inline:16px;padding-block:0 64px}
+a{color:var(--teal);text-underline-offset:3px;text-decoration-thickness:1px}
+a:hover{color:var(--eye)}
+:focus-visible{outline:2px solid var(--eye);outline-offset:2px}
+.wrap{max-width:1160px;margin:0 auto}
+
+/* ---------- specimen label header ---------- */
+.label{border-bottom:1px solid var(--rule);padding-block:28px 26px;display:grid;gap:18px}
+.meta{font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:var(--ink-3);display:flex;flex-wrap:wrap;gap:6px 18px;text-transform:uppercase}
+.meta b{color:var(--ink-2);font-weight:600}
+h1{font-family:var(--serif);font-weight:900;font-size:clamp(28px,5.4vw,58px);line-height:1.12;margin:0;text-wrap:balance;letter-spacing:.01em}
+h1 em{font-style:normal;color:var(--eye)}
+.lede{font-size:18px;color:var(--ink-2);max-width:40em;margin:0}
+
+/* ---------- plates ---------- */
+.plates{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:20px;padding-block:26px 8px}
+@media (max-width:860px){.plates{grid-template-columns:1fr}}
+figure{margin:0}
+.plate{background:var(--paper);border:1px solid var(--rule);display:flex;flex-direction:column}
+.plate-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:2px 12px;padding:10px 14px;border-bottom:1px solid var(--rule-2);font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.04em}
+.plate-head strong{font-family:var(--sans);font-size:14px;color:var(--ink);letter-spacing:0;font-weight:700}
+.plate video{display:block;width:100%;height:auto;max-width:100%;aspect-ratio:4/3;background:#fff}
+.plate figcaption{padding:10px 14px 14px;font-size:14px;color:var(--ink-2);line-height:1.6}
+.legend{display:flex;flex-wrap:wrap;gap:4px 16px;padding:10px 14px 0;font-size:13px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:14px;height:4px;border-radius:2px;display:inline-block}
+.chart{position:relative;padding:6px 8px 0 8px}
+.chart canvas{display:block;width:100%;height:auto}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--paper);font-size:12px;line-height:1.5;padding:6px 9px;border-radius:4px;white-space:nowrap;font-family:var(--mono);transform:translate(-50%,-110%)}
+details.table-view{padding:0 14px 12px;font-size:13px}
+details.table-view summary{cursor:pointer;color:var(--ink-2)}
+
+/* ---------- body layout ---------- */
+.body{display:grid;grid-template-columns:200px minmax(0,1fr);gap:48px;padding-top:36px}
+@media (max-width:960px){.body{grid-template-columns:1fr;gap:0}.toc{display:none}}
+.toc{position:sticky;top:20px;align-self:start;font-size:14px}
+.toc ol{list-style:none;padding:0;margin:0;display:grid;gap:2px;border-left:1px solid var(--rule)}
+.toc a{display:block;padding:4px 0 4px 14px;color:var(--ink-2);text-decoration:none;margin-left:-1px;border-left:2px solid transparent}
+.toc a:hover{color:var(--ink);border-left-color:var(--eye)}
+.toc .k{font-family:var(--mono);font-size:11px;color:var(--ink-3);margin-right:6px}
+main{min-width:0}
+section{padding-block:8px 40px;border-bottom:1px solid var(--rule)}
+section:last-child{border-bottom:0}
+.sec-k{font-family:var(--mono);font-size:12px;letter-spacing:.12em;color:var(--eye);text-transform:uppercase;margin:28px 0 4px}
+h2{font-family:var(--serif);font-weight:900;font-size:clamp(26px,3.4vw,34px);line-height:1.25;margin:0 0 18px;text-wrap:balance}
+h3{font-family:var(--serif);font-weight:600;font-size:21px;line-height:1.4;margin:34px 0 10px;text-wrap:balance}
+h4{font-size:16px;font-weight:700;margin:22px 0 6px}
+p,li{max-width:40em}
+p{margin:0 0 14px}
+ul,ol{padding-left:1.3em;margin:0 0 14px}
+li{margin-bottom:6px}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+code{font-family:var(--mono);font-size:.88em;background:var(--code-bg);padding:1px 5px;border-radius:3px;overflow-wrap:anywhere}
+.note{font-size:14px;color:var(--ink-2)}
+
+/* TL;DR */
+.tldr{display:grid;gap:0;margin:0;padding:0;list-style:none;border-top:1px solid var(--rule)}
+.tldr li{display:grid;grid-template-columns:7.5em minmax(0,1fr);gap:16px;padding:12px 0;border-bottom:1px solid var(--rule-2);margin:0;max-width:none}
+.tldr b{font-family:var(--serif);font-weight:600;color:var(--ink)}
+@media (max-width:560px){.tldr li{grid-template-columns:1fr;gap:2px}}
+
+/* timeline */
+.tl{list-style:none;padding:0;margin:0;border-left:1px solid var(--rule);margin-left:6.2em}
+.tl li{position:relative;padding:0 0 18px 20px;max-width:44em;margin:0}
+.tl li::before{content:"";position:absolute;left:-4px;top:.72em;width:7px;height:7px;border-radius:50%;background:var(--ink-3)}
+.tl li.hot::before{background:var(--eye);box-shadow:0 0 0 3px var(--paper)}
+.tl time{position:absolute;right:calc(100% + 16px);top:.1em;width:6.4em;text-align:right;font-family:var(--mono);font-size:13px;color:var(--ink-2);white-space:nowrap}
+.tl strong{display:block}
+.tl span{color:var(--ink-2);font-size:15px}
+@media (max-width:560px){.tl{margin-left:0}.tl time{position:static;display:block;text-align:left;width:auto}}
+
+/* pipeline */
+.pipe{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;margin:8px 0 22px;border:1px solid var(--rule);background:var(--paper)}
+.pipe > div{padding:14px 14px 16px;border-right:1px solid var(--rule-2);position:relative}
+.pipe > div:last-child{border-right:0}
+.pipe > div:not(:last-child)::after{content:"→";position:absolute;right:-9px;top:14px;background:var(--paper);color:var(--eye);font-weight:700;line-height:1;padding:2px 0}
+.pipe .k{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--ink-3);text-transform:uppercase}
+.pipe b{display:block;font-family:var(--serif);font-size:18px;margin:2px 0 6px}
+.pipe p{font-size:14px;color:var(--ink-2);margin:0;line-height:1.6}
+@media (max-width:760px){.pipe{grid-template-columns:1fr}.pipe > div{border-right:0;border-bottom:1px solid var(--rule-2)}.pipe > div:not(:last-child)::after{content:"↓";right:auto;left:14px;top:auto;bottom:-10px;padding:0 4px}}
+
+/* tables */
+.tbl-wrap{overflow-x:auto;margin:6px 0 18px;border:1px solid var(--rule);background:var(--paper)}
+table{border-collapse:collapse;width:100%;font-size:14px;line-height:1.6}
+th,td{text-align:left;vertical-align:top;padding:10px 12px;border-bottom:1px solid var(--rule-2)}
+th{font-size:12px;font-weight:700;color:var(--ink-3);letter-spacing:.06em;background:var(--ground)}
+tr:last-child td{border-bottom:0}
+td.n{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.pill{display:inline-block;font-size:12px;font-weight:700;padding:1px 8px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-bg);color:var(--teal)}
+.pill.warn{background:var(--warn-bg);color:var(--amber)}
+.pill.bad{background:var(--bad-bg);color:var(--red)}
+
+/* levels */
+.level{margin-top:30px;border-top:2px solid var(--ink);padding-top:14px}
+.level-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px}
+.level-head .lv{font-family:var(--mono);font-weight:600;font-size:14px;color:var(--eye)}
+.level-head h3{margin:0}
+.level-head .cost{font-size:13px;color:var(--ink-3);font-family:var(--mono)}
+.links{list-style:none;padding:0;margin:10px 0 0;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1px;background:var(--rule-2);border:1px solid var(--rule-2)}
+.links li{background:var(--paper);padding:12px 14px;margin:0;max-width:none}
+.links a{font-weight:700}
+.links p{font-size:14px;color:var(--ink-2);margin:4px 0 0}
+.links .tag{font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+
+/* code */
+.code{position:relative;margin:8px 0 16px;background:var(--code-bg);border:1px solid var(--rule-2);border-radius:4px}
+.code pre{margin:0;padding:12px 14px;overflow-x:auto;font-family:var(--mono);font-size:13px;line-height:1.65;color:var(--ink)}
+.code .cm{color:var(--ink-3)}
+.copy{position:absolute;top:6px;right:6px;font:600 11px var(--mono);background:var(--paper);color:var(--ink-2);border:1px solid var(--rule);border-radius:3px;padding:3px 8px;cursor:pointer}
+.copy:hover{color:var(--ink);border-color:var(--ink-3)}
+.out{margin:8px 0 16px;border-left:3px solid var(--teal);background:var(--paper);padding:10px 14px;font-family:var(--mono);font-size:12.5px;line-height:1.7;white-space:pre-wrap;overflow-x:auto;color:var(--ink-2)}
+.out.err{border-left-color:var(--red)}
+
+/* bars for knockout */
+.bars{display:grid;gap:6px;margin:10px 0 16px;max-width:40em}
+.bar{display:grid;grid-template-columns:9.5em minmax(0,1fr) 4.5em;gap:10px;align-items:center;font-size:14px}
+.bar .track{height:12px;background:var(--rule-2);border-radius:0 4px 4px 0}
+.bar .fill{height:100%;background:var(--red);border-radius:0 4px 4px 0}
+.bar.base .fill{background:var(--ink-3)}
+.bar .v{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right}
+
+/* log */
+.log{list-style:none;padding:0;margin:0;counter-reset:step}
+.log > li{counter-increment:step;display:grid;grid-template-columns:3em minmax(0,1fr);gap:10px;padding:16px 0;border-bottom:1px solid var(--rule-2);max-width:none;margin:0}
+.log > li::before{content:counter(step,decimal-leading-zero);font-family:var(--mono);font-size:13px;color:var(--ink-3);padding-top:3px}
+.log h4{margin:0 0 4px;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline}
+.log .dur{font-family:var(--mono);font-size:12px;color:var(--ink-3);font-weight:400}
+.log p{font-size:15px}
+.env{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1px;background:var(--rule-2);border:1px solid var(--rule-2);margin:8px 0 20px}
+.env div{background:var(--paper);padding:10px 12px}
+.env dt{font-size:12px;color:var(--ink-3);letter-spacing:.04em}
+.env dd{margin:0;font-family:var(--mono);font-size:13px}
+dl{margin:0}
+.faq dt{font-weight:700;margin-top:16px}
+.faq dd{margin:4px 0 0;color:var(--ink-2);max-width:40em}
+.sources{columns:2 320px;column-gap:32px;font-size:14px}
+.sources li{break-inside:avoid;max-width:none}
+footer{padding-top:28px;font-size:13px;color:var(--ink-3);font-family:var(--mono)}
+</style>
+
+<div class="wrap">
+  <header class="label">
+    <div class="meta">
+      <span><b>Drosophila melanogaster</b></span>
+      <span>FlyWire v630 · MaleCNS v1.0</span>
+      <span>实测机：Apple M5 / 24 GB</span>
+      <span>2026-09-15</span>
+    </div>
+    <h1>数字果蝇上手手册：一颗<em>十几万个神经元</em>的大脑，怎样在你电脑里“活”起来</h1>
+    <p class="lede">给零基础的你：先讲清楚最近刷屏的“果蝇 AI”到底发生了什么、哪些是真的、哪些被夸大了；再带你一步步在 Mac 上跑出下面这两块“标本板”——它们都是本机真实跑出来的结果。</p>
+  </header>
+
+  <div class="plates">
+    <figure class="plate">
+      <div class="plate-head"><strong>标本板 A · 数字身体</strong><span>NeuroMechFly · MuJoCo</span></div>
+      <video id="walk" src="walking_fly.mp4" controls muted loop playsinline autoplay preload="metadata" aria-label="数字果蝇在平地上以三足步态行走的模拟视频"></video>
+      <figcaption>FlyGym 2.1 三足步态控制器驱动 87 个关节，模拟 2 秒生物时间，胸部前进 <span class="num">28.11 mm</span>。0.25 倍速慢放。本机耗时 <span class="num">22 s</span>。</figcaption>
+    </figure>
+    <figure class="plate">
+      <div class="plate-head"><strong>标本板 B · 数字大脑</strong><span>12.74 万个 LIF 神经元 · 第 1 次试验</span></div>
+      <div class="legend" id="legend"></div>
+      <div class="chart" id="chart"><canvas id="raster" height="360" role="img" aria-label="放电栅格图：刺激 21 个糖味神经元后，下游中继神经元和进食运动神经元 MN9 相继放电"></canvas><div class="tip" id="tip" hidden></div></div>
+      <figcaption>“喂”右脑 21 个糖味感受神经元 1 秒（每个点是一次放电）。信号穿过中间神经元，最终让控制伸口器进食的运动神经元 <b>MN9</b> 以 <span class="num" id="mn9hz">82.3</span> Hz 放电。全脑只有 <span class="num" id="active">413</span> 个神经元被点亮。</figcaption>
+      <details class="table-view"><summary>用表格查看这 40 个神经元</summary><div class="tbl-wrap"><table id="rtable"><thead><tr><th>类别</th><th>FlyWire ID</th><th>平均放电率 (Hz)</th></tr></thead><tbody></tbody></table></div></details>
+    </figure>
+  </div>
+
+  <div class="body">
+    <nav class="toc" aria-label="目录">
+      <ol>
+        <li><a href="#tldr"><span class="k">§1</span>三分钟看懂</a></li>
+        <li><a href="#history"><span class="k">§2</span>来龙去脉</a></li>
+        <li><a href="#concepts"><span class="k">§3</span>四个关键词</a></li>
+        <li><a href="#reality"><span class="k">§4</span>刷屏与冷静看</a></li>
+        <li><a href="#play"><span class="k">§5</span>上手路线</a></li>
+        <li><a href="#log"><span class="k">§6</span>实操过程记录</a></li>
+        <li><a href="#faq"><span class="k">§7</span>常见问题</a></li>
+        <li><a href="#sources"><span class="k">§8</span>资料来源</a></li>
+      </ol>
+    </nav>
+
+    <main>
+      <section id="tldr">
+        <p class="sec-k">§1 · TL;DR</p>
+        <h2>三分钟看懂</h2>
+        <ul class="tldr">
+          <li><b>是什么</b><span>科学家用电子显微镜把果蝇大脑切成几千张超薄片，再用 AI 把每个神经元和每个突触“描”出来，得到一张完整的<b>接线图（连接组）</b>。有人把接线图直接变成可运行的仿真，再接上一个物理模拟的虚拟身体。</span></li>
+          <li><b>为什么现在火</b><span>两波浪潮叠加：<span class="num">2026-03-07</span> 初创公司 Eon Systems 发视频，说“第一次把完整果蝇大脑上传到虚拟身体”，马斯克转发惊叹；<span class="num">2026-09-03</span> Google 与 Janelia 发布雄性果蝇全中枢神经图谱（<span class="num">166,691</span> 个神经元），开发者几天内把它接进 Minecraft、Doom、Beat Saber，甚至拿去炒币。</span></li>
+          <li><b>真实水平</b><span>“只靠接线图、不训练，就能让糖味刺激引出进食反应”——这是真的，你今天就能在自己电脑上复现（见标本板 B）。但它不会学习、没有记忆和情绪，脑与身体之间的接口是人手工挑的几个神经元；大多数“果蝇玩游戏”视频里，真正做决策的是另外训练的 AI。</span></li>
+          <li><b>你能玩什么</b><span>零安装：浏览器里喂果蝇、给它吹风、看 13 万神经元闪烁。十几分钟安装：在 Mac 上跑全脑模型、做“敲除实验”、让数字果蝇走路并导出视频。本手册每条命令都在本机实测过。</span></li>
+        </ul>
+      </section>
+
+      <section id="history">
+        <p class="sec-k">§2 · History</p>
+        <h2>来龙去脉：从“有人说不可能”到“人人能玩”</h2>
+        <p>果蝇只有芝麻大，却会走、会飞、会求偶、会打架、会学习。它的大脑大约 <span class="num">14</span> 万个神经元，比人脑（约 <span class="num">860</span> 亿）小了 60 万倍，是目前唯一“完整画得出、电脑跑得动”的复杂大脑。</p>
+        <ol class="tl">
+          <li><time>2008</time><strong>Janelia 研究园区立项绘制果蝇大脑</strong><span>当时被广泛质疑“做不到也没用”。</span></li>
+          <li><time>2020</time><strong>“半脑”（hemibrain）连接组发布</strong><span>约 2.5 万个神经元，证明这条路走得通，催生了数百项研究。</span></li>
+          <li><time>2024-10</time><strong>FlyWire：第一张成年果蝇全脑接线图</strong><span>雌性果蝇，<span class="num">139,255</span> 个神经元、约 5000 万个突触，发表于 Nature。同期 Shiu 等人发表“只用接线图搭出的全脑 LIF 模型”，刺激糖味神经元就能预测进食运动神经元放电。</span></li>
+          <li><time>2024</time><strong>数字身体就位</strong><span>EPFL 的 NeuroMechFly v2（FlyGym）发表于 Nature Methods：87 个关节、按 X 光显微 CT 扫描建模，能看、能闻、能在复杂地形行走。</span></li>
+          <li><time>2025</time><strong>Janelia × Google DeepMind 的 flybody</strong><span>在 MuJoCo 物理引擎里用强化学习让虚拟果蝇像真的一样走和飞，Nature 发表。</span></li>
+          <li class="hot"><time>2026-03-07</time><strong>Eon Systems：“第一次多行为的具身大脑上传”</strong><span>把 Shiu 全脑模型 + 视觉模型接到 NeuroMechFly 身体上，不训练就出现觅食、梳理触角、进食。马斯克回应“哇”，全网刷屏。整合部分代码未开源。</span></li>
+          <li><time>2026-04</time><strong>FlyGym 2.0 重写</strong><span>CPU 仿真提速约 10 倍，NVIDIA GPU 提速约 300 倍——普通电脑也能流畅跑数字果蝇。</span></li>
+          <li class="hot"><time>2026-09-03</time><strong>雄性果蝇全中枢神经系统连接组 MaleCNS v1.0</strong><span>Janelia、剑桥、Google Research 等在 Cell 发表：<span class="num">166,691</span> 个神经元、约 1.25 亿个突触连接、<span class="num">11,691</span> 种细胞类型，首次包含大脑 + 视叶 + 腹神经索，并首次对比雌雄接线差异。数据免费开放。</span></li>
+          <li class="hot"><time>2026-09-07 → 10</time><strong>“果蝇大脑玩游戏”病毒式传播</strong><span>Minecraft 视频三天 24 万播放；Beat Saber 片段两天约 2200 万播放；随后 Doom、马里奥 64、侧方停车、比特币交易纷纷出现，还冒出了同名 meme 币。</span></li>
+        </ol>
+        <p class="note">中国相关：2024 年北京智源研究院团队构建了高精度仿真秀丽线虫（BAAI-WorM，Nature Computational Science）；2025 年 9 月“国际灵长类介观脑图谱联盟”在上海成立。</p>
+      </section>
+
+      <section id="concepts">
+        <p class="sec-k">§3 · Concepts</p>
+        <h2>四个关键词：一只数字果蝇由哪几块拼成</h2>
+        <p>所有“果蝇 AI”项目都在这条流水线上做文章。看懂这四块，你就能判断任何一个新闻视频到底做了什么。</p>
+        <div class="pipe">
+          <div><span class="k">① 数据</span><b>连接组</b><p>谁连着谁、连了多少个突触、是兴奋还是抑制。像一张<b>电路板布线图</b>，但不含“元件参数”。</p></div>
+          <div><span class="k">② 大脑仿真</span><b>LIF 神经元</b><p>把每个神经元简化成“漏水的桶”：输入攒到阈值就放电、清零。十几万个桶按布线图连起来一起跑。</p></div>
+          <div><span class="k">③ 接口</span><b>下行神经元</b><p>大脑通过约 1000 多个下行神经元指挥身体。现有项目只挑了几个：DNa01/DNa02 管转向，MN9 管进食。</p></div>
+          <div><span class="k">④ 身体</span><b>物理仿真</b><p>MuJoCo 引擎计算关节力、摩擦、足底吸附。NeuroMechFly 与 flybody 是两套开源果蝇身体。</p></div>
+        </div>
+        <h3>“不训练就能动”是怎么回事</h3>
+        <p>普通 AI（比如大模型）从随机参数开始，靠海量数据训练。而连接组模型的“参数”直接抄自真实大脑：在 Shiu 模型里，两个神经元之间的连接强度 = <b>突触数量 × 正负号（按神经递质推测）× 0.275 mV</b>，全模型几乎只有这一个手调的自由参数。结构本身就编码了“尝到糖 → 伸口器”这类本能反射，所以通电就有反应。</p>
+        <h3>它缺了什么</h3>
+        <ul>
+          <li><b>没有学习和记忆</b>：突触强度固定，同样的刺激永远得到同样的反应；真果蝇饿了和饱了的反应不同。</li>
+          <li><b>神经元太简单</b>：没有树突形状、离子通道多样性、激素调节。</li>
+          <li><b>接口是手工挑的</b>：Eon 自己承认，放电率怎样换算成关节力矩是“人为指定的近似”。</li>
+          <li><b>没对照生物学验证</b>：例如头部方向环形吸引子、中枢模式发生器等内部动态尚未核对。</li>
+        </ul>
+        <p class="note">一个参照：秀丽线虫只有 302 个神经元，接线图 1986 年就画完了，但至今还没有一只“完全逼真”的虚拟线虫。只有接线图，离“复制生命”还很远。</p>
+      </section>
+
+      <section id="reality">
+        <p class="sec-k">§4 · Reality check</p>
+        <h2>刷屏与冷静看：流行说法 vs 实际情况</h2>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th style="width:26%">流行说法</th><th>实际情况</th><th style="width:12%">判断</th></tr></thead>
+          <tbody>
+            <tr><td>“果蝇大脑被完整上传到电脑”</td><td>上传的是<b>接线图 + 极简神经元模型</b>，不是一个“有意识的果蝇”。Eon 自己也说“上传”是个保真度光谱。Adam Marblestone 评价为“扎实的渐进一步，而非断裂式突破”。</td><td><span class="pill warn">部分属实</span></td></tr>
+            <tr><td>“没用一行训练数据就会走路、进食”</td><td>进食、梳理等反射确实来自接线图本身。但“走路”的步态在多数项目里由预设控制器生成，大脑只给“往哪走、多快”的信号。Fly.exe 项目直接标注“步态是工程实现的”。</td><td><span class="pill warn">部分属实</span></td></tr>
+            <tr><td>“果蝇大脑学会了玩 Doom / Beat Saber / Minecraft”</td><td>通常是把游戏画面喂进网络，再由<b>另外训练的读出层或 AI</b> 把神经活动翻译成按键；有的动作序列是过拟合录好的。三个项目都没发布“打乱接线的随机网络”对照实验，无法证明真实接线起了关键作用。</td><td><span class="pill bad">严重夸大</span></td></tr>
+            <tr><td>“果蝇大脑炒比特币跑赢人类”</td><td>社交媒体演示，无可复核的方法与数据；同期出现的同名 meme 币属于高风险投机。</td><td><span class="pill bad">别当真</span></td></tr>
+            <tr><td>“下一步就是小鼠，然后是人脑”</td><td>Eon 计划两年内做小鼠（约 7000 万神经元，是果蝇的 560 倍）。中科院徐春研究员指出难度“呈指数级增长”；严军研究员认为只有具备思想和意识才算真正的数字生命。</td><td><span class="pill warn">远期愿景</span></td></tr>
+            <tr><td>“雄性果蝇全中枢图谱是连接组学里程碑”</td><td>同行评审发表于 Cell，数据全部公开，首次包含腹神经索与雌雄对比。</td><td><span class="pill ok">属实</span></td></tr>
+          </tbody>
+        </table></div>
+        <p>判断一个新演示时，问三个问题：<b>① 哪部分是接线图，哪部分是另外训练的？② 身体动作是大脑产生的，还是预设的？③ 有没有“打乱接线”的对照？</b></p>
+      </section>
+
+      <section id="play">
+        <p class="sec-k">§5 · Hands-on</p>
+        <h2>上手路线：从浏览器到亲手做敲除实验</h2>
+        <p>四级难度，逐级递进。L0 不需要任何安装；L1–L3 我已在本机（Apple M5）全部跑通，文件放在 <code>002ClaudeCodeSpace/fruitfly-lab/</code>。</p>
+
+        <div class="level">
+          <div class="level-head"><span class="lv">L0</span><h3>浏览器里直接玩</h3><span class="cost">0 安装 · 5 分钟</span></div>
+          <p>以下链接 2026-09-15 实测可打开。建议从第一个开始。</p>
+          <ul class="links">
+            <li><span class="tag">全脑 13.9 万神经元 · 最推荐</span><br><a href="https://flybrain.app" target="_blank" rel="noopener">FlyBrain</a><p>放食物、戳它的头和腿、拖动吹风、切换明暗和冷暖，右侧实时看全部神经元按“感觉/中枢/驱力/运动”分区放电。</p></li>
+            <li><span class="tag">小游戏</span><br><a href="https://fly-escape.vercel.app/" target="_blank" rel="noopener">Help the Fly Escape</a><p>用真实回路片段驱动的逃跑小游戏。</p></li>
+            <li><span class="tag">小游戏</span><br><a href="https://fruitfly-tiny-brain.vercel.app/" target="_blank" rel="noopener">Swat</a><p>拍苍蝇，同时可视化它的逃逸回路。</p></li>
+            <li><span class="tag">80 个神经元的回路</span><br><a href="https://flydino.cobanov.dev/" target="_blank" rel="noopener">Fly Dino</a><p>Chrome 断网小恐龙，由果蝇回路控制跳跃。</p></li>
+            <li><span class="tag">艺术作品</span><br><a href="https://infinitesugar.cnqso.com/" target="_blank" rel="noopener">Infinite Sugar</a><p>基于 FlyWire 的果蝇在无限糖堆里生活。</p></li>
+            <li><span class="tag">官方数据浏览器</span><br><a href="https://codex.flywire.ai" target="_blank" rel="noopener">FlyWire Codex</a><p>按名字搜神经元、看 3D 形态和上下游。部分功能需登录。</p></li>
+            <li><span class="tag">官方 · 雄性全中枢</span><br><a href="https://male-cns.janelia.org/" target="_blank" rel="noopener">MaleCNS 浏览器</a><p>9 月新发布的 16.6 万神经元图谱。</p></li>
+            <li><span class="tag">官方 · 连接查询</span><br><a href="https://neuprint.janelia.org" target="_blank" rel="noopener">neuPrint</a><p>查“谁连着谁”。用 Google 账号登录后可取 API token，供 Python 调用。</p></li>
+          </ul>
+        </div>
+
+        <div class="level">
+          <div class="level-head"><span class="lv">L1</span><h3>在 Mac 上跑全脑模型：尝到糖，会不会想吃？</h3><span class="cost">约 10 分钟 · 400 MB 磁盘</span></div>
+          <h4>1. 准备工具（只需一次）</h4>
+          <p>打开“终端”。需要 <a href="https://brew.sh" target="_blank" rel="noopener">Homebrew</a>，然后装 <code>uv</code>（一个很快的 Python 管理器，会自动下载合适的 Python 版本，不碰系统自带的 Python 3.9）。</p>
+          <div class="code"><pre>brew install uv git</pre></div>
+          <h4>2. 下载模型与数据、建环境</h4>
+          <div class="code"><pre><span class="cm"># 本机已存在于 002ClaudeCodeSpace/fruitfly-lab，从零开始时才需要</span>
+mkdir -p ~/fruitfly-lab &amp;&amp; cd ~/fruitfly-lab
+git clone --depth 1 https://github.com/philshiu/Drosophila_brain_model.git
+uv venv --python 3.11 Drosophila_brain_model/.venv
+uv pip install --python Drosophila_brain_model/.venv/bin/python brian2 "numpy&lt;2" "pandas&lt;3" pyarrow joblib matplotlib ipykernel</pre></div>
+          <p class="note">一定要写 <code>"numpy&lt;2"</code>：brian2 2.9 与最新 numpy 2.4 不兼容，会报 <code>ndarray has no attribute 'ptp'</code>（我实测踩到过）。</p>
+          <h4>3. 运行实验 1</h4>
+          <p>脚本做的事只有三行核心：列出 21 个糖味神经元的 FlyWire ID → <code>run_exp</code> 给它们持续 150 Hz 刺激 → 统计每个神经元的放电率。</p>
+          <div class="code"><pre>cd ~/Documents/AISpace/002ClaudeCodeSpace/fruitfly-lab
+Drosophila_brain_model/.venv/bin/python scripts/01_sugar_to_feeding.py</pre></div>
+          <div class="out">&gt;&gt;&gt; Experiment:     sugarR
+    Excited neurons: 21
+    Elapsed time:   13 s
+共 41,462 次放电，413 个神经元有活动（全脑约 12.7 万个）
+&gt;&gt;&gt; MN9 放电率 = 82.3 Hz  ——  大于 0：糖味信号一路传到了进食运动神经元！</div>
+          <p><b>怎么读结果</b>：12.74 万个神经元里只有 413 个被点亮，说明信号走的是一条专用通路而不是“全脑沸腾”；MN9 在 82 Hz 放电，对应真实果蝇尝到糖后伸出口器。这正是 Shiu 等人 2024 年 Nature 论文的核心发现，你刚刚复现了它。</p>
+          <h4>可以动手改的旋钮</h4>
+          <ul>
+            <li><code>N_RUN</code>：试验次数，论文用 30，改大结果更稳但更慢。</li>
+            <li><code>r_poi=150 * Hz</code>：刺激强度，试试 50 Hz，看 MN9 是否还放电。</li>
+            <li>换刺激对象：在 FlyWire Codex 里搜苦味（bitter）或触角机械感受神经元，把它们的 ID 换进 <code>SUGAR</code>。注意 ID 属于 v630 数据版本，与 v783 不通用。</li>
+          </ul>
+          <p class="note">想看原版教程：用 VS Code 打开 <code>Drosophila_brain_model/example.ipynb</code>，内核选这个 <code>.venv</code>。不想装任何东西：仓库 README 里有 Colab 按钮，但官方说明 Colab 上会慢很多（约 20 分钟）。</p>
+        </div>
+
+        <div class="level">
+          <div class="level-head"><span class="lv">L2</span><h3>让数字果蝇身体走起来，导出视频</h3><span class="cost">约 5 分钟 · 需 Python 3.12+</span></div>
+          <div class="code"><pre>cd ~/Documents/AISpace/002ClaudeCodeSpace/fruitfly-lab
+mkdir -p flygym-play
+uv venv --python 3.12 flygym-play/.venv
+uv pip install --python flygym-play/.venv/bin/python "flygym[examples]"
+flygym-play/.venv/bin/python scripts/02_walking_fly.py
+open output/walking_fly.mp4</pre></div>
+          <div class="out">果蝇在走路: 100%|██████████| 20000/20000 [00:08&lt;00:00, 2306.86it/s]
+2.0s 内胸部前进了 28.11 mm；视频已保存：.../output/walking_fly.mp4</div>
+          <p><b>发生了什么</b>：物理步长 0.1 ms，2 秒共 20,000 步。6 个耦合振荡器（CPG，每条腿一个）产生“三足步态”——左前、右中、左后三条腿一组交替着地，这是昆虫最经典的走法。注意：这里<b>没有接大脑</b>，步态是预编程的，这也正是许多“大脑驱动走路”演示的底层做法。</p>
+          <ul>
+            <li>Mac 上<b>不要</b>装 <code>flygym[warp]</code>，那是 NVIDIA GPU 加速专用。</li>
+            <li>改 <code>RUN_TIME</code> 走更久；改 <code>coupling_strength</code>（耦合强度）看步态会不会乱。</li>
+            <li>下一步推荐官方教程：<code>flygym-src/tutorials/4d_turning_controller.ipynb</code>（转向）和 <code>1a_basic_model_composition.ipynb</code>（自己拼身体和场景）。</li>
+          </ul>
+        </div>
+
+        <div class="level">
+          <div class="level-head"><span class="lv">L3</span><h3>像神经科学家一样做“敲除实验”</h3><span class="cost">约 2 分钟 · 复用 L1 环境</span></div>
+          <p>真实实验室会用遗传工具让某个神经元“闭嘴”，看行为是否消失。在数字大脑里只要把它所有输出突触的权重设为 0。脚本自动挑出糖味神经元之外最活跃的 3 个中间神经元，逐个静默，再三个一起静默，比较 MN9 的放电率：</p>
+          <div class="code"><pre>Drosophila_brain_model/.venv/bin/python scripts/04_silence_neuron.py</pre></div>
+          <div class="bars" id="bars"><!--SILENCE_BARS--></div>
+          <p><!--SILENCE_TAKEAWAY--></p>
+          <h4>再往上：把大脑和身体接起来</h4>
+          <p>这是 Eon 做的事，也是目前最前沿、门槛最高的部分。先说清楚现状：</p>
+          <div class="tbl-wrap"><table>
+            <thead><tr><th>项目</th><th>做了什么</th><th>硬件</th><th>Mac 能跑吗</th></tr></thead>
+            <tbody>
+              <tr><td><a href="https://github.com/eonsystemspbc/fly-brain" target="_blank" rel="noopener">eonsystemspbc/fly-brain</a></td><td>Eon 开源的全脑模型多后端版本（Brian2、PyTorch、GeNN 等），用于速度对比；<b>不含身体整合</b></td><td>Linux + NVIDIA CUDA 12</td><td><span class="pill warn">未测试</span></td></tr>
+              <tr><td><a href="https://github.com/erojasoficial-byte/fly-brain" target="_blank" rel="noopener">erojasoficial-byte/fly-brain</a></td><td>社区版：v783 全脑 + NeuroMechFly 身体，约 1100 个下行神经元转成关节力矩，含视觉/嗅觉/飞行</td><td>NVIDIA ≥ 6 GB 显存，32 GB 内存</td><td><span class="pill bad">不支持</span></td></tr>
+              <tr><td><a href="https://github.com/Ibtisam-Mohammad/Fly.exe" target="_blank" rel="noopener">Fly.exe</a></td><td>MaleCNS 16.5 万神经元闭环驱动 12 只果蝇；诚实标注“步态是工程实现、无社会行为”</td><td>NVIDIA（RTX 3060 实测）</td><td><span class="pill bad">不支持</span></td></tr>
+            </tbody>
+          </table></div>
+          <p><b>Mac 用户的自制思路</b>：把 L1 和 L2 串起来。每 15 ms 让大脑跑一小段，读出 MN9 放电率决定“要不要进食”，读出 DNa01/DNa02 的左右差值决定转向，喂给 L2 的转向控制器。这正是 Eon 公开描述的同步方式，适合作为你的第一个小项目。</p>
+        </div>
+      </section>
+
+      <section id="log">
+        <p class="sec-k">§6 · Lab notebook</p>
+        <h2>实操过程记录（2026-09-15，本机）</h2>
+        <p>完整记录我为写这份手册在你的电脑上做了什么、每一步的输出、踩到的坑和修法。原始日志在 <code>fruitfly-lab/scripts/*_output.log</code>。</p>
+        <dl class="env">
+          <div><dt>芯片 / 内存</dt><dd>Apple M5 · 24 GB</dd></div>
+          <div><dt>系统</dt><dd>macOS 26.5.2 (arm64)</dd></div>
+          <div><dt>工具</dt><dd>uv 0.12.5 · git · Xcode CLT</dd></div>
+          <div><dt>系统 Python</dt><dd>3.9.6（太旧，未使用）</dd></div>
+          <div><dt>大脑环境</dt><dd>Py 3.11 · brian2 2.9.0 · numpy 1.x</dd></div>
+          <div><dt>身体环境</dt><dd>Py 3.12 · flygym 2.1.0 · mujoco 3.9.0</dd></div>
+        </dl>
+        <ol class="log">
+          <li><div><h4>资料调研 <span class="dur">检索 20+ 来源</span></h4>
+            <p>中英文检索：新华网、腾讯新闻、新浪科技、Eon 官方技术说明、Google Research 博客、Janelia 新闻、Cell 论文信息、Nature 论文页、awesome-fly 项目清单、批评性文章（The Decoder、Substack、Stork.AI 等）。交叉核对了关键数字：FlyWire 139,255 神经元；MaleCNS 166,691 神经元、约 1.25 亿突触连接；Eon 视频日期 2026-03-07。</p></div></li>
+          <li><div><h4>检查本机环境 <span class="pill ok">完成</span></h4>
+            <p>发现系统自带 Python 仅 3.9.6，而 FlyGym 2.1 要求 3.12–3.14，决定用 <code>uv</code> 为两个项目各建独立虚拟环境，互不干扰。</p></div></li>
+          <li><div><h4>验证在线演示 <span class="pill ok">完成</span></h4>
+            <p>逐个请求 L0 列表中的网站，均返回 HTTP 200。<code>webgpu-fly.pages.dev</code> 两次超时（40 s），已从推荐列表剔除。</p></div></li>
+          <li><div><h4>下载全脑模型 <span class="dur">380 MB</span> <span class="pill ok">完成</span></h4>
+            <div class="code"><pre>git clone --depth 1 https://github.com/philshiu/Drosophila_brain_model.git</pre></div>
+            <p>仓库自带两版连接组：v630（127,400 个神经元，87 MB）与 v783（138,639 个神经元，101 MB）。官方示例的神经元 ID 属于 v630，所以脚本用 v630。</p></div></li>
+          <li><div><h4>安装 FlyGym <span class="pill ok">完成</span></h4>
+            <div class="code"><pre>uv venv --python 3.12 .venv
+uv pip install --python .venv/bin/python "flygym[examples]"</pre></div>
+            <p>装上 flygym 2.1.0 与 mujoco 3.9.0。第一次检查导入时命令报 <code>No module named 'flygym'</code>，用 <code>uv pip list</code> 复查确认已安装，重试导入正常（原因未查明，不影响使用）。确认 PyPI 包里自带演示模块 <code>flygym_demo</code>，无需从源码安装。另外浅克隆了 v2.1.0 源码以获取官方 notebook 教程。</p></div></li>
+          <li><div><h4>首次运行实验 1 <span class="pill bad">报错</span></h4>
+            <div class="out err">File ".../brian2/units/fundamentalunits.py", line 1661, in Quantity
+    ptp = wrap_function_keep_dimensions(np.ndarray.ptp)
+AttributeError: type object 'numpy.ndarray' has no attribute 'ptp'</div>
+            <p><b>原因</b>：uv 默认装了最新 numpy 2.4.6，它删除了 <code>ndarray.ptp</code>，而 brian2 2.9.0 仍在调用。<b>修法</b>：<code>uv pip install "numpy&lt;2" "pandas&lt;3"</code>。</p></div></li>
+          <li><div><h4>第二次运行实验 1 <span class="dur">仿真 64 s</span> <span class="pill bad">报错</span></h4>
+            <div class="out err">Elapsed time:   64 s
+OSError: Cannot save file into a non-existent directory: '.../results/lab'</div>
+            <p><b>原因</b>：仿真本身成功，但官方 <code>run_exp</code> 不会自动创建结果目录，保存时失败，白跑一分钟。<b>修法</b>：脚本开头加 <code>Path(path_res).mkdir(parents=True, exist_ok=True)</code>。</p></div></li>
+          <li><div><h4>第三次运行实验 1 <span class="dur">仿真 13 s · 总计 16 s</span> <span class="pill ok">成功</span></h4>
+            <p>41,462 次放电、413 个活跃神经元、MN9 = 82.3 Hz。第二次起快了 5 倍，因为 Brian2 首次运行时要把模型编译成 C++（Cython）并缓存。</p></div></li>
+          <li><div><h4>运行实验 2：数字果蝇走路 <span class="dur">总计 22 s</span> <span class="pill ok">成功</span></h4>
+            <p>20,000 个物理步，约 2,400 步/秒，不到 CPU 上的实时速度。默认视频只有 320×240、0.2 倍速，偏小；改为 <code>camera_res=(480, 640)</code>、<code>playback_speed=0.25</code> 后重新渲染，得到 8 秒、4.4 MB 的清晰视频（标本板 A）。抽帧检查画面正常：红色复眼、翅膀、六足着地、地面倒影。</p></div></li>
+          <li><div><h4>导出放电栅格数据 <span class="pill ok">完成</span></h4>
+            <p><code>03_export_raster.py</code> 取第 1 次试验中最活跃的 40 个神经元（强制包含 MN9），导出 38 KB 的 JSON，嵌入本页绘制标本板 B。图表配色经色盲安全校验脚本检查，浅色与深色主题均通过。</p></div></li>
+          <li><div><h4>运行实验 4：敲除 <span class="pill ok">成功</span></h4>
+            <p>逐个静默 3 个最活跃中间神经元，再三个一起静默。控制台出现 Brian2 警告 <code>'i' is an internal variable of group 'default_synapses'</code>，是官方 <code>silence()</code> 函数里循环变量与内部变量同名所致，内部变量优先，<b>结果正确，可忽略</b>。结果见 L3。</p></div></li>
+          <li><div><h4>未实测的部分 <span class="pill warn">说明</span></h4>
+            <p>脑身整合的社区项目（erojasoficial-byte/fly-brain、Fly.exe、Eon 多后端版）都依赖 NVIDIA CUDA，本机无法运行，未测试；MaleCNS 的 neuPrint API 需要登录取 token，未代为登录。</p></div></li>
+        </ol>
+      </section>
+
+      <section id="faq">
+        <p class="sec-k">§7 · FAQ</p>
+        <h2>常见问题</h2>
+        <dl class="faq">
+          <dt>我完全不会编程，能玩吗？</dt>
+          <dd>能。L0 全部在浏览器里完成。L1、L2 只需复制粘贴命令，脚本已写好，每行都有中文注释。</dd>
+          <dt>会不会弄乱我的电脑？</dt>
+          <dd>不会。所有依赖装在项目文件夹里的 <code>.venv</code> 中，删掉 <code>fruitfly-lab</code> 文件夹就彻底清除。</dd>
+          <dt>Windows 或没有 Mac 怎么办？</dt>
+          <dd>命令基本相同（路径把 <code>.venv/bin/python</code> 换成 <code>.venv\Scripts\python</code>）。也可以用 Colab：全脑模型仓库和 FlyGym 教程都提供 Colab 入口。</dd>
+          <dt>这个数字果蝇有意识吗？会痛吗？</dt>
+          <dd>没有证据表明有。它是固定权重的简化电路，没有学习、记忆、内部状态。围绕“数字生命”的伦理讨论值得关注，但与今天能跑的模型距离很远。</dd>
+          <dt>这对 AI 有什么用？</dt>
+          <dd>三个方向：用生物接线当神经网络结构（样本效率更高，2026 年有论文用全脑图当强化学习控制器）；用数字身体设计机器人；在电脑里先做“敲除实验”，筛选值得在真果蝇上验证的假设，省实验成本。</dd>
+          <dt>看到“果蝇大脑炒币”的币要不要买？</dt>
+          <dd>不要把它当投资机会。它和科研成果没有关系，属于高风险投机。</dd>
+        </dl>
+      </section>
+
+      <section id="sources">
+        <p class="sec-k">§8 · Sources</p>
+        <h2>资料来源</h2>
+        <ol class="sources">
+          <li><a href="https://eon.systems/updates/embodied-brain-emulation" target="_blank" rel="noopener">Eon：How the Eon Team Produced a Virtual Embodied Fly</a></li>
+          <li><a href="https://research.google/blog/a-connectomics-milestone-mapping-the-complete-male-fruit-fly-brain/" target="_blank" rel="noopener">Google Research：A connectomics milestone</a></li>
+          <li><a href="https://www.janelia.org/news/researchers-reveal-connectome-of-the-male-fruit-fly-central-nervous-system" target="_blank" rel="noopener">Janelia：Male CNS connectome 新闻稿</a></li>
+          <li><a href="https://www.sci.news/biology/complete-fruit-fly-connectome-15053.html" target="_blank" rel="noopener">Sci.News：Complete Fruit Fly Connectome（Cell 论文信息）</a></li>
+          <li><a href="https://phys.org/news/2026-09-connectome-pursuing-fly-brain-rewired.html" target="_blank" rel="noopener">Phys.org：Completing the connectome</a></li>
+          <li><a href="https://www.nature.com/articles/s41586-025-09029-4" target="_blank" rel="noopener">Nature：Whole-body physics simulation of fruit fly locomotion（flybody）</a></li>
+          <li><a href="https://github.com/philshiu/Drosophila_brain_model" target="_blank" rel="noopener">GitHub：philshiu/Drosophila_brain_model</a></li>
+          <li><a href="https://github.com/NeLy-EPFL/flygym/" target="_blank" rel="noopener">GitHub：NeLy-EPFL/flygym</a> · <a href="https://neuromechfly.org/" target="_blank" rel="noopener">neuromechfly.org</a></li>
+          <li><a href="https://github.com/cobanov/awesome-fly" target="_blank" rel="noopener">GitHub：awesome-fly 项目清单</a></li>
+          <li><a href="https://github.com/snedea/flybrain" target="_blank" rel="noopener">GitHub：snedea/flybrain（flybrain.app）</a></li>
+          <li><a href="https://www.news.cn/tech/20260324/838692b5231849a29ab0ad0214e564ee/c.html" target="_blank" rel="noopener">新华网：电子果蝇“活”了</a></li>
+          <li><a href="https://news.qq.com/rain/a/20260312A06LFG00" target="_blank" rel="noopener">腾讯新闻：果蝇数字脑引马斯克惊呼</a></li>
+          <li><a href="https://finance.sina.com.cn/tech/digi/2026-09-09/doc-inirfivw8613026.shtml" target="_blank" rel="noopener">新浪科技：谷歌首绘果蝇全脑图谱</a></li>
+          <li><a href="https://news.qq.com/rain/a/20260909A0CWGX00" target="_blank" rel="noopener">腾讯新闻：谷歌首次绘制成年雄果蝇完整神经图谱</a></li>
+          <li><a href="https://meme.com/memes/fruit-fly-brain-simulations" target="_blank" rel="noopener">Meme 传播时间线：Fruit Fly Brain Simulations</a></li>
+          <li><a href="https://www.stork.ai/blog/google-unleashed-a-fly-brain-chaos-ensued" target="_blank" rel="noopener">Stork.AI：The Viral Demos Explained</a></li>
+          <li><a href="https://saanyaojha.substack.com/p/sci-fi-fruit-flies-in-the-hypegiest" target="_blank" rel="noopener">Substack：Sci Fi Fruit Flies in The Hypegeist</a></li>
+          <li><a href="https://the-decoder.com/startup-claims-first-full-brain-emulation-of-a-fruit-fly-in-a-simulated-body/" target="_blank" rel="noopener">The Decoder：Startup claims first full brain emulation</a></li>
+          <li><a href="https://github.com/Ibtisam-Mohammad/Fly.exe" target="_blank" rel="noopener">GitHub：Fly.exe</a></li>
+          <li><a href="https://arxiv.org/abs/2602.17997" target="_blank" rel="noopener">arXiv 2602.17997：Whole-Brain Connectomic Graph Model</a></li>
+        </ol>
+        <footer>fruitfly-lab · v1 · 数字以原始来源为准；社交媒体播放量等数据来自二手汇总</footer>
+      </section>
+    </main>
+  </div>
+</div>
+
+<script>
+const RASTER = /*RASTER_JSON*/;
+const SUGAR = new Set(["720575940624963786","720575940630233916","720575940637568838","720575940638202345","720575940617000768","720575940630797113","720575940632889389","720575940621754367","720575940621502051","720575940640649691","720575940639332736","720575940616885538","720575940639198653","720575940620900446","720575940617937543","720575940632425919","720575940633143833","720575940612670570","720575940628853239","720575940629176663","720575940611875570"]);
+
+(function(){
+  const cat = r => r.mn9 ? "mn9" : SUGAR.has(r.id) ? "sugar" : "relay";
+  const order = {sugar:0, relay:1, mn9:2};
+  const rows = RASTER.rows.map(r => ({...r, c:cat(r)})).sort((a,b)=> order[a.c]-order[b.c] || b.hz-a.hz);
+  const LABEL = {sugar:"糖味感受神经元（被刺激）", relay:"下游中间神经元", mn9:"MN9 进食运动神经元"};
+  const count = {sugar:0, relay:0, mn9:0}; rows.forEach(r=>count[r.c]++);
+
+  document.getElementById("mn9hz").textContent = RASTER.mn9_hz;
+  document.getElementById("active").textContent = RASTER.active_neurons;
+
+  const legend = document.getElementById("legend");
+  ["sugar","relay","mn9"].forEach(k=>{
+    const s = document.createElement("span");
+    s.innerHTML = `<i data-c="${k}"></i>${LABEL[k]} · ${count[k]}`;
+    legend.appendChild(s);
+  });
+
+  const tbody = document.querySelector("#rtable tbody");
+  rows.forEach(r=>{
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${LABEL[r.c]}</td><td class="n">${r.id}</td><td class="n">${r.hz.toFixed(1)}</td>`;
+    tbody.appendChild(tr);
+  });
+
+  const cv = document.getElementById("raster"), box = document.getElementById("chart"), tip = document.getElementById("tip");
+  const M = {l:10, r:74, t:6, b:26}, ROW = 8.5, H = M.t + rows.length*ROW + M.b;
+  let W = 0, hoverRow = -1;
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const colorOf = k => css(k==="sugar" ? "--amber" : k==="relay" ? "--teal" : "--red");
+
+  function draw(){
+    W = cv.clientWidth;
+    const dpr = window.devicePixelRatio || 1;
+    cv.width = W*dpr; cv.height = H*dpr; cv.style.height = H+"px";
+    const g = cv.getContext("2d"); g.setTransform(dpr,0,0,dpr,0,0); g.clearRect(0,0,W,H);
+    legend.querySelectorAll("i").forEach(i=> i.style.background = colorOf(i.dataset.c));
+    const pw = W - M.l - M.r, x = t => M.l + t/1000*pw;
+    g.font = "11px " + css("--mono"); g.textBaseline = "top";
+    [0,250,500,750,1000].forEach(t=>{
+      g.strokeStyle = css("--rule-2"); g.lineWidth = 1;
+      g.beginPath(); g.moveTo(Math.round(x(t))+.5, M.t); g.lineTo(Math.round(x(t))+.5, H-M.b); g.stroke();
+      g.fillStyle = css("--ink-3"); g.textAlign = t===0 ? "left" : t===1000 ? "right" : "center";
+      g.fillText(t===1000 ? "1000 ms" : String(t), x(t), H-M.b+7);
+    });
+    rows.forEach((r,i)=>{
+      const y = M.t + i*ROW;
+      if (i===hoverRow){ g.fillStyle = css("--rule-2"); g.fillRect(M.l, y, pw, ROW); }
+      g.fillStyle = colorOf(r.c);
+      const h = r.c==="mn9" ? ROW-1.5 : ROW-2.5;
+      r.t.forEach(t=> g.fillRect(x(t)-0.6, y+(ROW-h)/2, 1.4, h));
+    });
+    const iM = rows.findIndex(r=>r.c==="mn9");
+    if (iM>=0){ g.fillStyle = css("--ink"); g.textAlign="left"; g.textBaseline="middle"; g.font = "600 11px " + css("--mono");
+      g.fillText("MN9 " + rows[iM].hz.toFixed(0) + " Hz", W-M.r+6, M.t+iM*ROW+ROW/2); }
+    g.fillStyle = css("--ink-3"); g.textAlign="left"; g.textBaseline="middle"; g.font = "11px " + css("--mono");
+    const i0 = rows.findIndex(r=>r.c==="relay");
+    g.fillText("输入", W-M.r+6, M.t + 4*ROW);
+    if (i0>=0) g.fillText("中继", W-M.r+6, M.t + (i0+4)*ROW);
+  }
+  function move(e){
+    const rect = cv.getBoundingClientRect(), py = e.clientY-rect.top, px = e.clientX-rect.left;
+    const i = Math.floor((py - M.t)/ROW);
+    if (i<0 || i>=rows.length || px<M.l || px>W-M.r+60){ leave(); return; }
+    if (i!==hoverRow){ hoverRow=i; draw(); }
+    const r = rows[i];
+    tip.hidden = false;
+    tip.innerHTML = `${LABEL[r.c]}<br>ID ${r.id}<br>${r.hz.toFixed(1)} Hz · 本次试验 ${r.t.length} 次放电`;
+    tip.style.left = Math.min(Math.max(px+8, 110), rect.width-110) + "px";
+    tip.style.top = (py + 6) + "px";
+  }
+  function leave(){ tip.hidden = true; if (hoverRow!==-1){ hoverRow=-1; draw(); } }
+  cv.addEventListener("mousemove", move); cv.addEventListener("mouseleave", leave);
+  new ResizeObserver(draw).observe(box);
+  new MutationObserver(draw).observe(document.documentElement, {attributes:true, attributeFilter:["data-theme"]});
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", draw);
+  draw();
+
+  document.querySelectorAll(".code").forEach(block=>{
+    const b = document.createElement("button"); b.className="copy"; b.type="button"; b.textContent="复制";
+    b.addEventListener("click", async ()=>{
+      const text = [...block.querySelector("pre").childNodes].filter(n=>!(n.classList && n.classList.contains("cm"))).map(n=>n.textContent).join("").trim();
+      try { await navigator.clipboard.writeText(text); b.textContent="已复制"; } catch { b.textContent="请手动选择"; }
+      setTimeout(()=> b.textContent="复制", 1600);
+    });
+    block.appendChild(b);
+  });
+
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches){ const v=document.getElementById("walk"); v.removeAttribute("autoplay"); v.pause(); }
+})();
+</script>

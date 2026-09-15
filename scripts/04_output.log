@@ -1,0 +1,32 @@
+糖味神经元之外最活跃的中间神经元： {720575940622695448: 139.7, 720575940629888530: 128.3, 720575940627383685: 125.7}
+>>> Experiment:     silence_720575940622695448
+    Output file:    /Users/weiboliu/Documents/AISpace/002ClaudeCodeSpace/fruitfly-lab/Drosophila_brain_model/results/lab/silence_720575940622695448.parquet
+    Excited neurons: 21
+    Silenced neurons: 1
+    Elapsed time:   10 s
+>>> Experiment:     silence_720575940629888530
+    Output file:    /Users/weiboliu/Documents/AISpace/002ClaudeCodeSpace/fruitfly-lab/Drosophila_brain_model/results/lab/silence_720575940629888530.parquet
+    Excited neurons: 21
+    Silenced neurons: 1
+    Elapsed time:   10 s
+>>> Experiment:     silence_720575940627383685
+    Output file:    /Users/weiboliu/Documents/AISpace/002ClaudeCodeSpace/fruitfly-lab/Drosophila_brain_model/results/lab/silence_720575940627383685.parquet
+    Excited neurons: 21
+    Silenced neurons: 1
+    Elapsed time:   11 s
+>>> Experiment:     silence_top3
+    Output file:    /Users/weiboliu/Documents/AISpace/002ClaudeCodeSpace/fruitfly-lab/Drosophila_brain_model/results/lab/silence_top3.parquet
+    Excited neurons: 21
+    Silenced neurons: 3
+    Elapsed time:   10 s
+
+MN9 放电率对比（Hz）：
+  不静默（对照）                        82.3  ████████████████████
+  静默 …695448                     79.7  ███████████████████
+  静默 …888530                     80.0  ████████████████████
+  静默 …383685                     88.7  ██████████████████████
+  三个一起静默                         82.3  ████████████████████
+real 47.96
+user 106.39
+sys 16.87
+exit=

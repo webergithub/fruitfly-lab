@@ -1,0 +1,181 @@
+/* 果蝇神射手 · OPC Studio 暗色金主题 · 全屏 3D + 可拖动/最小化/关闭/缩放的浮窗 */
+:root {
+  --bg: #0d0a07;
+  --panel: rgba(22, 18, 13, 0.94);
+  --line: rgba(201, 148, 74, 0.20);
+  --line-soft: rgba(201, 148, 74, 0.11);
+  --gold: #c9944a;
+  --gold-lite: #e8b86d;
+  --teal: #7fc7c2;
+  --lilac: #b7a3dc;
+  --red: #e2735a;
+  --txt: #e8e3dc;
+  --muted: #9a8f83;
+  --dim: #6d655c;
+  --mono: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace;
+  --hdr: 54px;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; overflow: hidden; }
+body {
+  background: var(--bg); color: var(--txt);
+  font-family: Inter, -apple-system, 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  font-size: 13px; line-height: 1.55; -webkit-font-smoothing: antialiased;
+}
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+button { font-family: inherit; }
+:focus-visible { outline: 2px solid var(--gold-lite); outline-offset: 2px; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: rgba(201,148,74,.22); border-radius: 4px; }
+
+/* ── 顶栏 ── */
+header {
+  position: fixed; inset: 0 0 auto 0; height: var(--hdr); z-index: 200;
+  display: flex; align-items: center; gap: 9px; padding: 0 14px;
+  background: linear-gradient(180deg, rgba(30,24,17,.97), rgba(18,14,10,.97));
+  border-bottom: 1px solid var(--line); overflow-x: auto;
+}
+.brand { display: flex; align-items: baseline; gap: 9px; min-width: 0; }
+.brand h1 { font-size: 15px; font-weight: 700; margin: 0; color: var(--gold-lite); white-space: nowrap; }
+.brand .sub { font-size: 11px; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.spacer { flex: 1; }
+.sep { width: 1px; height: 22px; background: var(--line); flex: none; }
+.navlink { color: var(--gold); text-decoration: none; font-size: 12px; font-weight: 600;
+  padding: 5px 10px; border-radius: 8px; border: 1px solid var(--line-soft); white-space: nowrap; }
+.navlink:hover { background: rgba(201,148,74,.1); }
+.tgl { background: rgba(201,148,74,.07); border: 1px solid var(--line); color: var(--muted);
+  font-size: 11.5px; font-weight: 600; padding: 5px 10px; border-radius: 8px; cursor: pointer;
+  white-space: nowrap; transition: all .15s; }
+.tgl:hover { border-color: var(--gold); color: var(--txt); }
+.tgl.on { background: rgba(201,148,74,.2); color: var(--gold-lite); border-color: var(--gold); }
+.seg { display: flex; align-items: center; gap: 4px; }
+.seg-label { font-size: 11px; color: var(--dim); margin-right: 2px; white-space: nowrap; }
+.dock { display: flex; gap: 5px; align-items: center; }
+.dock-btn::before { content: '▣ '; opacity: .6; }
+#lang-btn { background: rgba(201,148,74,.12); border: 1px solid rgba(201,148,74,.18); color: #c9944a;
+  font-size: 12px; font-weight: 600; padding: 5px 12px; border-radius: 8px; cursor: pointer; }
+
+/* ── 3D 视口 ── */
+.viewport { position: fixed; inset: var(--hdr) 0 0 0; overflow: hidden; background: var(--bg); }
+.viewport canvas { display: block; width: 100%; height: 100%; }
+.vp-tip { position: absolute; right: 12px; top: 10px; font-size: 10.5px; color: var(--dim); z-index: 2;
+  background: rgba(13,10,7,.6); padding: 4px 9px; border-radius: 7px; border: 1px solid var(--line-soft); pointer-events: none; }
+.loading { position: absolute; inset: 0; display: grid; place-items: center; color: var(--gold-lite); font-size: 14px;
+  background: var(--bg); z-index: 3; letter-spacing: .04em; }
+.loading[hidden] { display: none; }
+.tab-stat { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.hud { position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%); display: flex; gap: 6px; align-items: center;
+  pointer-events: none; z-index: 2; }
+.hud-chip { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 7px; color: var(--dim);
+  background: rgba(13,10,7,.72); border: 1px solid var(--line-soft); letter-spacing: .05em; }
+.hud-chip.on { color: var(--bg); background: var(--gold-lite); border-color: var(--gold-lite); }
+.hud-chip.fire.on { background: var(--red); border-color: var(--red); color: #fff; }
+.hud-state { font-size: 11px; color: var(--muted); margin-left: 6px; font-family: var(--mono); }
+
+/* ── 浮窗基座（与 pax-journey / airport-twin 同一套） ── */
+.panel {
+  position: fixed; z-index: 50; display: flex; flex-direction: column; min-height: 0;
+  background: rgba(22, 18, 13, 0.72); border: 1px solid var(--line); border-radius: 13px;
+  box-shadow: 0 14px 40px rgba(0,0,0,.55); backdrop-filter: blur(9px); overflow: hidden;
+  transition: background-color .18s;
+}
+.panel:hover, .panel:focus-within, .panel.win-focus { background: var(--panel); }
+.win-bar { display: flex; align-items: center; gap: 6px; flex: none; cursor: grab;
+  padding: 7px 9px 7px 12px; border-bottom: 1px solid var(--line-soft);
+  background: linear-gradient(180deg, rgba(201,148,74,.10), rgba(201,148,74,.02)); user-select: none; }
+.win-bar:active { cursor: grabbing; }
+.win-title { flex: 1; font-size: 11.5px; font-weight: 700; color: var(--gold-lite);
+  letter-spacing: .7px; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.win-min, .win-close { flex: none; width: 20px; height: 20px; border-radius: 6px; cursor: pointer;
+  background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.10);
+  color: var(--muted); font-size: 11px; line-height: 1; display: grid; place-items: center; }
+.win-min:hover { background: rgba(201,148,74,.28); color: #fff; }
+.win-close:hover { background: rgba(217,139,111,.35); color: #fff; }
+.win-body { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+.win-collapsed { height: auto !important; max-height: none; }
+.win-collapsed .win-body, .win-collapsed .win-resize { display: none; }
+.win-hidden { display: none !important; }
+.win-resize { position: absolute; right: 0; bottom: 0; width: 16px; height: 16px; cursor: nwse-resize; z-index: 5;
+  background: linear-gradient(135deg, transparent 45%, rgba(201,148,74,.45) 45%, rgba(201,148,74,.45) 60%, transparent 60%,
+              transparent 70%, rgba(201,148,74,.45) 70%, rgba(201,148,74,.45) 85%, transparent 85%); }
+
+/* 默认位置：左列 回路 + 信号，右列 实验台 + 战绩，中间留出 3D */
+#win-circuit { left: 12px; top: calc(var(--hdr) + 12px); width: min(470px, 44vw); height: calc(58vh - 30px); min-height: 260px; }
+#win-signals { left: 12px; bottom: 12px; width: min(470px, 44vw); height: calc(42vh - 44px); min-height: 230px; }
+#win-lab { right: 12px; top: calc(var(--hdr) + 12px); width: 290px; }
+#win-score { right: 12px; bottom: 12px; width: 290px; }
+#win-about { left: 50%; top: calc(var(--hdr) + 12px); transform: translateX(-50%); width: min(520px, 92vw); max-height: 70vh; }
+
+/* ── 神经回路窗 ── */
+.tabs { display: flex; align-items: center; gap: 4px; padding: 7px 10px 0; flex: none; }
+.tab { background: none; border: 1px solid transparent; border-bottom: none; color: var(--muted); font-size: 11.5px; font-weight: 600;
+  padding: 5px 10px; border-radius: 7px 7px 0 0; cursor: pointer; }
+.tab.on { color: var(--gold-lite); border-color: var(--line); background: rgba(201,148,74,.08); }
+.tab-stat { margin-left: auto; font-size: 10.5px; color: var(--dim); }
+.map-wrap { position: relative; flex: 1; min-height: 0; margin: 0 10px; border: 1px solid var(--line-soft); border-radius: 0 8px 8px 8px;
+  background: #0b0906; overflow: hidden; }
+.map-wrap canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.legend-row { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; padding: 7px 12px 9px; font-size: 10.5px; color: var(--muted); flex: none; }
+.legend-row.small { padding: 4px 0 0; }
+.legend-row .sw { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+.sw.ach { background: var(--gold-lite); } .sw.gaba { background: var(--teal); } .sw.glu { background: var(--lilac); } .sw.oth { background: #8a8178; }
+.legend-note { color: var(--dim); }
+.legend-row .ln { display: inline-block; width: 14px; height: 2px; margin-right: 5px; vertical-align: 3px; }
+
+/* ── 关键神经元窗 ── */
+.signals { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; overflow: auto; }
+.meters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 14px; }
+.meter { display: grid; grid-template-columns: 74px minmax(0,1fr) 52px; gap: 6px; align-items: center; font-size: 11px; }
+.meter .nm { color: var(--muted); font-family: var(--mono); font-size: 10.5px; }
+.meter .bar { height: 7px; background: rgba(255,255,255,.06); border-radius: 0 3px 3px 0; overflow: hidden; }
+.meter .bar i { display: block; height: 100%; width: 0; border-radius: 0 3px 3px 0; transition: width .08s linear; }
+.meter .val { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; color: var(--txt); font-size: 10.5px; }
+.steer-head, .steer-foot { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--muted); }
+.steer-track { position: relative; height: 14px; margin: 3px 0; background: rgba(255,255,255,.05); border-radius: 4px; }
+.steer-track .th { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--dim); }
+.steer-track .needle { position: absolute; top: -2px; bottom: -2px; width: 3px; margin-left: -1.5px; left: 50%; background: var(--gold-lite); border-radius: 2px; transition: left .08s linear; }
+#trace-canvas { width: 100%; height: 120px; flex: none; display: block; }
+
+/* ── 实验台 ── */
+.lab { padding: 10px 12px 14px; display: flex; flex-direction: column; gap: 12px; overflow: auto; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.label { font-size: 11px; color: var(--muted); font-weight: 600; display: flex; justify-content: space-between; }
+.label b { color: var(--gold-lite); font-weight: 600; }
+.seg.wide .tgl { flex: 1; }
+.lesions { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 5px; }
+.lesions label { display: flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 11px; color: var(--txt);
+  padding: 4px 7px; border: 1px solid var(--line-soft); border-radius: 7px; cursor: pointer; }
+.lesions label:has(input:checked) { border-color: var(--red); color: var(--red); background: rgba(226,115,90,.08); }
+.lesions input { accent-color: var(--red); margin: 0; }
+input[type=range] { width: 100%; accent-color: var(--gold); }
+.hint { margin: 0; font-size: 11px; color: var(--muted); line-height: 1.6; }
+
+/* ── 战绩 ── */
+.score { padding: 10px 12px 14px; display: flex; flex-direction: column; gap: 10px; overflow: auto; }
+.kpis { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; }
+.kpis div { display: flex; flex-direction: column; font-size: 10.5px; color: var(--muted); }
+.kpis b { font-size: 20px; color: var(--gold-lite); font-weight: 600; line-height: 1.3; }
+table.cond { width: 100%; border-collapse: collapse; font-size: 10.5px; }
+table.cond th { text-align: left; color: var(--dim); font-weight: 600; padding: 3px 4px; border-bottom: 1px solid var(--line-soft); }
+table.cond td { padding: 4px; border-bottom: 1px solid rgba(255,255,255,.04); font-family: var(--mono); font-variant-numeric: tabular-nums; }
+table.cond td:first-child { font-family: inherit; color: var(--txt); }
+table.cond tr.now td { color: var(--gold-lite); }
+
+/* ── 说明 ── */
+.about { padding: 8px 16px 16px; overflow: auto; }
+.about h3 { font-size: 12px; color: var(--gold-lite); margin: 12px 0 4px; letter-spacing: .03em; }
+.about ul { margin: 0; padding-left: 1.2em; }
+.about li { margin: 3px 0; color: var(--txt); font-size: 12px; }
+
+@media (max-width: 1100px) {
+  .brand .sub, .seg-label, .dock-btn::before, #btn-reset { display: none; }
+  .dock-btn { padding: 5px 7px; }
+}
+@media (max-width: 900px) {
+  .brand { display: none; }
+  #win-circuit { width: calc(100vw - 24px); height: 36vh; min-height: 200px; }
+  #win-signals { width: calc(100vw - 24px); height: 30vh; min-height: 180px; }
+  #win-lab, #win-score { top: auto; bottom: 12px; right: 12px; width: min(290px, calc(100vw - 24px)); }
+  #win-lab.win-hidden, #win-score.win-hidden { display: none !important; }
+}
+@media (prefers-reduced-motion: reduce) { .meter .bar i, .steer-track .needle { transition: none; } }

@@ -1,0 +1,11 @@
+[oracle] ep0: kills=11 shots=26 survived=17.5s wall=5.7s
+[oracle] ep1: kills=14 shots=26 survived=21.7s wall=0.9s
+[oracle] ep2: kills=13 shots=26 survived=23.0s wall=0.4s
+[oracle] ep3: kills=8 shots=26 survived=15.5s wall=0.3s
+[oracle] ep4: kills=15 shots=26 survived=23.0s wall=0.4s
+[oracle] ep5: kills=10 shots=26 survived=17.1s wall=0.3s
+[oracle] ep6: kills=5 shots=17 survived=8.5s wall=0.1s
+[oracle] ep7: kills=11 shots=26 survived=23.1s wall=0.4s
+[oracle] ep8: kills=11 shots=26 survived=21.8s wall=0.3s
+[oracle] ep9: kills=17 shots=26 survived=24.8s wall=0.4s
+[oracle] 平均击杀 11.5 ± 3.47，存活 19.61s，命中率 0.453

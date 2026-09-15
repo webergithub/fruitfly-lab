@@ -1,0 +1,564 @@
+<title>数字果蝇上手手册</title>
+<meta name="description" content="果蝇 AI 的来龙去脉、冷静解读，以及在 Mac 上亲手跑通全脑模型与数字身体的实测记录。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@600;900&display=swap">
+<style>
+:root{
+  --ground:#EEF1EF; --paper:#FBFCFB; --ink:#16201C; --ink-2:#4E5A55; --ink-3:#77837D;
+  --rule:#D3DAD6; --rule-2:#E3E8E5; --code-bg:#E6EBE8;
+  --eye:#B42D24; --amber:#B07A12; --teal:#00897A; --red:#C0332A;
+  --ok-bg:#DDEFEA; --warn-bg:#F5EAD3; --bad-bg:#F6DEDA;
+  --serif:"Noto Serif SC","Songti SC","STSong",serif;
+  --sans:"Noto Sans SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+  --mono:"JetBrains Mono","SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#0F1311; --paper:#161B19; --ink:#E0E6E2; --ink-2:#A3AEA8; --ink-3:#7B8781;
+    --rule:#2B3430; --rule-2:#222A26; --code-bg:#1D2421;
+    --eye:#E0584B; --amber:#B8821E; --teal:#16998A; --red:#DD5446;
+    --ok-bg:#15302B; --warn-bg:#33291A; --bad-bg:#3A1F1C;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0F1311; --paper:#161B19; --ink:#E0E6E2; --ink-2:#A3AEA8; --ink-3:#7B8781;
+  --rule:#2B3430; --rule-2:#222A26; --code-bg:#1D2421;
+  --eye:#E0584B; --amber:#B8821E; --teal:#16998A; --red:#DD5446;
+  --ok-bg:#15302B; --warn-bg:#33291A; --bad-bg:#3A1F1C;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+body{background:var(--ground);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.75;padding-inline:16px;padding-block:0 64px}
+a{color:var(--teal);text-underline-offset:3px;text-decoration-thickness:1px}
+a:hover{color:var(--eye)}
+:focus-visible{outline:2px solid var(--eye);outline-offset:2px}
+.wrap{max-width:1160px;margin:0 auto}
+
+/* ---------- specimen label header ---------- */
+.label{border-bottom:1px solid var(--rule);padding-block:28px 26px;display:grid;gap:18px}
+.meta{font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:var(--ink-3);display:flex;flex-wrap:wrap;gap:6px 18px;text-transform:uppercase}
+.meta b{color:var(--ink-2);font-weight:600}
+h1{font-family:var(--serif);font-weight:900;font-size:clamp(28px,5.4vw,58px);line-height:1.12;margin:0;text-wrap:balance;letter-spacing:.01em}
+h1 em{font-style:normal;color:var(--eye)}
+.lede{font-size:18px;color:var(--ink-2);max-width:40em;margin:0}
+
+/* ---------- plates ---------- */
+.plates{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:20px;padding-block:26px 8px}
+@media (max-width:860px){.plates{grid-template-columns:1fr}}
+figure{margin:0}
+.plate{background:var(--paper);border:1px solid var(--rule);display:flex;flex-direction:column}
+.plate-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:2px 12px;padding:10px 14px;border-bottom:1px solid var(--rule-2);font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.04em}
+.plate-head strong{font-family:var(--sans);font-size:14px;color:var(--ink);letter-spacing:0;font-weight:700}
+.plate video{display:block;width:100%;height:auto;max-width:100%;aspect-ratio:4/3;background:#fff}
+.plate figcaption{padding:10px 14px 14px;font-size:14px;color:var(--ink-2);line-height:1.6}
+.legend{display:flex;flex-wrap:wrap;gap:4px 16px;padding:10px 14px 0;font-size:13px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:14px;height:4px;border-radius:2px;display:inline-block}
+.chart{position:relative;padding:6px 8px 0 8px}
+.chart canvas{display:block;width:100%;height:auto}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--paper);font-size:12px;line-height:1.5;padding:6px 9px;border-radius:4px;white-space:nowrap;font-family:var(--mono);transform:translate(-50%,-110%)}
+details.table-view{padding:0 14px 12px;font-size:13px}
+details.table-view summary{cursor:pointer;color:var(--ink-2)}
+
+/* ---------- body layout ---------- */
+.body{display:grid;grid-template-columns:200px minmax(0,1fr);gap:48px;padding-top:36px}
+@media (max-width:960px){.body{grid-template-columns:1fr;gap:0}.toc{display:none}}
+.toc{position:sticky;top:20px;align-self:start;font-size:14px}
+.toc ol{list-style:none;padding:0;margin:0;display:grid;gap:2px;border-left:1px solid var(--rule)}
+.toc a{display:block;padding:4px 0 4px 14px;color:var(--ink-2);text-decoration:none;margin-left:-1px;border-left:2px solid transparent}
+.toc a:hover{color:var(--ink);border-left-color:var(--eye)}
+.toc .k{font-family:var(--mono);font-size:11px;color:var(--ink-3);margin-right:6px}
+main{min-width:0}
+section{padding-block:8px 40px;border-bottom:1px solid var(--rule)}
+section:last-child{border-bottom:0}
+.sec-k{font-family:var(--mono);font-size:12px;letter-spacing:.12em;color:var(--eye);text-transform:uppercase;margin:28px 0 4px}
+h2{font-family:var(--serif);font-weight:900;font-size:clamp(26px,3.4vw,34px);line-height:1.25;margin:0 0 18px;text-wrap:balance}
+h3{font-family:var(--serif);font-weight:600;font-size:21px;line-height:1.4;margin:34px 0 10px;text-wrap:balance}
+h4{font-size:16px;font-weight:700;margin:22px 0 6px}
+p,li{max-width:40em}
+p{margin:0 0 14px}
+ul,ol{padding-left:1.3em;margin:0 0 14px}
+li{margin-bottom:6px}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+code{font-family:var(--mono);font-size:.88em;background:var(--code-bg);padding:1px 5px;border-radius:3px;overflow-wrap:anywhere}
+.note{font-size:14px;color:var(--ink-2)}
+
+/* TL;DR */
+.tldr{display:grid;gap:0;margin:0;padding:0;list-style:none;border-top:1px solid var(--rule)}
+.tldr li{display:grid;grid-template-columns:7.5em minmax(0,1fr);gap:16px;padding:12px 0;border-bottom:1px solid var(--rule-2);margin:0;max-width:none}
+.tldr b{font-family:var(--serif);font-weight:600;color:var(--ink)}
+@media (max-width:560px){.tldr li{grid-template-columns:1fr;gap:2px}}
+
+/* timeline */
+.tl{list-style:none;padding:0;margin:0;border-left:1px solid var(--rule);margin-left:6.2em}
+.tl li{position:relative;padding:0 0 18px 20px;max-width:44em;margin:0}
+.tl li::before{content:"";position:absolute;left:-4px;top:.72em;width:7px;height:7px;border-radius:50%;background:var(--ink-3)}
+.tl li.hot::before{background:var(--eye);box-shadow:0 0 0 3px var(--paper)}
+.tl time{position:absolute;right:calc(100% + 16px);top:.1em;width:6.4em;text-align:right;font-family:var(--mono);font-size:13px;color:var(--ink-2);white-space:nowrap}
+.tl strong{display:block}
+.tl span{color:var(--ink-2);font-size:15px}
+@media (max-width:560px){.tl{margin-left:0}.tl time{position:static;display:block;text-align:left;width:auto}}
+
+/* pipeline */
+.pipe{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;margin:8px 0 22px;border:1px solid var(--rule);background:var(--paper)}
+.pipe > div{padding:14px 14px 16px;border-right:1px solid var(--rule-2);position:relative}
+.pipe > div:last-child{border-right:0}
+.pipe > div:not(:last-child)::after{content:"→";position:absolute;right:-9px;top:14px;background:var(--paper);color:var(--eye);font-weight:700;line-height:1;padding:2px 0}
+.pipe .k{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--ink-3);text-transform:uppercase}
+.pipe b{display:block;font-family:var(--serif);font-size:18px;margin:2px 0 6px}
+.pipe p{font-size:14px;color:var(--ink-2);margin:0;line-height:1.6}
+@media (max-width:760px){.pipe{grid-template-columns:1fr}.pipe > div{border-right:0;border-bottom:1px solid var(--rule-2)}.pipe > div:not(:last-child)::after{content:"↓";right:auto;left:14px;top:auto;bottom:-10px;padding:0 4px}}
+
+/* tables */
+.tbl-wrap{overflow-x:auto;margin:6px 0 18px;border:1px solid var(--rule);background:var(--paper)}
+table{border-collapse:collapse;width:100%;font-size:14px;line-height:1.6}
+th,td{text-align:left;vertical-align:top;padding:10px 12px;border-bottom:1px solid var(--rule-2)}
+th{font-size:12px;font-weight:700;color:var(--ink-3);letter-spacing:.06em;background:var(--ground)}
+tr:last-child td{border-bottom:0}
+td.n{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.pill{display:inline-block;font-size:12px;font-weight:700;padding:1px 8px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-bg);color:var(--teal)}
+.pill.warn{background:var(--warn-bg);color:var(--amber)}
+.pill.bad{background:var(--bad-bg);color:var(--red)}
+
+/* levels */
+.level{margin-top:30px;border-top:2px solid var(--ink);padding-top:14px}
+.level-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px}
+.level-head .lv{font-family:var(--mono);font-weight:600;font-size:14px;color:var(--eye)}
+.level-head h3{margin:0}
+.level-head .cost{font-size:13px;color:var(--ink-3);font-family:var(--mono)}
+.links{list-style:none;padding:0;margin:10px 0 0;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1px;background:var(--rule-2);border:1px solid var(--rule-2)}
+.links li{background:var(--paper);padding:12px 14px;margin:0;max-width:none}
+.links a{font-weight:700}
+.links p{font-size:14px;color:var(--ink-2);margin:4px 0 0}
+.links .tag{font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+
+/* code */
+.code{position:relative;margin:8px 0 16px;background:var(--code-bg);border:1px solid var(--rule-2);border-radius:4px}
+.code pre{margin:0;padding:12px 14px;overflow-x:auto;font-family:var(--mono);font-size:13px;line-height:1.65;color:var(--ink)}
+.code .cm{color:var(--ink-3)}
+.copy{position:absolute;top:6px;right:6px;font:600 11px var(--mono);background:var(--paper);color:var(--ink-2);border:1px solid var(--rule);border-radius:3px;padding:3px 8px;cursor:pointer}
+.copy:hover{color:var(--ink);border-color:var(--ink-3)}
+.out{margin:8px 0 16px;border-left:3px solid var(--teal);background:var(--paper);padding:10px 14px;font-family:var(--mono);font-size:12.5px;line-height:1.7;white-space:pre-wrap;overflow-x:auto;color:var(--ink-2)}
+.out.err{border-left-color:var(--red)}
+
+/* bars for knockout */
+.bars{display:grid;gap:6px;margin:10px 0 16px;max-width:40em}
+.bar{display:grid;grid-template-columns:9.5em minmax(0,1fr) 4.5em;gap:10px;align-items:center;font-size:14px}
+.bar .track{height:12px;background:var(--rule-2);border-radius:0 4px 4px 0}
+.bar .fill{height:100%;background:var(--red);border-radius:0 4px 4px 0}
+.bar.base .fill{background:var(--ink-3)}
+.bar .v{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right}
+
+/* log */
+.log{list-style:none;padding:0;margin:0;counter-reset:step}
+.log > li{counter-increment:step;display:grid;grid-template-columns:3em minmax(0,1fr);gap:10px;padding:16px 0;border-bottom:1px solid var(--rule-2);max-width:none;margin:0}
+.log > li::before{content:counter(step,decimal-leading-zero);font-family:var(--mono);font-size:13px;color:var(--ink-3);padding-top:3px}
+.log h4{margin:0 0 4px;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline}
+.log .dur{font-family:var(--mono);font-size:12px;color:var(--ink-3);font-weight:400}
+.log p{font-size:15px}
+.env{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1px;background:var(--rule-2);border:1px solid var(--rule-2);margin:8px 0 20px}
+.env div{background:var(--paper);padding:10px 12px}
+.env dt{font-size:12px;color:var(--ink-3);letter-spacing:.04em}
+.env dd{margin:0;font-family:var(--mono);font-size:13px}
+dl{margin:0}
+.faq dt{font-weight:700;margin-top:16px}
+.faq dd{margin:4px 0 0;color:var(--ink-2);max-width:40em}
+.sources{columns:2 320px;column-gap:32px;font-size:14px}
+.sources li{break-inside:avoid;max-width:none}
+footer{padding-top:28px;font-size:13px;color:var(--ink-3);font-family:var(--mono)}
+</style>
+
+<div class="wrap">
+  <header class="label">
+    <div class="meta">
+      <span><b>Drosophila melanogaster</b></span>
+      <span>FlyWire v630 · MaleCNS v1.0</span>
+      <span>实测机：Apple M5 / 24 GB</span>
+      <span>2026-09-15</span>
+    </div>
+    <h1>数字果蝇上手手册：一颗<em>十几万个神经元</em>的大脑，怎样在你电脑里“活”起来</h1>
+    <p class="lede">给零基础的你：先讲清楚最近刷屏的“果蝇 AI”到底发生了什么、哪些是真的、哪些被夸大了；再带你一步步在 Mac 上跑出下面这两块“标本板”——它们都是本机真实跑出来的结果。</p>
+  </header>
+
+  <div class="plates">
+    <figure class="plate">
+      <div class="plate-head"><strong>标本板 A · 数字身体</strong><span>NeuroMechFly · MuJoCo</span></div>
+      <video id="walk" src="walking_fly.mp4" controls muted loop playsinline autoplay preload="metadata" aria-label="数字果蝇在平地上以三足步态行走的模拟视频"></video>
+      <figcaption>FlyGym 2.1 三足步态控制器驱动 87 个关节，模拟 2 秒生物时间，胸部前进 <span class="num">28.11 mm</span>。0.25 倍速慢放。本机耗时 <span class="num">22 s</span>。</figcaption>
+    </figure>
+    <figure class="plate">
+      <div class="plate-head"><strong>标本板 B · 数字大脑</strong><span>12.74 万个 LIF 神经元 · 第 1 次试验</span></div>
+      <div class="legend" id="legend"></div>
+      <div class="chart" id="chart"><canvas id="raster" height="360" role="img" aria-label="放电栅格图：刺激 21 个糖味神经元后，下游中继神经元和进食运动神经元 MN9 相继放电"></canvas><div class="tip" id="tip" hidden></div></div>
+      <figcaption>“喂”右脑 21 个糖味感受神经元 1 秒（每个点是一次放电）。信号穿过中间神经元，最终让控制伸口器进食的运动神经元 <b>MN9</b> 以 <span class="num" id="mn9hz">82.3</span> Hz 放电。全脑只有 <span class="num" id="active">413</span> 个神经元被点亮。</figcaption>
+      <details class="table-view"><summary>用表格查看这 40 个神经元</summary><div class="tbl-wrap"><table id="rtable"><thead><tr><th>类别</th><th>FlyWire ID</th><th>平均放电率 (Hz)</th></tr></thead><tbody></tbody></table></div></details>
+    </figure>
+  </div>
+
+  <div class="body">
+    <nav class="toc" aria-label="目录">
+      <ol>
+        <li><a href="#tldr"><span class="k">§1</span>三分钟看懂</a></li>
+        <li><a href="#history"><span class="k">§2</span>来龙去脉</a></li>
+        <li><a href="#concepts"><span class="k">§3</span>四个关键词</a></li>
+        <li><a href="#reality"><span class="k">§4</span>刷屏与冷静看</a></li>
+        <li><a href="#play"><span class="k">§5</span>上手路线</a></li>
+        <li><a href="#log"><span class="k">§6</span>实操过程记录</a></li>
+        <li><a href="#faq"><span class="k">§7</span>常见问题</a></li>
+        <li><a href="#sources"><span class="k">§8</span>资料来源</a></li>
+      </ol>
+    </nav>
+
+    <main>
+      <section id="tldr">
+        <p class="sec-k">§1 · TL;DR</p>
+        <h2>三分钟看懂</h2>
+        <ul class="tldr">
+          <li><b>是什么</b><span>科学家用电子显微镜把果蝇大脑切成几千张超薄片，再用 AI 把每个神经元和每个突触“描”出来，得到一张完整的<b>接线图（连接组）</b>。有人把接线图直接变成可运行的仿真，再接上一个物理模拟的虚拟身体。</span></li>
+          <li><b>为什么现在火</b><span>两波浪潮叠加：<span class="num">2026-03-07</span> 初创公司 Eon Systems 发视频，说“第一次把完整果蝇大脑上传到虚拟身体”，马斯克转发惊叹；<span class="num">2026-09-03</span> Google 与 Janelia 发布雄性果蝇全中枢神经图谱（<span class="num">166,691</span> 个神经元），开发者几天内把它接进 Minecraft、Doom、Beat Saber，甚至拿去炒币。</span></li>
+          <li><b>真实水平</b><span>“只靠接线图、不训练，就能让糖味刺激引出进食反应”——这是真的，你今天就能在自己电脑上复现（见标本板 B）。但它不会学习、没有记忆和情绪，脑与身体之间的接口是人手工挑的几个神经元；大多数“果蝇玩游戏”视频里，真正做决策的是另外训练的 AI。</span></li>
+          <li><b>你能玩什么</b><span>零安装：浏览器里喂果蝇、给它吹风、看 13 万神经元闪烁。十几分钟安装：在 Mac 上跑全脑模型、做“敲除实验”、让数字果蝇走路并导出视频。本手册每条命令都在本机实测过。</span></li>
+        </ul>
+      </section>
+
+      <section id="history">
+        <p class="sec-k">§2 · History</p>
+        <h2>来龙去脉：从“有人说不可能”到“人人能玩”</h2>
+        <p>果蝇只有芝麻大，却会走、会飞、会求偶、会打架、会学习。它的大脑大约 <span class="num">14</span> 万个神经元，比人脑（约 <span class="num">860</span> 亿）小了 60 万倍，是目前唯一“完整画得出、电脑跑得动”的复杂大脑。</p>
+        <ol class="tl">
+          <li><time>2008</time><strong>Janelia 研究园区立项绘制果蝇大脑</strong><span>当时被广泛质疑“做不到也没用”。</span></li>
+          <li><time>2020</time><strong>“半脑”（hemibrain）连接组发布</strong><span>约 2.5 万个神经元，证明这条路走得通，催生了数百项研究。</span></li>
+          <li><time>2024-10</time><strong>FlyWire：第一张成年果蝇全脑接线图</strong><span>雌性果蝇，<span class="num">139,255</span> 个神经元、约 5000 万个突触，发表于 Nature。同期 Shiu 等人发表“只用接线图搭出的全脑 LIF 模型”，刺激糖味神经元就能预测进食运动神经元放电。</span></li>
+          <li><time>2024</time><strong>数字身体就位</strong><span>EPFL 的 NeuroMechFly v2（FlyGym）发表于 Nature Methods：87 个关节、按 X 光显微 CT 扫描建模，能看、能闻、能在复杂地形行走。</span></li>
+          <li><time>2025</time><strong>Janelia × Google DeepMind 的 flybody</strong><span>在 MuJoCo 物理引擎里用强化学习让虚拟果蝇像真的一样走和飞，Nature 发表。</span></li>
+          <li class="hot"><time>2026-03-07</time><strong>Eon Systems：“第一次多行为的具身大脑上传”</strong><span>把 Shiu 全脑模型 + 视觉模型接到 NeuroMechFly 身体上，不训练就出现觅食、梳理触角、进食。马斯克回应“哇”，全网刷屏。整合部分代码未开源。</span></li>
+          <li><time>2026-04</time><strong>FlyGym 2.0 重写</strong><span>CPU 仿真提速约 10 倍，NVIDIA GPU 提速约 300 倍——普通电脑也能流畅跑数字果蝇。</span></li>
+          <li class="hot"><time>2026-09-03</time><strong>雄性果蝇全中枢神经系统连接组 MaleCNS v1.0</strong><span>Janelia、剑桥、Google Research 等在 Cell 发表：<span class="num">166,691</span> 个神经元、约 1.25 亿个突触连接、<span class="num">11,691</span> 种细胞类型，首次包含大脑 + 视叶 + 腹神经索，并首次对比雌雄接线差异。数据免费开放。</span></li>
+          <li class="hot"><time>2026-09-07 → 10</time><strong>“果蝇大脑玩游戏”病毒式传播</strong><span>Minecraft 视频三天 24 万播放；Beat Saber 片段两天约 2200 万播放；随后 Doom、马里奥 64、侧方停车、比特币交易纷纷出现，还冒出了同名 meme 币。</span></li>
+        </ol>
+        <p class="note">中国相关：2024 年北京智源研究院团队构建了高精度仿真秀丽线虫（BAAI-WorM，Nature Computational Science）；2025 年 9 月“国际灵长类介观脑图谱联盟”在上海成立。</p>
+      </section>
+
+      <section id="concepts">
+        <p class="sec-k">§3 · Concepts</p>
+        <h2>四个关键词：一只数字果蝇由哪几块拼成</h2>
+        <p>所有“果蝇 AI”项目都在这条流水线上做文章。看懂这四块，你就能判断任何一个新闻视频到底做了什么。</p>
+        <div class="pipe">
+          <div><span class="k">① 数据</span><b>连接组</b><p>谁连着谁、连了多少个突触、是兴奋还是抑制。像一张<b>电路板布线图</b>，但不含“元件参数”。</p></div>
+          <div><span class="k">② 大脑仿真</span><b>LIF 神经元</b><p>把每个神经元简化成“漏水的桶”：输入攒到阈值就放电、清零。十几万个桶按布线图连起来一起跑。</p></div>
+          <div><span class="k">③ 接口</span><b>下行神经元</b><p>大脑通过约 1000 多个下行神经元指挥身体。现有项目只挑了几个：DNa01/DNa02 管转向，MN9 管进食。</p></div>
+          <div><span class="k">④ 身体</span><b>物理仿真</b><p>MuJoCo 引擎计算关节力、摩擦、足底吸附。NeuroMechFly 与 flybody 是两套开源果蝇身体。</p></div>
+        </div>
+        <h3>“不训练就能动”是怎么回事</h3>
+        <p>普通 AI（比如大模型）从随机参数开始，靠海量数据训练。而连接组模型的“参数”直接抄自真实大脑：在 Shiu 模型里，两个神经元之间的连接强度 = <b>突触数量 × 正负号（按神经递质推测）× 0.275 mV</b>，全模型几乎只有这一个手调的自由参数。结构本身就编码了“尝到糖 → 伸口器”这类本能反射，所以通电就有反应。</p>
+        <h3>它缺了什么</h3>
+        <ul>
+          <li><b>没有学习和记忆</b>：突触强度固定，同样的刺激永远得到同样的反应；真果蝇饿了和饱了的反应不同。</li>
+          <li><b>神经元太简单</b>：没有树突形状、离子通道多样性、激素调节。</li>
+          <li><b>接口是手工挑的</b>：Eon 自己承认，放电率怎样换算成关节力矩是“人为指定的近似”。</li>
+          <li><b>没对照生物学验证</b>：例如头部方向环形吸引子、中枢模式发生器等内部动态尚未核对。</li>
+        </ul>
+        <p class="note">一个参照：秀丽线虫只有 302 个神经元，接线图 1986 年就画完了，但至今还没有一只“完全逼真”的虚拟线虫。只有接线图，离“复制生命”还很远。</p>
+      </section>
+
+      <section id="reality">
+        <p class="sec-k">§4 · Reality check</p>
+        <h2>刷屏与冷静看：流行说法 vs 实际情况</h2>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th style="width:26%">流行说法</th><th>实际情况</th><th style="width:12%">判断</th></tr></thead>
+          <tbody>
+            <tr><td>“果蝇大脑被完整上传到电脑”</td><td>上传的是<b>接线图 + 极简神经元模型</b>，不是一个“有意识的果蝇”。Eon 自己也说“上传”是个保真度光谱。Adam Marblestone 评价为“扎实的渐进一步，而非断裂式突破”。</td><td><span class="pill warn">部分属实</span></td></tr>
+            <tr><td>“没用一行训练数据就会走路、进食”</td><td>进食、梳理等反射确实来自接线图本身。但“走路”的步态在多数项目里由预设控制器生成，大脑只给“往哪走、多快”的信号。Fly.exe 项目直接标注“步态是工程实现的”。</td><td><span class="pill warn">部分属实</span></td></tr>
+            <tr><td>“果蝇大脑学会了玩 Doom / Beat Saber / Minecraft”</td><td>通常是把游戏画面喂进网络，再由<b>另外训练的读出层或 AI</b> 把神经活动翻译成按键；有的动作序列是过拟合录好的。三个项目都没发布“打乱接线的随机网络”对照实验，无法证明真实接线起了关键作用。</td><td><span class="pill bad">严重夸大</span></td></tr>
+            <tr><td>“果蝇大脑炒比特币跑赢人类”</td><td>社交媒体演示，无可复核的方法与数据；同期出现的同名 meme 币属于高风险投机。</td><td><span class="pill bad">别当真</span></td></tr>
+            <tr><td>“下一步就是小鼠，然后是人脑”</td><td>Eon 计划两年内做小鼠（约 7000 万神经元，是果蝇的 560 倍）。中科院徐春研究员指出难度“呈指数级增长”；严军研究员认为只有具备思想和意识才算真正的数字生命。</td><td><span class="pill warn">远期愿景</span></td></tr>
+            <tr><td>“雄性果蝇全中枢图谱是连接组学里程碑”</td><td>同行评审发表于 Cell，数据全部公开，首次包含腹神经索与雌雄对比。</td><td><span class="pill ok">属实</span></td></tr>
+          </tbody>
+        </table></div>
+        <p>判断一个新演示时，问三个问题：<b>① 哪部分是接线图，哪部分是另外训练的？② 身体动作是大脑产生的，还是预设的？③ 有没有“打乱接线”的对照？</b></p>
+      </section>
+
+      <section id="play">
+        <p class="sec-k">§5 · Hands-on</p>
+        <h2>上手路线：从浏览器到亲手做敲除实验</h2>
+        <p>四级难度，逐级递进。L0 不需要任何安装；L1–L3 我已在本机（Apple M5）全部跑通，文件放在 <code>002ClaudeCodeSpace/fruitfly-lab/</code>。</p>
+
+        <div class="level">
+          <div class="level-head"><span class="lv">L0</span><h3>浏览器里直接玩</h3><span class="cost">0 安装 · 5 分钟</span></div>
+          <p>以下链接 2026-09-15 实测可打开。建议从第一个开始。</p>
+          <ul class="links">
+            <li><span class="tag">全脑 13.9 万神经元 · 最推荐</span><br><a href="https://flybrain.app" target="_blank" rel="noopener">FlyBrain</a><p>放食物、戳它的头和腿、拖动吹风、切换明暗和冷暖，右侧实时看全部神经元按“感觉/中枢/驱力/运动”分区放电。</p></li>
+            <li><span class="tag">小游戏</span><br><a href="https://fly-escape.vercel.app/" target="_blank" rel="noopener">Help the Fly Escape</a><p>用真实回路片段驱动的逃跑小游戏。</p></li>
+            <li><span class="tag">小游戏</span><br><a href="https://fruitfly-tiny-brain.vercel.app/" target="_blank" rel="noopener">Swat</a><p>拍苍蝇，同时可视化它的逃逸回路。</p></li>
+            <li><span class="tag">80 个神经元的回路</span><br><a href="https://flydino.cobanov.dev/" target="_blank" rel="noopener">Fly Dino</a><p>Chrome 断网小恐龙，由果蝇回路控制跳跃。</p></li>
+            <li><span class="tag">艺术作品</span><br><a href="https://infinitesugar.cnqso.com/" target="_blank" rel="noopener">Infinite Sugar</a><p>基于 FlyWire 的果蝇在无限糖堆里生活。</p></li>
+            <li><span class="tag">官方数据浏览器</span><br><a href="https://codex.flywire.ai" target="_blank" rel="noopener">FlyWire Codex</a><p>按名字搜神经元、看 3D 形态和上下游。部分功能需登录。</p></li>
+            <li><span class="tag">官方 · 雄性全中枢</span><br><a href="https://male-cns.janelia.org/" target="_blank" rel="noopener">MaleCNS 浏览器</a><p>9 月新发布的 16.6 万神经元图谱。</p></li>
+            <li><span class="tag">官方 · 连接查询</span><br><a href="https://neuprint.janelia.org" target="_blank" rel="noopener">neuPrint</a><p>查“谁连着谁”。用 Google 账号登录后可取 API token，供 Python 调用。</p></li>
+          </ul>
+        </div>
+
+        <div class="level">
+          <div class="level-head"><span class="lv">L1</span><h3>在 Mac 上跑全脑模型：尝到糖，会不会想吃？</h3><span class="cost">约 10 分钟 · 400 MB 磁盘</span></div>
+          <h4>1. 准备工具（只需一次）</h4>
+          <p>打开“终端”。需要 <a href="https://brew.sh" target="_blank" rel="noopener">Homebrew</a>，然后装 <code>uv</code>（一个很快的 Python 管理器，会自动下载合适的 Python 版本，不碰系统自带的 Python 3.9）。</p>
+          <div class="code"><pre>brew install uv git</pre></div>
+          <h4>2. 下载模型与数据、建环境</h4>
+          <div class="code"><pre><span class="cm"># 本机已存在于 002ClaudeCodeSpace/fruitfly-lab，从零开始时才需要</span>
+mkdir -p ~/fruitfly-lab &amp;&amp; cd ~/fruitfly-lab
+git clone --depth 1 https://github.com/philshiu/Drosophila_brain_model.git
+uv venv --python 3.11 Drosophila_brain_model/.venv
+uv pip install --python Drosophila_brain_model/.venv/bin/python brian2 "numpy&lt;2" "pandas&lt;3" pyarrow joblib matplotlib ipykernel</pre></div>
+          <p class="note">一定要写 <code>"numpy&lt;2"</code>：brian2 2.9 与最新 numpy 2.4 不兼容，会报 <code>ndarray has no attribute 'ptp'</code>（我实测踩到过）。</p>
+          <h4>3. 运行实验 1</h4>
+          <p>脚本做的事只有三行核心：列出 21 个糖味神经元的 FlyWire ID → <code>run_exp</code> 给它们持续 150 Hz 刺激 → 统计每个神经元的放电率。</p>
+          <div class="code"><pre>cd ~/Documents/AISpace/002ClaudeCodeSpace/fruitfly-lab
+Drosophila_brain_model/.venv/bin/python scripts/01_sugar_to_feeding.py</pre></div>
+          <div class="out">&gt;&gt;&gt; Experiment:     sugarR
+    Excited neurons: 21
+    Elapsed time:   13 s
+共 41,462 次放电，413 个神经元有活动（全脑约 12.7 万个）
+&gt;&gt;&gt; MN9 放电率 = 82.3 Hz  ——  大于 0：糖味信号一路传到了进食运动神经元！</div>
+          <p><b>怎么读结果</b>：12.74 万个神经元里只有 413 个被点亮，说明信号走的是一条专用通路而不是“全脑沸腾”；MN9 在 82 Hz 放电，对应真实果蝇尝到糖后伸出口器。这正是 Shiu 等人 2024 年 Nature 论文的核心发现，你刚刚复现了它。</p>
+          <h4>可以动手改的旋钮</h4>
+          <ul>
+            <li><code>N_RUN</code>：试验次数，论文用 30，改大结果更稳但更慢。</li>
+            <li><code>r_poi=150 * Hz</code>：刺激强度，试试 50 Hz，看 MN9 是否还放电。</li>
+            <li>换刺激对象：在 FlyWire Codex 里搜苦味（bitter）或触角机械感受神经元，把它们的 ID 换进 <code>SUGAR</code>。注意 ID 属于 v630 数据版本，与 v783 不通用。</li>
+          </ul>
+          <p class="note">想看原版教程：用 VS Code 打开 <code>Drosophila_brain_model/example.ipynb</code>，内核选这个 <code>.venv</code>。不想装任何东西：仓库 README 里有 Colab 按钮，但官方说明 Colab 上会慢很多（约 20 分钟）。</p>
+        </div>
+
+        <div class="level">
+          <div class="level-head"><span class="lv">L2</span><h3>让数字果蝇身体走起来，导出视频</h3><span class="cost">约 5 分钟 · 需 Python 3.12+</span></div>
+          <div class="code"><pre>cd ~/Documents/AISpace/002ClaudeCodeSpace/fruitfly-lab
+mkdir -p flygym-play
+uv venv --python 3.12 flygym-play/.venv
+uv pip install --python flygym-play/.venv/bin/python "flygym[examples]"
+flygym-play/.venv/bin/python scripts/02_walking_fly.py
+open output/walking_fly.mp4</pre></div>
+          <div class="out">果蝇在走路: 100%|██████████| 20000/20000 [00:08&lt;00:00, 2306.86it/s]
+2.0s 内胸部前进了 28.11 mm；视频已保存：.../output/walking_fly.mp4</div>
+          <p><b>发生了什么</b>：物理步长 0.1 ms，2 秒共 20,000 步。6 个耦合振荡器（CPG，每条腿一个）产生“三足步态”——左前、右中、左后三条腿一组交替着地，这是昆虫最经典的走法。注意：这里<b>没有接大脑</b>，步态是预编程的，这也正是许多“大脑驱动走路”演示的底层做法。</p>
+          <ul>
+            <li>Mac 上<b>不要</b>装 <code>flygym[warp]</code>，那是 NVIDIA GPU 加速专用。</li>
+            <li>改 <code>RUN_TIME</code> 走更久；改 <code>coupling_strength</code>（耦合强度）看步态会不会乱。</li>
+            <li>下一步推荐官方教程：<code>flygym-src/tutorials/4d_turning_controller.ipynb</code>（转向）和 <code>1a_basic_model_composition.ipynb</code>（自己拼身体和场景）。</li>
+          </ul>
+        </div>
+
+        <div class="level">
+          <div class="level-head"><span class="lv">L3</span><h3>像神经科学家一样做“敲除实验”</h3><span class="cost">约 2 分钟 · 复用 L1 环境</span></div>
+          <p>真实实验室会用遗传工具让某个神经元“闭嘴”，看行为是否消失。在数字大脑里只要把它所有输出突触的权重设为 0。脚本自动挑出糖味神经元之外最活跃的 3 个中间神经元，逐个静默，再三个一起静默，比较 MN9 的放电率：</p>
+          <div class="code"><pre>Drosophila_brain_model/.venv/bin/python scripts/04_silence_neuron.py</pre></div>
+          <div class="bars" id="bars"><div class="bar base"><span>不静默（对照）</span><div class="track"><div class="fill" style="width:82.3%"></div></div><span class="v">82.3 Hz</span></div><div class="bar"><span>静默 …695448</span><div class="track"><div class="fill" style="width:79.7%"></div></div><span class="v">79.7 Hz</span></div><div class="bar"><span>静默 …888530</span><div class="track"><div class="fill" style="width:80.0%"></div></div><span class="v">80.0 Hz</span></div><div class="bar"><span>静默 …383685</span><div class="track"><div class="fill" style="width:88.7%"></div></div><span class="v">88.7 Hz</span></div><div class="bar"><span>三个一起静默</span><div class="track"><div class="fill" style="width:82.3%"></div></div><span class="v">82.3 Hz</span></div></div>
+          <p><b>结果出乎意料</b>：无论单个还是三个一起关掉，MN9 都维持在 80–89 Hz，差异在随机波动范围内（每个条件只跑了 3 次，每次的随机刺激不同）。说明这几个“最吵”的中间神经元并不在糖→进食的必经之路上：<b>活跃不等于必需</b>。Shiu 论文正是用系统性的逐个敲除找到真正关键的少数神经元。你的下一个实验：把静默对象换成下游更靠近 MN9 的神经元，或把 <code>N_RUN</code> 调到 30 让结论更可靠。</p>
+          <h4>再往上：把大脑和身体接起来</h4>
+          <p>这是 Eon 做的事，也是目前最前沿、门槛最高的部分。先说清楚现状：</p>
+          <div class="tbl-wrap"><table>
+            <thead><tr><th>项目</th><th>做了什么</th><th>硬件</th><th>Mac 能跑吗</th></tr></thead>
+            <tbody>
+              <tr><td><a href="https://github.com/eonsystemspbc/fly-brain" target="_blank" rel="noopener">eonsystemspbc/fly-brain</a></td><td>Eon 开源的全脑模型多后端版本（Brian2、PyTorch、GeNN 等），用于速度对比；<b>不含身体整合</b></td><td>Linux + NVIDIA CUDA 12</td><td><span class="pill warn">未测试</span></td></tr>
+              <tr><td><a href="https://github.com/erojasoficial-byte/fly-brain" target="_blank" rel="noopener">erojasoficial-byte/fly-brain</a></td><td>社区版：v783 全脑 + NeuroMechFly 身体，约 1100 个下行神经元转成关节力矩，含视觉/嗅觉/飞行</td><td>NVIDIA ≥ 6 GB 显存，32 GB 内存</td><td><span class="pill bad">不支持</span></td></tr>
+              <tr><td><a href="https://github.com/Ibtisam-Mohammad/Fly.exe" target="_blank" rel="noopener">Fly.exe</a></td><td>MaleCNS 16.5 万神经元闭环驱动 12 只果蝇；诚实标注“步态是工程实现、无社会行为”</td><td>NVIDIA（RTX 3060 实测）</td><td><span class="pill bad">不支持</span></td></tr>
+            </tbody>
+          </table></div>
+          <p><b>Mac 用户的自制思路</b>：把 L1 和 L2 串起来。每 15 ms 让大脑跑一小段，读出 MN9 放电率决定“要不要进食”，读出 DNa01/DNa02 的左右差值决定转向，喂给 L2 的转向控制器。这正是 Eon 公开描述的同步方式，适合作为你的第一个小项目。</p>
+        </div>
+      </section>
+
+      <section id="log">
+        <p class="sec-k">§6 · Lab notebook</p>
+        <h2>实操过程记录（2026-09-15，本机）</h2>
+        <p>完整记录我为写这份手册在你的电脑上做了什么、每一步的输出、踩到的坑和修法。原始日志在 <code>fruitfly-lab/scripts/*_output.log</code>。</p>
+        <dl class="env">
+          <div><dt>芯片 / 内存</dt><dd>Apple M5 · 24 GB</dd></div>
+          <div><dt>系统</dt><dd>macOS 26.5.2 (arm64)</dd></div>
+          <div><dt>工具</dt><dd>uv 0.12.5 · git · Xcode CLT</dd></div>
+          <div><dt>系统 Python</dt><dd>3.9.6（太旧，未使用）</dd></div>
+          <div><dt>大脑环境</dt><dd>Py 3.11 · brian2 2.9.0 · numpy 1.x</dd></div>
+          <div><dt>身体环境</dt><dd>Py 3.12 · flygym 2.1.0 · mujoco 3.9.0</dd></div>
+        </dl>
+        <ol class="log">
+          <li><div><h4>资料调研 <span class="dur">检索 20+ 来源</span></h4>
+            <p>中英文检索：新华网、腾讯新闻、新浪科技、Eon 官方技术说明、Google Research 博客、Janelia 新闻、Cell 论文信息、Nature 论文页、awesome-fly 项目清单、批评性文章（The Decoder、Substack、Stork.AI 等）。交叉核对了关键数字：FlyWire 139,255 神经元；MaleCNS 166,691 神经元、约 1.25 亿突触连接；Eon 视频日期 2026-03-07。</p></div></li>
+          <li><div><h4>检查本机环境 <span class="pill ok">完成</span></h4>
+            <p>发现系统自带 Python 仅 3.9.6，而 FlyGym 2.1 要求 3.12–3.14，决定用 <code>uv</code> 为两个项目各建独立虚拟环境，互不干扰。</p></div></li>
+          <li><div><h4>验证在线演示 <span class="pill ok">完成</span></h4>
+            <p>逐个请求 L0 列表中的网站，均返回 HTTP 200。<code>webgpu-fly.pages.dev</code> 两次超时（40 s），已从推荐列表剔除。</p></div></li>
+          <li><div><h4>下载全脑模型 <span class="dur">380 MB</span> <span class="pill ok">完成</span></h4>
+            <div class="code"><pre>git clone --depth 1 https://github.com/philshiu/Drosophila_brain_model.git</pre></div>
+            <p>仓库自带两版连接组：v630（127,400 个神经元，87 MB）与 v783（138,639 个神经元，101 MB）。官方示例的神经元 ID 属于 v630，所以脚本用 v630。</p></div></li>
+          <li><div><h4>安装 FlyGym <span class="pill ok">完成</span></h4>
+            <div class="code"><pre>uv venv --python 3.12 .venv
+uv pip install --python .venv/bin/python "flygym[examples]"</pre></div>
+            <p>装上 flygym 2.1.0 与 mujoco 3.9.0。第一次检查导入时命令报 <code>No module named 'flygym'</code>，用 <code>uv pip list</code> 复查确认已安装，重试导入正常（原因未查明，不影响使用）。确认 PyPI 包里自带演示模块 <code>flygym_demo</code>，无需从源码安装。另外浅克隆了 v2.1.0 源码以获取官方 notebook 教程。</p></div></li>
+          <li><div><h4>首次运行实验 1 <span class="pill bad">报错</span></h4>
+            <div class="out err">File ".../brian2/units/fundamentalunits.py", line 1661, in Quantity
+    ptp = wrap_function_keep_dimensions(np.ndarray.ptp)
+AttributeError: type object 'numpy.ndarray' has no attribute 'ptp'</div>
+            <p><b>原因</b>：uv 默认装了最新 numpy 2.4.6，它删除了 <code>ndarray.ptp</code>，而 brian2 2.9.0 仍在调用。<b>修法</b>：<code>uv pip install "numpy&lt;2" "pandas&lt;3"</code>。</p></div></li>
+          <li><div><h4>第二次运行实验 1 <span class="dur">仿真 64 s</span> <span class="pill bad">报错</span></h4>
+            <div class="out err">Elapsed time:   64 s
+OSError: Cannot save file into a non-existent directory: '.../results/lab'</div>
+            <p><b>原因</b>：仿真本身成功，但官方 <code>run_exp</code> 不会自动创建结果目录，保存时失败，白跑一分钟。<b>修法</b>：脚本开头加 <code>Path(path_res).mkdir(parents=True, exist_ok=True)</code>。</p></div></li>
+          <li><div><h4>第三次运行实验 1 <span class="dur">仿真 13 s · 总计 16 s</span> <span class="pill ok">成功</span></h4>
+            <p>41,462 次放电、413 个活跃神经元、MN9 = 82.3 Hz。第二次起快了 5 倍，因为 Brian2 首次运行时要把模型编译成 C++（Cython）并缓存。</p></div></li>
+          <li><div><h4>运行实验 2：数字果蝇走路 <span class="dur">总计 22 s</span> <span class="pill ok">成功</span></h4>
+            <p>20,000 个物理步，约 2,400 步/秒，不到 CPU 上的实时速度。默认视频只有 320×240、0.2 倍速，偏小；改为 <code>camera_res=(480, 640)</code>、<code>playback_speed=0.25</code> 后重新渲染，得到 8 秒、4.4 MB 的清晰视频（标本板 A）。抽帧检查画面正常：红色复眼、翅膀、六足着地、地面倒影。</p></div></li>
+          <li><div><h4>导出放电栅格数据 <span class="pill ok">完成</span></h4>
+            <p><code>03_export_raster.py</code> 取第 1 次试验中最活跃的 40 个神经元（强制包含 MN9），导出 38 KB 的 JSON，嵌入本页绘制标本板 B。图表配色经色盲安全校验脚本检查，浅色与深色主题均通过。</p></div></li>
+          <li><div><h4>运行实验 4：敲除 <span class="pill ok">成功</span></h4>
+            <p>逐个静默 3 个最活跃中间神经元，再三个一起静默。控制台出现 Brian2 警告 <code>'i' is an internal variable of group 'default_synapses'</code>，是官方 <code>silence()</code> 函数里循环变量与内部变量同名所致，内部变量优先，<b>结果正确，可忽略</b>。结果见 L3。</p></div></li>
+          <li><div><h4>未实测的部分 <span class="pill warn">说明</span></h4>
+            <p>脑身整合的社区项目（erojasoficial-byte/fly-brain、Fly.exe、Eon 多后端版）都依赖 NVIDIA CUDA，本机无法运行，未测试；MaleCNS 的 neuPrint API 需要登录取 token，未代为登录。</p></div></li>
+        </ol>
+      </section>
+
+      <section id="faq">
+        <p class="sec-k">§7 · FAQ</p>
+        <h2>常见问题</h2>
+        <dl class="faq">
+          <dt>我完全不会编程，能玩吗？</dt>
+          <dd>能。L0 全部在浏览器里完成。L1、L2 只需复制粘贴命令，脚本已写好，每行都有中文注释。</dd>
+          <dt>会不会弄乱我的电脑？</dt>
+          <dd>不会。所有依赖装在项目文件夹里的 <code>.venv</code> 中，删掉 <code>fruitfly-lab</code> 文件夹就彻底清除。</dd>
+          <dt>Windows 或没有 Mac 怎么办？</dt>
+          <dd>命令基本相同（路径把 <code>.venv/bin/python</code> 换成 <code>.venv\Scripts\python</code>）。也可以用 Colab：全脑模型仓库和 FlyGym 教程都提供 Colab 入口。</dd>
+          <dt>这个数字果蝇有意识吗？会痛吗？</dt>
+          <dd>没有证据表明有。它是固定权重的简化电路，没有学习、记忆、内部状态。围绕“数字生命”的伦理讨论值得关注，但与今天能跑的模型距离很远。</dd>
+          <dt>这对 AI 有什么用？</dt>
+          <dd>三个方向：用生物接线当神经网络结构（样本效率更高，2026 年有论文用全脑图当强化学习控制器）；用数字身体设计机器人；在电脑里先做“敲除实验”，筛选值得在真果蝇上验证的假设，省实验成本。</dd>
+          <dt>看到“果蝇大脑炒币”的币要不要买？</dt>
+          <dd>不要把它当投资机会。它和科研成果没有关系，属于高风险投机。</dd>
+        </dl>
+      </section>
+
+      <section id="sources">
+        <p class="sec-k">§8 · Sources</p>
+        <h2>资料来源</h2>
+        <ol class="sources">
+          <li><a href="https://eon.systems/updates/embodied-brain-emulation" target="_blank" rel="noopener">Eon：How the Eon Team Produced a Virtual Embodied Fly</a></li>
+          <li><a href="https://research.google/blog/a-connectomics-milestone-mapping-the-complete-male-fruit-fly-brain/" target="_blank" rel="noopener">Google Research：A connectomics milestone</a></li>
+          <li><a href="https://www.janelia.org/news/researchers-reveal-connectome-of-the-male-fruit-fly-central-nervous-system" target="_blank" rel="noopener">Janelia：Male CNS connectome 新闻稿</a></li>
+          <li><a href="https://www.sci.news/biology/complete-fruit-fly-connectome-15053.html" target="_blank" rel="noopener">Sci.News：Complete Fruit Fly Connectome（Cell 论文信息）</a></li>
+          <li><a href="https://phys.org/news/2026-09-connectome-pursuing-fly-brain-rewired.html" target="_blank" rel="noopener">Phys.org：Completing the connectome</a></li>
+          <li><a href="https://www.nature.com/articles/s41586-025-09029-4" target="_blank" rel="noopener">Nature：Whole-body physics simulation of fruit fly locomotion（flybody）</a></li>
+          <li><a href="https://github.com/philshiu/Drosophila_brain_model" target="_blank" rel="noopener">GitHub：philshiu/Drosophila_brain_model</a></li>
+          <li><a href="https://github.com/NeLy-EPFL/flygym/" target="_blank" rel="noopener">GitHub：NeLy-EPFL/flygym</a> · <a href="https://neuromechfly.org/" target="_blank" rel="noopener">neuromechfly.org</a></li>
+          <li><a href="https://github.com/cobanov/awesome-fly" target="_blank" rel="noopener">GitHub：awesome-fly 项目清单</a></li>
+          <li><a href="https://github.com/snedea/flybrain" target="_blank" rel="noopener">GitHub：snedea/flybrain（flybrain.app）</a></li>
+          <li><a href="https://www.news.cn/tech/20260324/838692b5231849a29ab0ad0214e564ee/c.html" target="_blank" rel="noopener">新华网：电子果蝇“活”了</a></li>
+          <li><a href="https://news.qq.com/rain/a/20260312A06LFG00" target="_blank" rel="noopener">腾讯新闻：果蝇数字脑引马斯克惊呼</a></li>
+          <li><a href="https://finance.sina.com.cn/tech/digi/2026-09-09/doc-inirfivw8613026.shtml" target="_blank" rel="noopener">新浪科技：谷歌首绘果蝇全脑图谱</a></li>
+          <li><a href="https://news.qq.com/rain/a/20260909A0CWGX00" target="_blank" rel="noopener">腾讯新闻：谷歌首次绘制成年雄果蝇完整神经图谱</a></li>
+          <li><a href="https://meme.com/memes/fruit-fly-brain-simulations" target="_blank" rel="noopener">Meme 传播时间线：Fruit Fly Brain Simulations</a></li>
+          <li><a href="https://www.stork.ai/blog/google-unleashed-a-fly-brain-chaos-ensued" target="_blank" rel="noopener">Stork.AI：The Viral Demos Explained</a></li>
+          <li><a href="https://saanyaojha.substack.com/p/sci-fi-fruit-flies-in-the-hypegiest" target="_blank" rel="noopener">Substack：Sci Fi Fruit Flies in The Hypegeist</a></li>
+          <li><a href="https://the-decoder.com/startup-claims-first-full-brain-emulation-of-a-fruit-fly-in-a-simulated-body/" target="_blank" rel="noopener">The Decoder：Startup claims first full brain emulation</a></li>
+          <li><a href="https://github.com/Ibtisam-Mohammad/Fly.exe" target="_blank" rel="noopener">GitHub：Fly.exe</a></li>
+          <li><a href="https://arxiv.org/abs/2602.17997" target="_blank" rel="noopener">arXiv 2602.17997：Whole-Brain Connectomic Graph Model</a></li>
+        </ol>
+        <footer>fruitfly-lab · v1 · 数字以原始来源为准；社交媒体播放量等数据来自二手汇总</footer>
+      </section>
+    </main>
+  </div>
+</div>
+
+<script>
+const RASTER = {"trials": 3, "total_spikes": 41462, "active_neurons": 413, "mn9_hz": 82.3, "rows": [{"id": "720575940616885538", "hz": 161.7, "mn9": false, "t": [5.8, 9.5, 11.6, 20.6, 21.4, 24.3, 27.2, 27.5, 30.3, 35.7, 36.1, 36.4, 37.1, 39.7, 46.3, 54.6, 56.7, 68.6, 76.0, 91.7, 101.6, 108.8, 112.5, 112.7, 113.5, 122.4, 129.0, 133.7, 137.1, 142.5, 154.7, 162.1, 169.6, 171.9, 172.7, 190.6, 191.8, 199.7, 199.9, 208.4, 218.0, 230.4, 231.0, 247.6, 248.9, 250.2, 251.3, 253.7, 254.9, 257.2, 258.7, 261.9, 266.1, 270.0, 276.9, 287.6, 294.0, 306.8, 313.8, 322.4, 324.7, 325.1, 340.5, 362.2, 365.0, 372.1, 376.4, 377.2, 387.5, 394.6, 402.4, 414.7, 415.1, 437.8, 438.3, 463.4, 468.6, 471.4, 493.5, 494.6, 500.4, 501.4, 510.7, 515.3, 517.0, 517.8, 518.1, 524.7, 528.9, 532.6, 537.2, 539.1, 549.0, 551.8, 557.2, 559.5, 561.1, 572.2, 574.0, 585.9, 598.2, 616.9, 621.1, 621.6, 625.2, 626.5, 627.9, 628.3, 630.4, 630.6, 638.0, 642.6, 645.4, 652.7, 654.4, 655.5, 662.9, 667.3, 678.6, 681.3, 685.1, 687.3, 687.8, 693.5, 707.5, 709.1, 714.5, 715.2, 719.8, 720.2, 726.0, 726.4, 727.6, 730.9, 734.0, 736.7, 755.6, 755.8, 764.0, 771.3, 783.8, 793.7, 799.8, 802.2, 803.6, 813.7, 821.6, 834.1, 840.2, 843.2, 862.5, 863.1, 868.6, 872.1, 874.2, 882.2, 884.0, 885.9, 897.7, 908.7, 911.7, 912.0, 916.1, 916.9, 931.3, 931.6, 939.0, 947.5, 947.7, 960.2, 964.8, 974.0, 991.8, 992.2]}, {"id": "720575940629176663", "hz": 160.7, "mn9": false, "t": [4.4, 5.9, 8.1, 18.2, 30.6, 42.4, 49.1, 52.0, 57.8, 58.1, 60.8, 67.7, 72.4, 79.9, 91.8, 99.8, 136.0, 138.2, 141.3, 164.1, 170.8, 171.3, 176.3, 177.5, 201.0, 213.9, 216.3, 225.7, 238.3, 252.1, 258.7, 259.3, 274.5, 274.8, 275.0, 293.0, 298.8, 300.4, 310.0, 326.1, 330.2, 341.2, 342.9, 347.2, 359.4, 363.2, 366.6, 372.9, 380.6, 385.1, 386.4, 387.0, 391.3, 394.1, 396.2, 402.4, 403.1, 410.7, 418.5, 426.8, 435.9, 443.1, 444.3, 451.5, 451.8, 452.2, 455.8, 458.5, 459.0, 465.1, 479.6, 481.7, 484.0, 495.6, 508.3, 511.2, 520.5, 525.3, 534.6, 536.2, 549.8, 563.6, 564.3, 571.4, 572.0, 581.2, 587.5, 592.1, 594.2, 596.0, 603.2, 607.3, 609.6, 615.9, 622.3, 622.9, 630.8, 636.4, 642.1, 643.9, 651.2, 655.2, 659.4, 659.8, 660.5, 662.0, 682.2, 683.4, 685.6, 692.6, 695.2, 712.2, 724.7, 735.6, 736.9, 748.2, 748.7, 762.2, 763.1, 768.1, 772.5, 779.4, 792.6, 794.5, 801.2, 815.4, 819.5, 827.1, 845.3, 848.2, 858.9, 860.0, 860.8, 863.5, 865.7, 867.7, 885.0, 885.7, 886.0, 888.5, 894.5, 894.8, 895.7, 897.1, 905.1, 924.3, 924.6, 926.6, 927.2, 928.7, 937.4, 937.6, 939.1, 948.2, 949.1, 950.1, 978.1, 987.5, 994.0]}, {"id": "720575940621502051", "hz": 157.7, "mn9": false, "t": [0.8, 8.5, 9.5, 13.0, 38.2, 41.6, 42.0, 42.7, 51.5, 60.5, 69.8, 70.5, 70.8, 92.7, 94.7, 97.6, 102.8, 106.3, 111.9, 120.6, 124.2, 125.8, 161.9, 165.8, 168.7, 170.3, 181.0, 182.2, 184.9, 185.7, 188.3, 192.5, 193.5, 199.4, 201.5, 213.1, 221.5, 228.7, 229.0, 232.1, 233.7, 237.8, 243.4, 248.6, 252.3, 258.4, 260.2, 265.5, 278.1, 286.8, 292.3, 294.2, 296.6, 310.3, 311.6, 314.6, 323.9, 331.7, 332.7, 340.9, 342.4, 344.9, 349.4, 362.2, 373.3, 395.2, 402.5, 419.7, 426.6, 432.3, 434.7, 436.6, 438.9, 455.7, 461.9, 463.6, 464.8, 466.8, 474.7, 480.7, 487.5, 495.8, 496.4, 497.4, 497.9, 499.2, 504.8, 508.8, 515.6, 516.3, 527.5, 537.1, 553.3, 569.7, 572.4, 577.6, 589.9, 596.9, 599.9, 601.0, 605.3, 606.2, 617.9, 619.2, 619.7, 622.6, 625.7, 633.4, 649.2, 653.2, 654.2, 662.7, 670.4, 675.7, 683.5, 689.0, 706.7, 714.6, 716.0, 723.1, 727.1, 729.4, 729.6, 753.2, 756.4, 756.8, 760.1, 762.9, 765.9, 772.8, 773.7, 774.6, 775.3, 777.2, 777.6, 781.0, 797.4, 812.5, 817.9, 818.8, 819.5, 828.5, 838.5, 844.3, 869.3, 871.7, 895.6, 897.4, 908.6, 914.6, 917.0, 920.2, 930.3, 932.1, 949.4, 954.2, 956.4, 959.8, 960.7, 962.8, 968.8, 974.7, 979.1, 983.1, 996.0, 997.5, 999.8]}, {"id": "720575940630233916", "hz": 155.0, "mn9": false, "t": [0.7, 1.0, 3.9, 19.4, 21.9, 31.1, 41.4, 58.8, 68.1, 76.3, 89.2, 92.7, 93.1, 102.8, 103.6, 107.0, 107.5, 130.7, 131.2, 139.2, 141.6, 146.3, 151.0, 158.2, 159.8, 164.6, 169.7, 171.9, 173.4, 175.2, 177.0, 182.0, 186.9, 194.0, 194.4, 196.1, 201.2, 204.4, 212.6, 214.2, 219.7, 226.4, 227.2, 230.6, 242.4, 243.7, 244.4, 245.6, 249.2, 266.8, 269.2, 275.9, 280.1, 281.7, 282.6, 282.8, 284.1, 291.8, 306.5, 314.4, 319.3, 322.5, 329.8, 335.8, 340.9, 346.0, 356.5, 368.1, 368.7, 403.1, 403.8, 412.7, 422.3, 451.5, 465.1, 468.4, 479.8, 488.6, 490.9, 494.5, 510.7, 512.2, 515.0, 515.9, 530.5, 530.7, 558.0, 558.2, 560.0, 580.0, 589.4, 589.8, 590.3, 593.1, 599.9, 614.7, 617.2, 625.0, 626.1, 645.9, 648.5, 652.9, 656.8, 662.9, 665.0, 666.6, 680.0, 681.9, 687.8, 688.3, 695.9, 696.8, 699.4, 707.7, 711.6, 712.1, 717.0, 725.7, 729.8, 738.1, 739.1, 741.0, 747.6, 759.0, 761.3, 763.2, 771.0, 774.9, 788.8, 794.4, 798.3, 798.7, 801.0, 803.4, 810.8, 815.1, 818.1, 819.9, 822.5, 825.2, 828.7, 829.0, 844.3, 854.0, 861.8, 877.3, 883.9, 891.0, 898.9, 912.3, 917.8, 920.6, 924.2, 945.8, 957.6, 959.4, 961.7, 964.8, 968.2, 970.8, 978.0, 982.2, 985.1, 988.9]}, {"id": "720575940632889389", "hz": 153.3, "mn9": false, "t": [8.5, 19.3, 20.3, 21.0, 30.0, 45.4, 50.6, 53.0, 54.4, 71.3, 73.5, 76.6, 81.9, 85.1, 89.2, 102.6, 105.1, 105.3, 108.2, 131.0, 133.4, 140.3, 147.8, 152.1, 163.6, 170.2, 181.1, 195.2, 196.1, 207.0, 208.1, 209.1, 211.4, 211.7, 219.2, 228.2, 235.7, 238.8, 244.2, 249.0, 255.2, 265.3, 273.1, 278.6, 305.3, 308.7, 316.8, 319.8, 323.2, 330.6, 339.5, 358.1, 368.3, 379.5, 379.9, 383.7, 389.1, 391.7, 394.4, 395.8, 399.4, 402.8, 406.7, 428.4, 429.5, 439.7, 444.5, 449.4, 453.6, 483.3, 485.4, 486.4, 488.8, 491.6, 492.6, 503.8, 506.9, 513.3, 524.0, 525.3, 529.2, 566.2, 574.8, 577.6, 577.9, 578.6, 593.6, 624.4, 639.8, 653.9, 657.2, 665.7, 677.7, 677.9, 679.0, 681.8, 683.9, 685.8, 694.3, 697.3, 706.6, 706.8, 714.2, 718.2, 721.7, 727.0, 732.6, 733.1, 747.2, 748.2, 750.5, 750.8, 761.4, 764.9, 773.1, 774.9, 787.1, 787.4, 788.1, 791.8, 793.4, 799.7, 800.0, 802.5, 807.1, 825.0, 829.4, 835.1, 835.6, 844.5, 861.6, 862.8, 870.6, 875.3, 877.4, 881.0, 883.5, 885.2, 892.7, 898.5, 900.8, 906.6, 913.5, 914.7, 915.3, 919.2, 924.5, 925.1, 928.7, 934.8, 944.3, 956.2, 956.4, 959.1, 961.9, 986.1, 991.4]}, {"id": "720575940640649691", "hz": 152.7, "mn9": false, "t": [6.7, 8.1, 19.8, 23.7, 24.9, 27.2, 36.1, 58.6, 62.4, 63.3, 71.1, 72.8, 73.8, 88.5, 91.2, 101.5, 101.7, 102.6, 103.0, 127.2, 128.8, 131.7, 139.0, 140.5, 146.4, 149.9, 160.3, 182.3, 208.8, 216.2, 217.1, 228.4, 230.8, 240.0, 246.4, 260.6, 275.2, 281.3, 284.1, 286.2, 287.0, 297.2, 301.8, 302.2, 305.1, 312.9, 322.6, 329.6, 331.3, 331.6, 365.4, 371.7, 380.0, 380.3, 393.2, 396.3, 406.2, 411.7, 422.1, 425.4, 425.8, 426.2, 433.4, 438.6, 442.0, 447.5, 473.7, 475.9, 479.0, 479.6, 487.1, 490.3, 496.4, 498.4, 509.1, 515.4, 522.1, 528.9, 529.5, 535.5, 552.6, 560.9, 562.3, 582.3, 587.0, 595.1, 597.6, 606.1, 606.5, 612.8, 614.7, 615.0, 624.9, 630.8, 632.9, 642.8, 645.2, 658.3, 664.2, 677.5, 678.6, 685.5, 696.2, 701.2, 703.7, 709.5, 714.3, 716.7, 720.4, 722.1, 724.9, 731.5, 734.0, 736.8, 757.0, 759.8, 760.6, 775.1, 775.4, 779.5, 780.1, 787.8, 795.4, 803.9, 806.4, 807.0, 807.3, 810.7, 815.5, 831.3, 834.5, 840.2, 843.9, 862.0, 867.8, 868.8, 881.9, 883.1, 884.2, 891.2, 898.1, 903.4, 904.6, 905.6, 909.2, 921.9, 927.2, 956.2, 956.8, 975.6, 980.5, 980.8, 991.1]}, {"id": "720575940628853239", "hz": 152.7, "mn9": false, "t": [1.8, 18.4, 26.1, 29.8, 35.0, 49.4, 53.4, 61.4, 110.6, 112.3, 118.0, 136.0, 138.2, 143.5, 144.1, 151.7, 163.0, 165.7, 196.1, 196.7, 212.3, 224.5, 227.2, 235.1, 235.6, 239.5, 240.8, 247.8, 251.0, 260.3, 262.9, 273.1, 284.0, 296.2, 298.3, 300.6, 308.6, 315.3, 325.3, 328.8, 334.2, 346.5, 347.8, 352.6, 359.8, 360.9, 364.4, 366.8, 369.0, 370.0, 371.7, 374.8, 385.6, 394.3, 401.3, 425.6, 429.5, 438.8, 451.7, 454.3, 454.6, 469.6, 490.2, 490.4, 499.7, 508.2, 518.6, 529.7, 549.0, 562.0, 564.2, 564.8, 570.8, 572.1, 573.8, 575.0, 575.8, 576.3, 576.6, 585.8, 587.1, 590.6, 594.1, 600.6, 601.4, 607.8, 618.7, 622.3, 627.5, 636.3, 643.3, 646.5, 648.5, 653.4, 663.0, 663.5, 666.6, 671.0, 674.6, 678.1, 681.4, 681.8, 682.8, 683.2, 685.3, 688.6, 700.3, 701.7, 713.4, 716.4, 735.4, 737.4, 744.8, 757.2, 764.2, 787.7, 788.7, 790.0, 791.4, 794.4, 797.8, 810.4, 810.6, 838.6, 863.0, 865.8, 872.5, 875.4, 877.2, 880.8, 884.8, 889.3, 890.0, 892.5, 898.1, 901.7, 903.6, 909.0, 920.7, 927.7, 931.0, 931.7, 932.3, 947.7, 949.8, 959.3, 963.8, 966.3, 976.8, 984.0, 995.5]}, {"id": "720575940639198653", "hz": 152.7, "mn9": false, "t": [3.3, 7.8, 12.0, 19.8, 23.0, 23.7, 33.8, 43.2, 63.8, 80.2, 89.6, 97.4, 109.4, 109.9, 128.4, 131.2, 139.5, 153.6, 154.2, 155.0, 156.9, 157.5, 169.2, 171.4, 172.2, 177.8, 187.7, 201.8, 208.0, 216.8, 220.1, 236.0, 238.1, 238.4, 244.0, 248.1, 259.9, 262.4, 273.8, 280.1, 280.4, 306.1, 306.5, 308.4, 315.3, 315.5, 317.4, 319.8, 326.2, 328.9, 333.2, 347.2, 351.3, 352.8, 356.2, 360.5, 361.7, 362.3, 363.2, 364.4, 372.8, 387.9, 392.2, 404.0, 406.3, 420.3, 430.1, 433.2, 436.7, 437.4, 444.7, 446.2, 447.6, 449.9, 452.6, 457.1, 464.3, 468.2, 474.7, 475.0, 484.6, 492.0, 500.3, 505.3, 510.0, 510.6, 516.5, 518.0, 521.6, 528.5, 547.5, 549.9, 552.8, 553.0, 553.6, 561.5, 567.5, 570.8, 582.6, 585.0, 588.6, 591.4, 598.6, 603.4, 606.2, 613.1, 613.3, 618.5, 625.3, 627.1, 648.7, 655.7, 656.2, 661.9, 671.4, 678.8, 682.0, 692.3, 693.7, 703.1, 731.6, 734.1, 736.4, 750.9, 756.5, 759.0, 763.7, 764.6, 765.3, 770.2, 778.6, 782.4, 790.4, 794.4, 806.0, 817.2, 818.0, 826.4, 828.5, 832.0, 834.9, 839.9, 851.2, 860.1, 861.2, 869.3, 904.5, 924.5, 925.7, 948.7, 950.3, 966.0, 968.2, 974.9, 980.7, 982.3, 996.4]}, {"id": "720575940621754367", "hz": 152.3, "mn9": false, "t": [5.0, 6.8, 33.2, 34.6, 39.5, 43.1, 49.0, 49.9, 61.2, 61.6, 63.1, 70.2, 71.6, 81.6, 99.4, 105.6, 111.2, 116.8, 122.6, 131.5, 132.4, 136.4, 140.2, 150.1, 150.4, 153.0, 159.8, 162.8, 166.2, 166.5, 169.6, 172.4, 177.1, 177.6, 181.7, 184.0, 186.3, 191.1, 191.8, 197.2, 200.9, 227.9, 247.9, 250.9, 278.7, 279.1, 280.1, 286.0, 289.3, 289.8, 293.7, 304.7, 305.9, 319.3, 324.2, 325.7, 326.1, 326.6, 327.7, 333.3, 334.8, 337.5, 341.7, 359.5, 363.6, 393.2, 401.2, 401.4, 402.8, 412.1, 416.7, 418.6, 419.8, 424.6, 432.2, 441.5, 442.5, 443.0, 452.1, 453.5, 454.8, 455.6, 459.8, 463.4, 464.5, 471.1, 472.7, 472.9, 488.2, 493.5, 495.1, 502.1, 505.8, 506.7, 509.1, 510.9, 519.2, 520.8, 525.8, 529.1, 534.2, 540.9, 554.3, 554.7, 559.9, 566.3, 577.6, 581.7, 582.2, 583.7, 592.6, 607.0, 607.7, 611.8, 616.8, 651.8, 657.1, 658.5, 658.8, 664.3, 665.8, 666.8, 671.2, 673.3, 698.1, 703.6, 723.3, 724.2, 726.7, 730.7, 737.4, 754.7, 763.8, 767.3, 778.1, 779.1, 784.3, 784.5, 785.3, 786.7, 789.8, 792.9, 796.6, 798.9, 800.1, 803.7, 808.3, 810.2, 815.0, 821.5, 822.6, 824.0, 824.4, 825.9, 826.6, 828.2, 839.9, 845.8, 848.3, 852.0, 860.5, 861.8, 863.8, 864.1, 884.8, 887.1, 888.5, 889.2, 904.7, 906.7, 912.8, 915.0, 918.0, 923.2, 926.3, 927.2, 928.8, 935.3, 938.9, 940.0, 944.2, 951.7, 972.9, 974.6, 978.0, 996.7]}, {"id": "720575940617937543", "hz": 150.3, "mn9": false, "t": [10.2, 10.6, 11.8, 19.7, 53.3, 65.5, 66.8, 70.2, 78.2, 80.2, 81.4, 90.6, 95.9, 100.9, 109.6, 110.5, 113.6, 114.7, 120.0, 135.1, 157.9, 161.4, 170.1, 175.0, 194.3, 199.9, 201.9, 218.0, 219.7, 227.0, 229.6, 230.1, 231.7, 233.6, 250.3, 250.9, 251.1, 254.6, 271.0, 271.7, 276.7, 290.7, 291.5, 292.3, 299.7, 309.7, 312.8, 313.3, 318.1, 340.4, 375.5, 376.6, 397.0, 403.7, 427.8, 453.6, 461.4, 481.9, 484.0, 485.4, 486.3, 503.7, 506.4, 510.5, 522.5, 524.8, 553.1, 559.5, 565.7, 580.0, 583.1, 587.3, 590.0, 597.4, 607.2, 634.8, 636.4, 647.0, 656.6, 661.3, 677.3, 688.9, 698.2, 707.8, 710.9, 711.7, 715.6, 722.8, 726.9, 744.0, 761.1, 775.3, 790.0, 808.1, 817.9, 821.8, 825.2, 853.5, 854.6, 862.3, 865.6, 872.7, 876.5, 881.4, 903.4, 906.2, 913.8, 916.7, 925.8, 929.6, 933.3, 945.0, 948.5, 951.6, 953.9, 959.2, 960.5, 967.3, 975.3, 978.4, 987.4, 991.1, 991.6, 998.6]}, {"id": "720575940632425919", "hz": 150.3, "mn9": false, "t": [4.4, 20.7, 22.9, 26.7, 31.6, 54.3, 60.3, 62.6, 78.0, 87.3, 102.0, 109.9, 123.1, 129.4, 129.7, 140.3, 141.4, 146.6, 147.8, 151.8, 169.4, 172.0, 182.3, 186.3, 191.7, 200.7, 202.5, 215.7, 243.7, 244.0, 246.1, 260.1, 261.7, 270.2, 275.7, 284.3, 295.1, 299.8, 302.7, 313.9, 317.5, 320.7, 322.0, 336.6, 337.7, 347.6, 348.1, 370.0, 373.2, 384.1, 394.6, 423.1, 431.6, 436.0, 449.6, 450.8, 451.5, 455.2, 460.3, 460.7, 461.0, 462.8, 468.2, 475.5, 490.2, 493.8, 505.7, 507.9, 508.1, 519.5, 519.9, 521.7, 522.7, 530.1, 536.7, 543.5, 560.9, 568.8, 570.5, 571.8, 575.9, 579.1, 601.0, 609.0, 612.8, 641.1, 643.0, 650.9, 660.5, 664.5, 670.7, 673.8, 674.9, 677.5, 682.4, 694.1, 696.8, 699.4, 703.7, 709.0, 713.5, 717.3, 722.3, 725.0, 725.5, 729.0, 748.9, 750.8, 755.7, 773.3, 775.4, 779.2, 791.4, 804.9, 806.3, 806.5, 806.9, 807.4, 812.7, 821.5, 822.0, 824.7, 860.8, 866.9, 888.4, 902.4, 917.4, 930.3, 941.9, 947.9, 949.9, 957.3, 960.8, 963.0, 975.4, 978.8, 999.4]}, {"id": "720575940620900446", "hz": 150.3, "mn9": false, "t": [6.6, 7.6, 14.1, 16.9, 17.6, 19.9, 33.2, 39.5, 44.6, 58.0, 62.6, 68.6, 81.8, 86.6, 90.3, 96.4, 107.2, 114.4, 118.1, 119.8, 125.5, 145.5, 153.5, 167.9, 168.4, 169.1, 173.3, 182.8, 183.8, 184.8, 194.8, 195.3, 200.3, 201.8, 207.0, 207.5, 213.5, 225.9, 226.4, 228.1, 230.4, 254.8, 261.2, 268.5, 278.9, 290.9, 300.1, 307.7, 309.3, 317.3, 321.9, 324.2, 326.0, 328.2, 336.9, 340.8, 350.7, 353.1, 367.5, 375.2, 377.6, 380.9, 382.8, 387.0, 397.2, 399.7, 419.5, 422.0, 423.8, 455.7, 461.4, 462.1, 466.6, 468.6, 482.2, 489.5, 502.0, 512.6, 525.0, 532.0, 539.4, 551.6, 558.8, 561.3, 564.7, 565.7, 570.4, 575.5, 579.8, 596.0, 606.1, 613.1, 616.1, 623.3, 625.7, 626.4, 635.7, 652.6, 653.6, 660.7, 661.0, 667.8, 674.9, 676.2, 697.1, 712.3, 716.4, 720.7, 728.2, 729.7, 730.1, 735.8, 740.9, 756.1, 756.5, 757.7, 768.4, 777.3, 786.1, 790.1, 818.8, 821.9, 830.0, 841.0, 843.3, 845.6, 846.5, 847.9, 860.5, 862.4, 862.9, 865.5, 867.7, 877.0, 878.7, 889.3, 911.8, 914.6, 916.8, 920.5, 921.5, 936.2, 939.8, 950.4, 952.0, 960.3, 965.1, 971.5, 972.8, 980.1, 988.8, 994.3, 996.8]}, {"id": "720575940617000768", "hz": 149.0, "mn9": false, "t": [3.9, 4.3, 9.6, 14.6, 18.7, 22.6, 34.4, 37.1, 42.1, 43.7, 44.1, 60.7, 62.3, 65.7, 73.1, 77.9, 91.2, 97.1, 97.6, 99.4, 104.3, 104.8, 119.1, 135.0, 149.3, 159.0, 163.8, 169.3, 179.3, 182.2, 190.6, 204.8, 214.7, 215.0, 216.9, 221.0, 229.7, 233.2, 251.0, 257.2, 260.3, 261.3, 265.7, 268.1, 272.0, 273.5, 282.1, 285.3, 301.6, 305.6, 310.8, 333.3, 337.0, 344.4, 347.7, 353.9, 357.9, 372.5, 377.5, 380.5, 399.9, 414.1, 418.9, 420.1, 420.9, 436.4, 441.2, 448.1, 461.2, 500.6, 503.8, 514.3, 540.9, 545.0, 551.4, 558.1, 573.2, 581.9, 584.6, 586.7, 589.2, 601.9, 620.0, 623.9, 627.9, 628.2, 632.6, 633.6, 640.0, 642.9, 654.2, 662.6, 678.0, 679.7, 683.9, 686.8, 687.0, 693.1, 697.8, 703.6, 707.2, 707.5, 713.4, 717.9, 719.7, 735.0, 740.0, 750.4, 758.9, 765.3, 765.9, 768.1, 772.7, 777.9, 779.0, 784.5, 794.0, 803.2, 819.7, 829.1, 833.3, 843.5, 859.1, 859.3, 860.8, 869.2, 881.7, 902.4, 916.8, 920.5, 925.0, 929.2, 935.3, 935.6, 937.8, 939.5, 949.6, 956.1, 964.0, 964.5, 966.8, 970.1, 975.7, 992.3, 992.5]}, {"id": "720575940630797113", "hz": 148.7, "mn9": false, "t": [3.8, 22.7, 29.5, 33.9, 43.7, 44.6, 46.4, 48.3, 53.7, 62.6, 67.6, 74.5, 83.8, 87.0, 93.0, 102.1, 109.2, 118.4, 123.9, 129.6, 132.9, 145.9, 146.9, 149.3, 152.2, 153.4, 155.9, 161.5, 178.9, 198.9, 201.6, 217.8, 221.0, 223.1, 228.4, 232.7, 235.3, 243.1, 243.3, 252.4, 268.8, 285.9, 290.5, 290.9, 321.5, 328.7, 329.6, 336.5, 380.7, 381.6, 382.2, 389.9, 400.6, 404.6, 409.5, 416.7, 420.6, 434.3, 440.9, 446.2, 460.9, 464.1, 465.5, 482.1, 496.6, 505.7, 514.6, 532.0, 533.2, 540.9, 544.6, 544.8, 547.4, 557.6, 572.5, 574.8, 594.1, 597.9, 601.5, 603.8, 613.2, 621.4, 627.8, 640.4, 643.8, 647.2, 652.5, 662.1, 662.7, 665.2, 670.7, 675.5, 678.2, 681.7, 688.2, 690.6, 702.7, 710.1, 719.7, 720.0, 725.0, 729.4, 731.2, 735.9, 738.1, 739.2, 740.5, 744.8, 762.1, 766.3, 770.4, 788.4, 801.4, 810.7, 814.9, 816.4, 817.4, 818.2, 823.0, 830.6, 837.8, 844.4, 849.5, 854.7, 863.2, 869.6, 882.5, 885.6, 893.2, 894.7, 898.5, 901.0, 907.3, 912.1, 913.1, 917.7, 921.9, 922.5, 923.6, 930.1, 938.3, 952.5, 976.6, 982.3, 993.4, 994.1, 997.4]}, {"id": "720575940611875570", "hz": 148.7, "mn9": false, "t": [3.7, 31.3, 31.6, 37.7, 53.2, 57.0, 59.5, 77.3, 81.8, 91.0, 91.3, 93.9, 94.3, 96.2, 115.1, 133.1, 134.1, 153.3, 172.0, 174.8, 176.6, 179.3, 189.5, 201.1, 207.0, 208.7, 216.1, 219.5, 221.3, 223.6, 229.5, 235.1, 239.3, 251.3, 260.1, 269.0, 284.5, 285.0, 286.0, 290.0, 290.7, 295.2, 303.0, 311.4, 314.1, 328.6, 330.2, 335.4, 337.2, 338.8, 367.5, 369.8, 383.4, 406.0, 406.9, 409.2, 412.9, 447.8, 460.8, 462.9, 468.5, 468.7, 470.8, 473.8, 482.2, 483.1, 486.1, 490.7, 506.7, 507.2, 507.9, 513.0, 514.0, 529.4, 539.3, 539.5, 548.6, 548.9, 552.4, 555.6, 559.6, 568.3, 570.0, 570.5, 576.8, 584.1, 588.6, 590.0, 601.6, 603.7, 611.9, 628.2, 631.7, 637.3, 644.6, 652.8, 654.5, 708.9, 710.2, 718.8, 741.6, 743.6, 746.1, 756.8, 764.0, 769.2, 773.2, 776.5, 790.5, 800.6, 812.4, 815.2, 817.8, 818.9, 822.7, 827.6, 828.0, 837.6, 842.1, 847.2, 850.3, 852.1, 853.0, 859.2, 861.6, 869.9, 871.5, 880.7, 890.6, 904.4, 922.4, 927.8, 931.5, 940.5, 941.0, 946.4, 947.7, 956.5, 961.1, 973.9, 974.8, 976.7, 986.4, 989.5, 990.7, 998.8]}, {"id": "720575940637568838", "hz": 148.7, "mn9": false, "t": [0.2, 1.4, 16.3, 20.0, 20.6, 25.1, 36.7, 50.3, 55.9, 68.6, 95.1, 101.2, 116.2, 118.6, 120.9, 124.0, 127.2, 141.1, 159.4, 160.7, 187.6, 197.9, 216.4, 219.4, 221.1, 222.4, 224.8, 225.4, 231.5, 250.2, 259.8, 260.0, 260.3, 266.8, 285.0, 312.0, 315.9, 316.9, 328.5, 332.0, 333.4, 348.5, 351.0, 363.2, 364.6, 367.8, 369.6, 374.3, 383.3, 385.4, 385.9, 405.1, 408.7, 411.4, 414.6, 425.7, 426.8, 433.8, 434.6, 436.9, 446.1, 451.0, 451.2, 454.0, 466.6, 475.8, 495.2, 497.6, 498.9, 508.0, 513.1, 519.0, 521.5, 522.2, 527.9, 531.2, 536.5, 543.6, 559.7, 575.4, 577.4, 582.9, 595.2, 615.8, 617.7, 628.3, 636.1, 639.1, 640.0, 653.4, 655.9, 657.5, 659.0, 659.2, 663.3, 673.1, 676.0, 694.2, 702.7, 707.3, 708.4, 711.4, 713.1, 715.0, 719.3, 721.7, 724.8, 725.5, 739.9, 741.5, 754.9, 759.2, 769.7, 772.5, 779.0, 788.7, 799.4, 814.6, 816.6, 824.8, 829.6, 830.7, 835.5, 836.6, 839.8, 845.9, 855.1, 858.4, 863.1, 868.4, 874.4, 874.9, 876.6, 877.2, 877.4, 881.3, 884.1, 886.0, 890.1, 892.7, 898.1, 900.4, 903.4, 911.2, 911.5, 914.7, 918.3, 931.5, 938.6, 943.1, 946.5, 953.5, 955.1, 964.4, 965.9, 967.6, 975.6, 980.3, 981.4, 998.4]}, {"id": "720575940633143833", "hz": 147.7, "mn9": false, "t": [1.3, 7.5, 17.8, 23.1, 23.4, 33.5, 39.4, 41.8, 43.8, 45.0, 48.7, 75.2, 77.9, 82.9, 86.9, 95.7, 105.8, 116.4, 117.1, 121.1, 125.3, 127.7, 150.3, 165.2, 203.9, 207.3, 211.9, 213.7, 214.7, 216.7, 250.7, 254.2, 270.9, 276.8, 278.0, 286.4, 289.7, 294.0, 298.3, 302.9, 307.0, 308.7, 316.0, 318.3, 327.9, 332.2, 337.7, 340.9, 349.4, 352.4, 372.1, 373.3, 375.5, 380.4, 401.6, 401.9, 406.1, 422.5, 442.4, 448.2, 454.9, 467.1, 469.1, 470.1, 492.9, 498.4, 502.6, 514.1, 516.8, 522.1, 526.4, 529.4, 531.1, 540.7, 556.2, 556.8, 568.5, 569.8, 582.5, 584.6, 595.5, 596.3, 598.4, 605.9, 610.6, 620.8, 623.4, 627.4, 635.0, 635.8, 639.5, 647.4, 681.2, 685.6, 689.0, 691.0, 695.5, 697.8, 699.4, 705.6, 709.7, 729.1, 745.6, 748.8, 754.6, 756.7, 762.1, 802.0, 810.5, 832.9, 840.0, 861.5, 861.7, 873.9, 874.8, 897.3, 903.5, 904.1, 908.4, 916.2, 935.4, 937.4, 945.1, 958.8, 959.9, 961.7, 963.5, 967.6, 968.4, 973.7, 983.6, 988.1]}, {"id": "720575940624963786", "hz": 146.3, "mn9": false, "t": [1.6, 13.4, 18.7, 20.2, 20.6, 26.6, 31.2, 33.7, 35.1, 46.8, 53.3, 59.4, 65.2, 96.6, 102.6, 105.3, 115.4, 131.1, 137.0, 143.6, 145.4, 175.2, 179.2, 184.9, 185.6, 186.2, 192.4, 193.0, 210.7, 214.0, 221.5, 226.2, 237.4, 240.1, 250.2, 279.0, 283.3, 285.7, 292.6, 313.0, 316.8, 323.0, 338.4, 344.7, 346.3, 356.1, 362.3, 374.3, 377.7, 383.2, 383.8, 393.8, 398.5, 409.9, 410.3, 410.6, 417.7, 428.8, 431.1, 432.1, 434.5, 445.8, 447.9, 452.1, 456.4, 460.7, 471.4, 474.3, 475.3, 486.2, 488.6, 489.7, 500.8, 501.5, 502.8, 515.7, 519.3, 525.8, 528.0, 536.9, 540.3, 545.5, 554.6, 560.4, 563.1, 577.2, 581.0, 588.0, 592.0, 596.0, 597.5, 598.7, 609.3, 634.2, 642.2, 652.7, 666.8, 673.1, 678.0, 684.6, 686.1, 686.3, 689.0, 690.1, 691.1, 700.7, 705.3, 706.9, 709.3, 714.0, 716.9, 724.9, 732.2, 733.4, 748.3, 755.3, 764.4, 773.6, 797.4, 804.5, 807.9, 822.1, 828.9, 846.7, 848.6, 850.5, 852.8, 868.0, 869.2, 870.4, 877.8, 884.3, 889.3, 892.6, 892.9, 908.8, 913.0, 916.7, 918.1, 918.6, 921.6, 925.8, 932.2, 935.7, 936.6, 938.1, 945.1, 953.5, 969.0, 970.5, 982.9]}, {"id": "720575940639332736", "hz": 142.7, "mn9": false, "t": [7.1, 8.4, 14.6, 16.3, 21.0, 26.4, 55.6, 61.4, 62.4, 71.9, 75.1, 94.9, 111.1, 115.7, 130.4, 130.7, 139.1, 146.8, 156.5, 169.7, 170.6, 181.0, 192.5, 222.6, 225.1, 227.8, 234.4, 236.8, 253.3, 255.6, 257.0, 284.1, 296.2, 307.2, 318.0, 321.6, 324.5, 326.4, 328.2, 329.1, 330.9, 335.3, 362.0, 375.6, 387.2, 390.3, 409.8, 415.3, 423.4, 433.9, 435.5, 439.7, 450.6, 452.9, 457.7, 489.9, 490.7, 498.7, 506.2, 515.8, 519.3, 519.8, 528.5, 540.9, 544.3, 547.5, 553.1, 567.7, 575.7, 576.9, 579.6, 593.8, 594.2, 595.5, 596.5, 600.3, 601.5, 607.7, 613.6, 636.2, 639.7, 640.9, 642.4, 646.3, 658.2, 660.5, 679.9, 693.6, 698.1, 698.6, 704.0, 710.5, 711.8, 719.4, 723.8, 740.0, 741.6, 744.7, 753.6, 755.9, 759.5, 764.2, 777.3, 778.7, 779.4, 791.3, 795.8, 802.4, 808.7, 815.4, 820.1, 832.6, 840.1, 840.3, 872.2, 874.2, 879.4, 879.8, 888.6, 890.5, 902.7, 910.5, 913.1, 916.0, 925.7, 926.0, 930.9, 934.8, 939.0, 946.2, 948.9, 951.3, 954.0, 982.2, 984.0, 988.3, 990.3]}, {"id": "720575940612670570", "hz": 142.3, "mn9": false, "t": [0.4, 1.4, 25.4, 43.4, 49.9, 64.2, 65.4, 68.0, 82.3, 86.2, 93.9, 96.1, 119.3, 125.5, 141.2, 147.0, 148.8, 156.3, 162.3, 165.8, 174.0, 181.7, 184.7, 185.4, 201.4, 203.8, 211.1, 213.4, 215.0, 225.3, 233.4, 238.0, 241.4, 254.9, 256.9, 268.3, 275.2, 278.6, 305.2, 308.0, 310.2, 315.7, 317.4, 317.6, 325.1, 327.1, 336.8, 339.6, 344.4, 346.5, 348.6, 361.2, 379.8, 382.3, 406.5, 411.2, 412.6, 421.0, 424.5, 424.7, 431.3, 439.6, 447.3, 451.7, 469.8, 470.7, 479.8, 485.3, 490.1, 497.4, 512.4, 512.6, 513.6, 518.2, 518.8, 521.7, 522.7, 523.6, 539.2, 540.0, 562.3, 569.3, 570.9, 579.0, 579.4, 594.2, 608.1, 617.1, 617.3, 623.1, 630.6, 632.8, 647.3, 655.4, 659.8, 671.4, 676.7, 679.3, 680.9, 694.5, 703.9, 708.4, 714.4, 720.4, 736.1, 738.6, 740.8, 742.5, 750.6, 755.7, 761.6, 764.7, 776.2, 789.7, 790.4, 808.8, 811.0, 815.7, 816.4, 833.5, 835.4, 849.3, 855.3, 871.1, 875.1, 885.2, 885.8, 887.6, 903.7, 914.5, 915.1, 921.8, 923.4, 927.3, 929.4, 933.1, 937.7, 941.9, 942.7, 945.0, 949.0, 952.6, 953.1, 955.9, 959.8, 969.2, 973.2, 977.9, 978.4, 980.4, 989.0, 995.8]}, {"id": "720575940638202345", "hz": 140.7, "mn9": false, "t": [4.7, 7.5, 20.9, 36.5, 48.7, 51.4, 53.6, 66.8, 77.7, 82.8, 97.6, 98.4, 101.2, 113.0, 113.8, 127.7, 135.2, 156.0, 170.0, 173.4, 178.2, 181.1, 200.5, 225.7, 228.6, 230.8, 250.9, 260.8, 268.5, 270.8, 271.7, 279.6, 281.0, 293.6, 293.8, 303.4, 306.5, 309.9, 324.9, 327.2, 329.3, 336.7, 339.2, 349.7, 351.2, 370.4, 371.9, 376.7, 382.4, 383.0, 393.6, 398.8, 400.5, 406.2, 408.8, 419.9, 424.9, 425.1, 427.1, 427.3, 428.8, 429.3, 433.6, 439.2, 449.8, 454.9, 462.7, 470.6, 509.4, 512.0, 512.3, 513.7, 516.7, 517.4, 521.5, 528.6, 530.4, 555.9, 566.7, 570.3, 573.2, 576.5, 578.1, 580.6, 586.8, 595.7, 598.1, 609.2, 617.8, 624.6, 631.2, 631.9, 639.3, 640.0, 646.5, 648.2, 656.9, 674.6, 680.5, 684.5, 701.0, 706.8, 722.9, 723.6, 725.4, 741.9, 756.0, 759.5, 760.3, 761.6, 763.6, 782.9, 809.6, 815.0, 822.1, 825.8, 833.1, 847.4, 854.9, 859.6, 861.4, 874.7, 880.0, 883.0, 887.8, 889.8, 892.1, 898.3, 908.4, 918.4, 923.3, 927.4, 941.5, 946.4, 946.8, 948.4, 958.2, 968.8, 971.1, 992.1, 994.3]}, {"id": "720575940622695448", "hz": 139.7, "mn9": false, "t": [5.7, 11.8, 20.8, 27.4, 36.3, 45.3, 53.9, 63.4, 69.9, 80.2, 87.9, 95.5, 101.2, 108.9, 114.4, 121.7, 130.3, 137.3, 144.2, 151.3, 157.0, 165.3, 171.7, 178.2, 185.7, 195.8, 204.0, 211.8, 217.5, 225.2, 230.9, 238.4, 245.8, 253.3, 260.2, 267.3, 274.0, 281.2, 288.4, 296.0, 304.3, 310.0, 318.0, 325.6, 330.9, 338.3, 345.3, 350.9, 356.9, 364.4, 372.6, 379.2, 385.3, 394.1, 403.1, 409.6, 417.8, 424.5, 431.8, 439.2, 447.7, 454.1, 460.0, 465.8, 471.8, 479.6, 488.1, 493.7, 502.3, 510.0, 515.7, 521.2, 526.2, 533.0, 543.0, 551.6, 557.6, 564.1, 570.5, 577.1, 583.4, 590.1, 597.0, 603.3, 610.5, 617.6, 625.0, 630.8, 638.2, 645.5, 651.2, 657.6, 664.6, 673.0, 679.6, 685.2, 692.1, 698.9, 705.5, 712.3, 718.8, 725.8, 733.2, 739.4, 745.9, 753.9, 759.3, 766.2, 775.3, 782.0, 790.5, 797.8, 806.8, 813.5, 820.1, 827.3, 834.1, 841.5, 849.6, 857.8, 864.0, 871.6, 878.1, 885.8, 892.9, 903.1, 908.5, 916.5, 923.7, 929.5, 935.6, 942.2, 949.5, 955.4, 961.9, 968.7, 976.3, 982.6, 991.7, 998.9]}, {"id": "720575940629888530", "hz": 128.3, "mn9": false, "t": [5.3, 11.5, 19.4, 25.3, 34.0, 41.2, 46.9, 54.5, 64.8, 72.8, 84.9, 92.9, 100.6, 108.6, 114.8, 122.3, 130.6, 140.6, 148.5, 156.9, 166.7, 172.5, 181.6, 187.4, 197.9, 204.5, 215.3, 224.1, 229.5, 237.4, 243.3, 252.3, 260.1, 267.7, 275.4, 282.8, 289.3, 297.4, 305.2, 310.6, 319.1, 325.9, 331.7, 338.9, 346.7, 351.9, 358.4, 364.4, 372.3, 378.5, 385.5, 396.8, 404.5, 413.7, 423.0, 428.7, 435.2, 441.3, 449.6, 455.5, 465.5, 472.5, 481.3, 489.9, 498.6, 504.9, 511.5, 516.9, 521.8, 530.6, 541.7, 553.4, 564.6, 571.9, 578.7, 584.6, 590.7, 597.6, 604.1, 610.7, 617.4, 623.8, 629.9, 636.9, 646.9, 653.0, 658.2, 664.7, 673.6, 679.4, 685.1, 696.2, 704.2, 712.9, 718.3, 728.0, 734.5, 739.7, 749.4, 757.9, 765.7, 776.6, 781.8, 789.8, 796.5, 808.1, 814.1, 820.0, 831.0, 837.9, 844.5, 851.1, 862.9, 871.4, 878.3, 886.1, 892.4, 903.8, 914.9, 921.9, 928.9, 935.2, 941.6, 950.0, 956.7, 963.6, 971.1, 977.6, 984.0, 995.1]}, {"id": "720575940627383685", "hz": 125.7, "mn9": false, "t": [6.8, 13.7, 22.2, 28.1, 36.9, 46.1, 55.3, 65.5, 75.2, 83.7, 93.0, 100.5, 108.3, 114.9, 122.5, 131.1, 141.2, 150.4, 157.7, 167.8, 174.1, 183.3, 192.3, 200.6, 207.2, 215.4, 222.7, 230.4, 238.5, 246.9, 253.7, 261.8, 272.1, 280.2, 288.9, 295.8, 303.9, 310.9, 318.5, 326.7, 332.9, 340.9, 351.2, 359.7, 366.5, 374.3, 381.2, 388.8, 399.0, 405.9, 414.7, 425.1, 432.9, 441.1, 450.3, 456.9, 465.9, 472.3, 482.7, 490.5, 499.1, 506.6, 513.8, 520.8, 527.0, 533.5, 544.3, 553.8, 562.1, 570.7, 578.2, 585.4, 592.6, 599.4, 606.7, 615.1, 623.5, 630.3, 638.9, 645.8, 652.3, 658.8, 666.0, 675.1, 681.8, 688.8, 697.6, 705.1, 712.0, 719.6, 727.7, 734.6, 741.8, 750.9, 759.7, 766.5, 776.9, 785.7, 792.9, 801.6, 809.5, 816.9, 823.8, 831.7, 840.2, 850.2, 860.3, 865.5, 874.4, 880.9, 889.0, 897.4, 905.6, 914.1, 920.3, 927.7, 935.2, 943.2, 950.6, 959.1, 965.4, 971.8, 979.3, 987.1, 995.2]}, {"id": "720575940630868793", "hz": 113.7, "mn9": false, "t": [34.7, 39.4, 44.9, 49.4, 52.7, 61.9, 68.1, 72.2, 77.2, 81.1, 87.7, 95.3, 99.5, 104.5, 107.7, 121.5, 125.3, 135.0, 141.2, 183.4, 192.2, 198.3, 202.3, 206.5, 212.7, 227.9, 232.7, 236.8, 242.6, 248.7, 264.5, 268.4, 274.6, 278.8, 282.0, 288.9, 307.1, 312.8, 324.7, 329.2, 348.9, 353.2, 360.4, 374.5, 397.9, 402.2, 405.8, 414.4, 430.5, 447.4, 451.7, 456.0, 465.6, 470.0, 474.3, 478.3, 485.3, 489.8, 496.0, 500.2, 514.2, 520.2, 531.5, 537.5, 573.9, 577.6, 612.2, 615.7, 624.5, 650.1, 654.9, 659.3, 664.8, 668.9, 673.1, 680.2, 683.8, 691.6, 696.4, 709.7, 719.6, 723.9, 729.2, 735.0, 738.9, 743.9, 753.8, 758.0, 761.8, 766.5, 771.0, 777.1, 782.7, 787.3, 802.5, 809.3, 814.0, 817.5, 823.1, 826.9, 834.6, 859.0, 863.6, 869.3, 876.5, 881.5, 886.3, 890.3, 905.4, 911.4, 919.7, 924.1, 928.9, 932.1, 942.3, 950.7, 955.2, 962.1, 974.0, 978.4, 982.0, 987.9]}, {"id": "720575940618165019", "hz": 113.0, "mn9": false, "t": [34.5, 38.3, 42.4, 47.9, 52.9, 61.9, 67.7, 72.1, 77.6, 81.1, 87.7, 95.2, 99.1, 104.6, 108.8, 121.5, 125.1, 134.8, 141.0, 183.3, 191.9, 198.2, 202.2, 206.5, 212.1, 227.7, 232.5, 236.8, 242.3, 248.7, 264.5, 268.2, 274.1, 278.8, 281.9, 288.0, 306.9, 312.8, 324.7, 329.1, 349.1, 353.0, 357.1, 372.4, 379.7, 387.9, 396.8, 400.3, 408.9, 414.3, 430.2, 446.8, 451.3, 455.9, 462.8, 467.8, 471.7, 476.4, 481.5, 487.1, 496.6, 500.1, 513.5, 520.2, 531.5, 537.4, 573.5, 577.5, 611.8, 615.4, 624.1, 650.1, 654.9, 659.1, 664.6, 668.8, 672.8, 680.3, 683.9, 691.4, 696.3, 708.6, 719.6, 723.7, 729.0, 734.5, 738.8, 743.8, 753.7, 757.6, 761.7, 765.0, 770.5, 777.0, 782.6, 787.2, 797.0, 803.1, 809.1, 814.1, 817.4, 822.8, 826.7, 834.4, 858.5, 863.3, 868.9, 876.1, 881.3, 886.0, 893.2, 903.4, 906.8, 911.1, 919.6, 923.9, 928.4, 932.0, 941.8, 950.6, 955.1, 962.0, 974.1, 978.3, 981.8]}, {"id": "720575940619973712", "hz": 111.7, "mn9": false, "t": [8.6, 19.8, 27.4, 34.7, 43.5, 54.0, 64.7, 76.2, 86.3, 94.8, 105.2, 115.6, 126.2, 135.6, 144.7, 152.9, 160.2, 171.5, 179.0, 188.1, 199.0, 206.4, 214.7, 222.7, 230.6, 241.8, 252.4, 261.9, 272.3, 280.9, 289.9, 298.6, 307.3, 314.4, 321.8, 329.7, 338.9, 346.7, 354.3, 364.7, 373.8, 382.7, 391.7, 402.4, 411.0, 421.2, 429.2, 438.6, 450.6, 457.9, 466.3, 473.0, 481.5, 491.7, 501.3, 510.6, 517.8, 525.2, 534.8, 543.1, 553.5, 563.9, 571.9, 579.8, 588.7, 597.0, 604.7, 612.7, 621.4, 629.4, 639.1, 646.5, 655.8, 665.2, 675.9, 683.2, 692.9, 701.4, 710.4, 718.8, 729.1, 737.2, 747.9, 757.2, 765.6, 775.3, 782.7, 792.5, 802.3, 810.9, 819.9, 829.6, 838.9, 847.4, 861.3, 868.9, 877.9, 887.5, 895.4, 905.9, 916.1, 923.6, 931.6, 940.5, 949.6, 957.2, 965.8, 974.7, 983.4, 994.6]}, {"id": "720575940615041430", "hz": 111.0, "mn9": false, "t": [16.0, 24.4, 28.2, 38.2, 47.7, 54.2, 66.8, 73.3, 81.8, 89.4, 100.5, 108.1, 114.7, 122.3, 130.9, 137.0, 143.7, 149.0, 161.0, 171.7, 178.2, 187.7, 196.3, 208.1, 219.0, 225.1, 231.0, 237.9, 243.5, 257.7, 269.3, 277.1, 287.0, 294.6, 301.1, 306.3, 313.6, 321.4, 335.6, 341.3, 347.2, 354.5, 363.4, 373.1, 381.4, 386.2, 406.8, 417.5, 424.5, 430.1, 443.5, 452.3, 466.1, 473.0, 480.4, 487.8, 494.8, 504.8, 512.5, 519.9, 525.8, 532.4, 538.3, 548.4, 563.2, 572.4, 579.1, 587.2, 593.1, 604.4, 619.1, 625.9, 633.7, 645.2, 657.8, 663.1, 671.6, 684.0, 690.0, 701.4, 715.4, 724.0, 730.8, 739.1, 747.2, 757.7, 766.9, 781.7, 792.8, 798.1, 812.8, 826.0, 832.9, 844.1, 860.0, 868.3, 875.1, 884.0, 893.3, 909.3, 920.9, 927.2, 938.0, 944.2, 952.8, 959.3, 966.5, 977.9, 983.4, 998.9]}, {"id": "720575940629778554", "hz": 105.0, "mn9": false, "t": [34.0, 39.8, 46.8, 52.6, 57.9, 69.1, 73.2, 82.0, 87.9, 97.8, 107.0, 115.7, 122.6, 128.1, 134.6, 179.5, 186.0, 192.3, 199.1, 206.1, 212.2, 228.4, 234.2, 241.2, 250.5, 256.2, 265.1, 278.7, 287.6, 303.9, 314.2, 324.1, 330.2, 346.5, 353.0, 359.0, 368.5, 374.5, 380.5, 395.7, 402.3, 407.5, 412.2, 429.1, 434.1, 445.6, 451.7, 461.9, 468.6, 474.2, 479.5, 487.8, 495.8, 501.7, 510.3, 516.8, 521.5, 526.9, 533.8, 539.2, 545.8, 562.0, 574.9, 578.9, 597.3, 611.2, 615.9, 624.7, 647.2, 654.5, 661.6, 668.1, 675.6, 682.5, 693.3, 697.3, 713.3, 721.1, 726.7, 732.7, 739.7, 746.4, 751.5, 759.5, 765.3, 771.4, 777.7, 783.2, 788.2, 797.1, 804.2, 809.9, 817.7, 827.0, 836.5, 849.5, 863.6, 874.6, 882.1, 888.7, 894.9, 904.6, 916.9, 922.1, 928.2, 934.3, 942.0, 951.3, 956.3, 962.3, 968.4, 975.3, 979.8]}, {"id": "720575940626191306", "hz": 100.7, "mn9": false, "t": [7.7, 21.4, 32.1, 40.4, 49.0, 59.3, 69.3, 80.1, 92.3, 100.6, 107.8, 117.6, 129.1, 137.7, 148.4, 158.1, 168.1, 175.5, 184.8, 196.7, 205.6, 216.8, 225.8, 233.1, 245.2, 254.6, 263.8, 273.7, 284.3, 293.4, 305.4, 315.8, 326.1, 334.7, 342.9, 354.5, 368.0, 378.1, 386.7, 398.4, 407.0, 416.6, 426.4, 436.7, 448.9, 457.3, 466.7, 476.2, 489.6, 499.7, 508.8, 517.6, 526.9, 534.8, 546.7, 557.4, 566.6, 575.5, 584.5, 595.0, 603.4, 615.2, 625.8, 634.6, 643.6, 654.9, 664.6, 675.8, 683.8, 691.4, 701.8, 711.1, 719.7, 728.3, 736.9, 745.3, 757.2, 766.1, 777.2, 789.5, 800.4, 809.0, 818.3, 826.3, 835.1, 846.8, 858.2, 865.5, 875.0, 885.5, 895.3, 904.7, 914.4, 922.6, 931.6, 941.8, 951.2, 961.3, 970.5, 981.5, 993.1]}, {"id": "720575940638103349", "hz": 99.0, "mn9": false, "t": [8.2, 19.9, 28.0, 40.4, 48.6, 62.6, 71.0, 84.6, 95.3, 104.1, 113.8, 125.5, 139.0, 147.2, 159.1, 168.3, 175.5, 186.3, 197.6, 206.3, 216.0, 226.3, 234.8, 243.9, 252.5, 261.7, 277.6, 286.5, 299.0, 308.9, 319.4, 326.7, 335.7, 343.7, 351.2, 360.6, 370.1, 382.8, 391.5, 403.7, 415.6, 426.1, 434.3, 443.1, 452.9, 463.0, 472.3, 483.8, 493.6, 502.1, 511.6, 518.2, 526.0, 536.9, 547.5, 556.8, 566.3, 573.4, 581.6, 593.0, 602.0, 611.9, 621.2, 629.4, 639.2, 649.7, 659.2, 666.4, 675.3, 682.6, 690.5, 701.5, 709.7, 717.4, 729.3, 737.8, 747.2, 758.8, 768.1, 777.9, 789.8, 798.1, 810.7, 821.7, 837.5, 848.0, 862.8, 873.3, 884.2, 892.5, 906.6, 917.9, 927.1, 936.2, 945.0, 952.8, 961.8, 969.3, 978.9, 993.3]}, {"id": "720575940652580086", "hz": 98.0, "mn9": false, "t": [13.0, 22.7, 31.0, 42.1, 52.8, 67.1, 75.2, 87.0, 95.0, 108.5, 117.9, 125.7, 138.4, 147.2, 161.1, 173.1, 180.1, 192.4, 205.0, 214.6, 222.4, 229.6, 240.4, 249.3, 255.9, 263.8, 281.1, 289.4, 300.3, 312.5, 322.2, 331.1, 339.5, 346.2, 355.7, 364.2, 374.0, 386.0, 395.8, 407.1, 417.8, 432.8, 440.0, 447.5, 456.1, 465.4, 475.9, 489.6, 499.1, 508.2, 515.9, 521.9, 531.3, 541.4, 556.1, 563.1, 572.2, 578.6, 588.5, 598.0, 605.3, 615.5, 625.7, 634.4, 645.2, 658.8, 666.9, 679.3, 686.9, 703.2, 711.8, 720.2, 732.2, 741.7, 756.8, 764.2, 772.0, 780.5, 793.9, 801.3, 814.0, 824.8, 840.3, 850.4, 866.5, 875.7, 888.7, 897.6, 910.5, 920.7, 931.1, 939.6, 949.5, 957.5, 966.7, 976.3, 982.6, 997.7]}, {"id": "720575940620874757", "hz": 97.7, "mn9": false, "t": [7.4, 16.6, 23.2, 35.7, 46.8, 63.3, 81.0, 92.7, 103.7, 113.6, 124.1, 132.4, 144.1, 155.9, 170.2, 176.3, 188.5, 203.3, 212.6, 219.7, 230.4, 241.7, 250.1, 261.8, 276.4, 283.6, 292.8, 304.9, 310.6, 318.8, 325.6, 332.4, 340.4, 350.7, 358.1, 365.6, 375.5, 387.5, 400.1, 408.5, 426.1, 436.6, 448.7, 455.1, 464.7, 472.8, 481.0, 491.3, 499.4, 508.3, 516.1, 521.5, 532.5, 551.3, 557.2, 566.8, 572.8, 584.5, 593.3, 601.9, 610.7, 617.7, 625.4, 632.9, 643.3, 655.7, 665.0, 677.4, 685.3, 698.5, 707.5, 716.6, 731.7, 740.5, 754.2, 759.7, 767.5, 775.9, 784.5, 794.5, 810.2, 820.7, 831.4, 838.7, 848.4, 864.0, 875.3, 891.7, 906.8, 920.4, 930.0, 943.1, 951.8, 963.9, 972.1, 978.6, 990.4]}, {"id": "720575940632648612", "hz": 94.7, "mn9": false, "t": [8.3, 22.8, 35.8, 47.3, 57.3, 68.3, 81.5, 94.5, 104.7, 114.5, 126.4, 136.4, 148.1, 158.1, 170.0, 179.4, 189.7, 200.5, 210.5, 219.3, 229.3, 239.7, 249.3, 258.6, 270.3, 280.7, 289.8, 299.0, 310.5, 320.3, 330.2, 340.7, 352.8, 366.6, 375.9, 386.4, 400.5, 409.4, 421.8, 431.3, 442.1, 453.4, 463.5, 473.1, 486.9, 496.4, 507.5, 515.7, 524.2, 533.4, 547.4, 559.2, 569.6, 578.1, 587.4, 596.4, 605.6, 616.4, 626.6, 636.9, 648.1, 658.4, 668.2, 680.5, 688.5, 699.1, 710.1, 719.4, 729.3, 740.0, 750.8, 762.3, 770.7, 781.6, 793.4, 803.7, 814.3, 821.6, 830.3, 842.8, 853.7, 865.0, 875.8, 886.1, 895.0, 906.6, 917.2, 925.8, 934.7, 944.4, 952.3, 962.4, 971.9, 981.8, 992.4]}, {"id": "720575940620274085", "hz": 84.7, "mn9": false, "t": [20.0, 28.8, 37.4, 44.4, 57.1, 69.7, 76.3, 105.0, 120.0, 130.3, 138.8, 146.6, 166.0, 174.7, 182.9, 195.1, 209.3, 219.3, 226.7, 259.2, 276.2, 293.4, 302.4, 312.0, 322.0, 341.7, 350.4, 358.0, 367.2, 377.5, 388.9, 412.8, 421.6, 430.1, 439.4, 452.3, 463.2, 472.5, 480.1, 501.1, 510.9, 518.3, 527.3, 536.0, 543.9, 560.5, 569.3, 579.4, 588.0, 601.4, 613.2, 627.1, 641.5, 652.3, 658.6, 669.5, 678.1, 689.1, 697.3, 714.4, 727.1, 740.4, 754.7, 763.3, 773.7, 781.6, 790.0, 799.4, 812.8, 823.0, 836.2, 850.9, 867.3, 873.1, 879.9, 893.0, 914.7, 923.9, 936.3, 945.6, 954.5, 963.1, 969.9, 976.6, 995.5]}, {"id": "720575940633277209", "hz": 84.3, "mn9": false, "t": [10.6, 22.6, 32.2, 41.7, 54.1, 67.7, 85.6, 97.3, 112.2, 123.1, 134.4, 147.5, 159.7, 173.2, 183.5, 197.7, 207.8, 220.2, 231.7, 243.9, 256.3, 265.6, 278.1, 289.2, 301.0, 310.6, 320.9, 331.6, 342.8, 354.1, 366.6, 378.0, 394.2, 407.7, 420.8, 432.4, 443.5, 454.3, 465.3, 473.5, 488.1, 498.1, 509.5, 518.1, 527.4, 538.2, 553.1, 564.7, 574.0, 583.0, 594.1, 605.2, 616.3, 628.2, 642.5, 651.9, 660.2, 671.3, 682.1, 693.7, 707.8, 716.5, 729.8, 741.0, 757.8, 767.9, 779.2, 792.7, 808.2, 818.7, 829.5, 843.1, 859.1, 867.2, 877.7, 891.2, 907.1, 918.4, 927.9, 939.9, 951.3, 963.7, 974.1, 985.6]}, {"id": "720575940655014049", "hz": 82.7, "mn9": false, "t": [9.6, 21.1, 35.4, 52.9, 64.8, 84.0, 96.0, 109.4, 118.4, 131.7, 145.5, 157.1, 172.2, 190.0, 201.8, 212.0, 221.5, 233.3, 246.7, 256.4, 265.6, 281.8, 294.2, 309.1, 319.9, 328.9, 341.4, 354.1, 367.1, 375.7, 387.1, 399.1, 408.7, 431.5, 443.5, 452.8, 463.5, 472.6, 486.1, 498.0, 508.3, 518.2, 526.8, 535.0, 551.0, 558.6, 568.2, 576.7, 589.8, 600.2, 609.9, 624.2, 631.5, 643.7, 657.8, 666.2, 678.5, 696.5, 707.1, 716.9, 731.3, 750.9, 760.2, 770.8, 781.0, 795.6, 811.8, 823.9, 837.5, 849.7, 864.8, 873.2, 891.2, 907.0, 919.5, 933.6, 951.7, 965.8, 979.4, 994.6]}, {"id": "720575940623352063", "hz": 82.3, "mn9": false, "t": [21.8, 30.3, 36.1, 55.3, 65.7, 74.2, 94.3, 109.3, 116.6, 137.4, 144.9, 160.6, 169.1, 179.0, 185.2, 198.5, 211.2, 224.4, 233.7, 258.7, 270.4, 285.4, 295.5, 302.7, 310.5, 320.8, 336.0, 343.4, 353.4, 363.8, 374.0, 387.7, 411.0, 421.7, 434.3, 441.2, 464.6, 471.8, 476.6, 482.2, 493.4, 504.2, 515.7, 521.9, 528.9, 542.9, 567.8, 577.9, 585.5, 606.5, 616.6, 627.6, 641.0, 652.4, 659.3, 678.4, 688.5, 699.6, 723.2, 739.4, 747.0, 756.4, 763.5, 773.9, 787.2, 811.0, 823.5, 834.8, 866.3, 873.5, 881.1, 893.9, 923.4, 935.8, 947.7, 954.8, 966.3, 973.8, 994.8]}, {"id": "720575940660219265", "hz": 82.3, "mn9": true, "t": [28.7, 36.2, 44.6, 52.4, 64.6, 75.8, 90.4, 104.8, 118.7, 140.9, 147.6, 154.7, 161.1, 180.4, 189.6, 215.4, 221.3, 225.2, 234.1, 274.2, 291.5, 296.1, 304.2, 312.0, 320.0, 342.4, 350.0, 367.7, 374.6, 410.0, 420.2, 425.9, 437.1, 440.7, 449.0, 475.9, 480.9, 489.3, 497.8, 515.9, 520.6, 532.1, 535.9, 569.1, 581.2, 586.6, 616.7, 622.4, 636.8, 641.4, 648.8, 652.7, 662.4, 683.2, 693.5, 700.4, 728.5, 740.3, 743.7, 756.6, 763.7, 787.7, 795.7, 802.1, 828.1, 834.1, 858.4, 863.7, 871.5, 877.8, 888.8, 927.0, 931.8, 939.9, 945.3, 953.5, 960.6, 980.0]}, {"id": "720575940625045180", "hz": 82.0, "mn9": false, "t": [31.8, 39.1, 44.7, 50.6, 64.5, 70.6, 81.3, 87.6, 95.9, 107.1, 119.1, 124.9, 132.4, 178.3, 184.7, 198.4, 204.4, 224.4, 231.9, 239.1, 248.2, 263.1, 276.4, 304.0, 312.1, 323.3, 329.9, 348.7, 354.8, 370.5, 376.9, 394.3, 400.0, 409.2, 427.2, 437.6, 448.0, 464.7, 470.1, 475.8, 483.4, 490.0, 498.5, 513.7, 520.1, 531.3, 537.4, 570.5, 576.4, 608.0, 613.6, 649.4, 656.3, 666.6, 677.6, 688.5, 693.8, 718.8, 723.4, 730.2, 737.6, 747.5, 754.3, 762.8, 774.4, 780.3, 787.6, 800.4, 806.8, 812.1, 817.1, 823.5, 832.4, 838.9, 848.9, 859.9, 879.6, 885.5, 899.7, 904.6, 918.3, 924.9, 933.0, 947.4, 953.0, 959.1, 965.0, 973.9, 978.9]}]};
+const SUGAR = new Set(["720575940624963786","720575940630233916","720575940637568838","720575940638202345","720575940617000768","720575940630797113","720575940632889389","720575940621754367","720575940621502051","720575940640649691","720575940639332736","720575940616885538","720575940639198653","720575940620900446","720575940617937543","720575940632425919","720575940633143833","720575940612670570","720575940628853239","720575940629176663","720575940611875570"]);
+
+(function(){
+  const cat = r => r.mn9 ? "mn9" : SUGAR.has(r.id) ? "sugar" : "relay";
+  const order = {sugar:0, relay:1, mn9:2};
+  const rows = RASTER.rows.map(r => ({...r, c:cat(r)})).sort((a,b)=> order[a.c]-order[b.c] || b.hz-a.hz);
+  const LABEL = {sugar:"糖味感受神经元（被刺激）", relay:"下游中间神经元", mn9:"MN9 进食运动神经元"};
+  const count = {sugar:0, relay:0, mn9:0}; rows.forEach(r=>count[r.c]++);
+
+  document.getElementById("mn9hz").textContent = RASTER.mn9_hz;
+  document.getElementById("active").textContent = RASTER.active_neurons;
+
+  const legend = document.getElementById("legend");
+  ["sugar","relay","mn9"].forEach(k=>{
+    const s = document.createElement("span");
+    s.innerHTML = `<i data-c="${k}"></i>${LABEL[k]} · ${count[k]}`;
+    legend.appendChild(s);
+  });
+
+  const tbody = document.querySelector("#rtable tbody");
+  rows.forEach(r=>{
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${LABEL[r.c]}</td><td class="n">${r.id}</td><td class="n">${r.hz.toFixed(1)}</td>`;
+    tbody.appendChild(tr);
+  });
+
+  const cv = document.getElementById("raster"), box = document.getElementById("chart"), tip = document.getElementById("tip");
+  const M = {l:10, r:74, t:6, b:26}, ROW = 8.5, H = M.t + rows.length*ROW + M.b;
+  let W = 0, hoverRow = -1;
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const colorOf = k => css(k==="sugar" ? "--amber" : k==="relay" ? "--teal" : "--red");
+
+  function draw(){
+    W = cv.clientWidth;
+    const dpr = window.devicePixelRatio || 1;
+    cv.width = W*dpr; cv.height = H*dpr; cv.style.height = H+"px";
+    const g = cv.getContext("2d"); g.setTransform(dpr,0,0,dpr,0,0); g.clearRect(0,0,W,H);
+    legend.querySelectorAll("i").forEach(i=> i.style.background = colorOf(i.dataset.c));
+    const pw = W - M.l - M.r, x = t => M.l + t/1000*pw;
+    g.font = "11px " + css("--mono"); g.textBaseline = "top";
+    [0,250,500,750,1000].forEach(t=>{
+      g.strokeStyle = css("--rule-2"); g.lineWidth = 1;
+      g.beginPath(); g.moveTo(Math.round(x(t))+.5, M.t); g.lineTo(Math.round(x(t))+.5, H-M.b); g.stroke();
+      g.fillStyle = css("--ink-3"); g.textAlign = t===0 ? "left" : t===1000 ? "right" : "center";
+      g.fillText(t===1000 ? "1000 ms" : String(t), x(t), H-M.b+7);
+    });
+    rows.forEach((r,i)=>{
+      const y = M.t + i*ROW;
+      if (i===hoverRow){ g.fillStyle = css("--rule-2"); g.fillRect(M.l, y, pw, ROW); }
+      g.fillStyle = colorOf(r.c);
+      const h = r.c==="mn9" ? ROW-1.5 : ROW-2.5;
+      r.t.forEach(t=> g.fillRect(x(t)-0.6, y+(ROW-h)/2, 1.4, h));
+    });
+    const iM = rows.findIndex(r=>r.c==="mn9");
+    if (iM>=0){ g.fillStyle = css("--ink"); g.textAlign="left"; g.textBaseline="middle"; g.font = "600 11px " + css("--mono");
+      g.fillText("MN9 " + rows[iM].hz.toFixed(0) + " Hz", W-M.r+6, M.t+iM*ROW+ROW/2); }
+    g.fillStyle = css("--ink-3"); g.textAlign="left"; g.textBaseline="middle"; g.font = "11px " + css("--mono");
+    const i0 = rows.findIndex(r=>r.c==="relay");
+    g.fillText("输入", W-M.r+6, M.t + 4*ROW);
+    if (i0>=0) g.fillText("中继", W-M.r+6, M.t + (i0+4)*ROW);
+  }
+  function move(e){
+    const rect = cv.getBoundingClientRect(), py = e.clientY-rect.top, px = e.clientX-rect.left;
+    const i = Math.floor((py - M.t)/ROW);
+    if (i<0 || i>=rows.length || px<M.l || px>W-M.r+60){ leave(); return; }
+    if (i!==hoverRow){ hoverRow=i; draw(); }
+    const r = rows[i];
+    tip.hidden = false;
+    tip.innerHTML = `${LABEL[r.c]}<br>ID ${r.id}<br>${r.hz.toFixed(1)} Hz · 本次试验 ${r.t.length} 次放电`;
+    tip.style.left = Math.min(Math.max(px+8, 110), rect.width-110) + "px";
+    tip.style.top = (py + 6) + "px";
+  }
+  function leave(){ tip.hidden = true; if (hoverRow!==-1){ hoverRow=-1; draw(); } }
+  cv.addEventListener("mousemove", move); cv.addEventListener("mouseleave", leave);
+  new ResizeObserver(draw).observe(box);
+  new MutationObserver(draw).observe(document.documentElement, {attributes:true, attributeFilter:["data-theme"]});
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", draw);
+  draw();
+
+  document.querySelectorAll(".code").forEach(block=>{
+    const b = document.createElement("button"); b.className="copy"; b.type="button"; b.textContent="复制";
+    b.addEventListener("click", async ()=>{
+      const text = [...block.querySelector("pre").childNodes].filter(n=>!(n.classList && n.classList.contains("cm"))).map(n=>n.textContent).join("").trim();
+      try { await navigator.clipboard.writeText(text); b.textContent="已复制"; } catch { b.textContent="请手动选择"; }
+      setTimeout(()=> b.textContent="复制", 1600);
+    });
+    block.appendChild(b);
+  });
+
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches){ const v=document.getElementById("walk"); v.removeAttribute("autoplay"); v.pause(); }
+})();
+</script>
